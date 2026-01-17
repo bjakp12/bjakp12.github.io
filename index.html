@@ -135,6 +135,42 @@
             align-items: center;
             gap: 10px;
         }
+        .scroll-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .scroll-btn {
+            position: absolute;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            opacity: 0; 
+            pointer-events: none;
+        }
+        .scroll-wrapper:hover .scroll-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .scroll-btn.left { left: -20px; }
+        .scroll-btn.right { right: -20px; }
+        .scroll-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+        @media (max-width: 768px) {
+            .scroll-btn { display: none !important; }
+        }
         .horizontal-scroll {
             display: flex;
             gap: 16px;
@@ -144,6 +180,7 @@
             scroll-behavior: smooth;
             -ms-overflow-style: none;
             scrollbar-width: none;
+            width: 100%; 
         }
         .horizontal-scroll::-webkit-scrollbar {
             display: none;
@@ -175,6 +212,25 @@
             object-fit: cover;
             border-bottom: 1px solid rgba(128, 128, 128, 0.1);
             align-self: stretch;
+        }
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            cursor: pointer;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+        }
+        .video-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .video-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
         .project-info {
             width: 100% !important;
@@ -510,59 +566,128 @@
 
         <section>
             <div class="section-header"><div class="section-title"><i class="ph-fill ph-cpu" style="color:#007aff"></i> Coding & IoT</div></div>
-            <div class="horizontal-scroll">
-                <div class="glass-card project-card glass-style">
-                    <img src="images/smartiot.svg" class="project-img">
-                    <div class="project-info">
-                        <div class="project-title">IoT Smart Lamp</div>
-                        <div class="project-desc">Kontrol lampu via Aplikasi menggunakan ESP8266 & Blynk Server.</div>
-                        <div class="skill-container"><div class="skill-header"><span>C++ / Arduino</span><span>90%</span></div><div class="progress-track"><div class="progress-fill" style="width:90%;background:#007aff"></div></div></div>
+            
+            <div class="scroll-wrapper">
+                <button class="scroll-btn left glass-style" onclick="scrollContainer(this, -300)">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+                
+                <div class="horizontal-scroll">
+                    <div class="glass-card project-card glass-style">
+                        <img src="images/smartiot.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">IoT Smart Lamp</div>
+                            <div class="project-desc">Kontrol lampu via Aplikasi menggunakan ESP8266 & Blynk Server.</div>
+                            <div class="skill-container"><div class="skill-header"><span>C++ / Arduino</span><span>90%</span></div><div class="progress-track"><div class="progress-fill" style="width:90%;background:#007aff"></div></div></div>
+                        </div>
+                    </div>
+                    <div class="glass-card project-card glass-style">
+                        <img src="images/webevent.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">HUT Euforia</div>
+                            <div class="project-desc">Website informasi mengenai kegiatan perayaan ulang tahun sekolah.</div>
+                            <div class="skill-container"><div class="skill-header"><span>HTML/CSS</span><span>85%</span></div><div class="progress-track"><div class="progress-fill" style="width:85%;background:#34c759"></div></div></div>
+                        </div>
                     </div>
                 </div>
-                <div class="glass-card project-card glass-style">
-                    <img src="images/webevent.svg" class="project-img">
-                    <div class="project-info">
-                        <div class="project-title">HUT Euforia</div>
-                        <div class="project-desc">Website informasi mengenai kegiatan perayaan ulang tahun sekolah.</div>
-                        <div class="skill-container"><div class="skill-header"><span>HTML/CSS</span><span>85%</span></div><div class="progress-track"><div class="progress-fill" style="width:85%;background:#34c759"></div></div></div>
-                    </div>
-                </div>
+
+                <button class="scroll-btn right glass-style" onclick="scrollContainer(this, 300)">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
             </div>
         </section>
 
         <section style="margin-top:30px">
             <div class="section-header"><div class="section-title"><i class="ph-fill ph-pen-nib" style="color:#ff9500"></i> Desain Grafis</div></div>
-            <div class="horizontal-scroll">
-                <div class="glass-card project-card glass-style">
-                    <img src="images/ecom.svg" class="project-img">
-                    <div class="project-info">
-                        <div class="project-title">E-Commerce UI</div>
-                        <div class="project-desc">Design antarmuka aplikasi belanja dengan gaya modern minimalis.</div>
-                        <div class="skill-container"><div class="skill-header"><span>Figma</span><span>95%</span></div><div class="progress-track"><div class="progress-fill" style="width:95%;background:#ff9500"></div></div></div>
+            
+            <div class="scroll-wrapper">
+                <button class="scroll-btn left glass-style" onclick="scrollContainer(this, -300)">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+
+                <div class="horizontal-scroll">
+                    <div class="glass-card project-card glass-style">
+                        <img src="images/ecom.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">E-Commerce UI</div>
+                            <div class="project-desc">Design antarmuka aplikasi belanja dengan gaya modern minimalis.</div>
+                            <div class="skill-container"><div class="skill-header"><span>Figma</span><span>95%</span></div><div class="progress-track"><div class="progress-fill" style="width:95%;background:#ff9500"></div></div></div>
+                        </div>
+                    </div>
+                    <div class="glass-card project-card glass-style">
+                        <img src="images/event.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">Event Poster</div>
+                            <div class="project-desc">Poster digital untuk acara sekolah menggunakan Canva sebagai perantara utama.</div>
+                            <div class="skill-container"><div class="skill-header"><span>Canva</span><span>80%</span></div><div class="progress-track"><div class="progress-fill" style="width:80%;background:#ff3b30"></div></div></div>
+                        </div>
+                    </div>
+                    <div class="glass-card project-card glass-style">
+                        <img src="images/landingpg.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">Landing Page</div>
+                            <div class="project-desc">Landing page bertema minimalis untuk perusahaan menggunakan Figma.</div>
+                            <div class="skill-container"><div class="skill-header"><span>Figma</span><span>95%</span></div><div class="progress-track"><div class="progress-fill" style="width:95%;background:#0a84ff;"></div></div></div>
+                    </div>
+                </div>
+                 <div class="glass-card project-card glass-style">
+                        <img src="images/applewb.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">Apple Website</div>
+                            <div class="project-desc">Sebuah website bertemakan Apple dengan palet warna dan style yang disesuaikan.</div>
+                            <div class="skill-container"><div class="skill-header"><span>Figma</span><span>95%</span></div><div class="progress-track"><div class="progress-fill" style="width:95%;background:#34c759;"></div></div></div>
                     </div>
                 </div>
                 <div class="glass-card project-card glass-style">
-                    <img src="images/event.svg" class="project-img">
-                    <div class="project-info">
-                        <div class="project-title">Event Poster</div>
-                        <div class="project-desc">Poster digital untuk acara sekolah.</div>
-                        <div class="skill-container"><div class="skill-header"><span>Canva</span><span>80%</span></div><div class="progress-track"><div class="progress-fill" style="width:80%;background:#ff3b30"></div></div></div>
+                        <img src="images/applestr.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">Apple Store</div>
+                            <div class="project-desc">Desain website belanja online dengan style Apple yang telah disesuaikan.</div>
+                            <div class="skill-container"><div class="skill-header"><span>Figma</span><span>95%</span></div><div class="progress-track"><div class="progress-fill" style="width:95%;background:#af52de;"></div></div></div>
                     </div>
                 </div>
+                <div class="glass-card project-card glass-style">
+                        <img src="images/msgapp.svg" class="project-img">
+                        <div class="project-info">
+                            <div class="project-title">Message App</div>
+                            <div class="project-desc">Desain aplikasi pesan yang telah disesuaikan seperti Whatsapp pada iOS.</div>
+                            <div class="skill-container"><div class="skill-header"><span>Figma</span><span>95%</span></div><div class="progress-track"><div class="progress-fill" style="width:95%;background:#FFD700;"></div></div></div>
+                    </div>
+                </div>
+                </div>
+
+                <button class="scroll-btn right glass-style" onclick="scrollContainer(this, 300)">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
             </div>
         </section>
 
         <section style="margin-top:30px">
             <div class="section-header"><div class="section-title"><i class="ph-fill ph-video-camera" style="color:#af52de"></i> Video Editing</div></div>
-            <div class="horizontal-scroll">
-                <div class="glass-card project-card glass-style">
-                    <img src="images/ukbi.svg" class="project-img">
-                    <div class="project-info">
-                        <div class="project-title">Giat UKBI</div>
-                        <div class="project-desc">Video profil sekolah mengenai Apresia Giat UKBI.</div>
-                        <div class="skill-container"><div class="skill-header"><span>Premiere Pro</span><span>88%</span></div><div class="progress-track"><div class="progress-fill" style="width:88%;background:#af52de"></div></div></div>
+            
+            <div class="scroll-wrapper">
+                <button class="scroll-btn left glass-style" onclick="scrollContainer(this, -300)">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+
+                <div class="horizontal-scroll">
+                    <div class="glass-card project-card glass-style">
+                        
+                        <div class="video-wrapper" onclick="loadVideo(this, 'FzwSDfarAUk')">
+                            <img src="images/ukbi.svg" alt="Video Thumbnail">
+                        </div>
+                        
+                        <div class="project-info">
+                            <div class="project-title">Giat UKBI</div>
+                            <div class="project-desc">Video profil sekolah mengenai Apresia Giat UKBI.</div>
+                            <div class="skill-container"><div class="skill-header"><span>Premiere Pro</span><span>88%</span></div><div class="progress-track"><div class="progress-fill" style="width:88%;background:#af52de"></div></div></div>
+                        </div>
                     </div>
                 </div>
+
+                <button class="scroll-btn right glass-style" onclick="scrollContainer(this, 300)">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
             </div>
         </section>
 
@@ -605,6 +730,19 @@
     </div>
 
     <script>
+        function scrollContainer(button, amount) {
+            const container = button.parentElement.querySelector('.horizontal-scroll');
+            if (container) {
+                container.scrollBy({ left: amount, behavior: 'smooth' });
+            }
+        }
+
+        function loadVideo(wrapper, videoId) {
+            wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            wrapper.removeAttribute("onclick");
+            wrapper.style.cursor = "default";
+        }
+
         function toggleTheme() {
             const a = document.documentElement,
                 b = document.getElementById("theme-icon");
