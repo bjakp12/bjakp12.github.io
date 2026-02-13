@@ -1,0 +1,28 @@
+body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background-color: #f0fdf4; 
+}
+
+.sidebar-transition { 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+.glass-card { 
+    background: rgba(255, 255, 255, 0.90); 
+    backdrop-filter: blur(12px); 
+    border: 1px solid #dcfce7; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.active-menu { 
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0) 100%);
+    color: #34d399; 
+    border-left: 4px solid #34d399;
+}
+
+.battery-glow { 
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); 
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #6ee7b7; border-radius: 10px; }

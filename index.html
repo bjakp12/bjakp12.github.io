@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bijak Assidik - Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style/desain.css">
+</head>
+<body>
+
+    <div class="ambient-light"></div>
+    <div class="noise-bg"></div>
+
+    <div class="main-wrapper">
+        
+        <div class="bento-grid">
+            
+            <div class="card profile-card col-span-8">
+                <div class="profile-header">
+                    <img src="images/profile.svg" alt="Bijak" class="avatar" onerror="this.src='https://api.dicebear.com/9.x/micah/svg?seed=Bijak'">
+                    <div class="status-pill"><span class="status-dot"></span> Open to Work</div>
+                </div>
+                <div class="hero-text">
+                    <h1>Bijak Assidik<br>Putu Riki.</h1>
+                    <p>IoT Developer & Digital Creator. Menggabungkan hardware elektronik dengan solusi digital yang efisien.</p>
+                </div>
+            </div>
+
+            <div class="card time-card col-span-4">
+                <div class="time-display">
+                    <span id="currentTime">00:00</span>
+                    <span id="currentAmPm" class="ampm">AM</span>
+                </div>
+                <div class="location-row">
+                    <div class="loc-icon"><i class="ph-fill ph-map-pin"></i></div>
+                    <div class="loc-text">
+                        <span class="loc-city">Central Java</span>
+                        <span class="loc-country">Indonesia</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card stack-card col-span-12">
+                <div class="static-stack">
+                    <i class="ph-bold ph-code stack-icon" title="Code"></i>
+                    <i class="ph-bold ph-cpu stack-icon" title="Hardware/IoT"></i>
+                    <i class="ph-bold ph-figma-logo stack-icon" title="Design"></i>
+                    <i class="ph-bold ph-android-logo stack-icon" title="Android"></i>
+                    <i class="ph-bold ph-video-camera stack-icon" title="Video"></i>
+                    <i class="ph-bold ph-wifi-high stack-icon" title="Network"></i>
+                    <i class="ph-bold ph-apple-logo stack-icon" title="macOS"></i>
+                </div>
+            </div>
+
+            <a href="https://www.instagram.com/biwbiw.jpg" class="card social-thin col-span-3">
+                <i class="ph-fill ph-instagram-logo"></i>
+            </a>
+            <a href="https://www.tiktok.com/@noctvale0_" class="card social-thin col-span-3">
+                <i class="ph-fill ph-tiktok-logo"></i>
+            </a>
+            <a href="#" class="card social-thin col-span-3">
+                <i class="ph-fill ph-github-logo"></i>
+            </a>
+            <a href="mailto:bijak.puturiki24@gmail.com" class="card social-thin col-span-3">
+                <i class="ph-fill ph-envelope-simple"></i>
+            </a>
+
+        </div>
+
+        <section>
+            <div class="featured-header">
+                <div class="section-title">Featured Works</div>
+                <div class="filter-container">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="code">Code</button>
+                    <button class="filter-btn" data-filter="design">Design</button>
+                    <button class="filter-btn" data-filter="video">Video</button>
+                </div>
+            </div>
+
+            <div class="project-grid" id="projectGrid">
+            </div>
+        </section>
+
+        <footer>&copy; 2026 Bijak Assidik. All Rights Reserved.</footer>
+    </div>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <div class="close-btn" id="closeModalBtn"><i class="ph-bold ph-x"></i></div>
+            
+            <div id="modal-media-container">
+            </div>
+
+            <div class="modal-body">
+                <div class="modal-cat" id="m-cat">Category</div>
+                <h2 class="modal-title" id="m-title">Project Title</h2>
+                
+                <div class="modal-meta">
+                    <div class="meta-box">
+                        <label>Year</label>
+                        <span id="m-year">2025</span>
+                    </div>
+                    <div class="meta-box">
+                        <label>Role</label>
+                        <span id="m-role">Creator</span>
+                    </div>
+                </div>
+
+                <div class="modal-text" id="m-desc">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
