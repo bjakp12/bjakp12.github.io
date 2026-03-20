@@ -1,0 +1,1 @@
+Portofolio singkat dari Bijak Assidik Putu Riki yang merupakan seorang Pelajar yang aktif dan antusias mengekplorasi dunia digital, mempunyai mimpi yang tinggi untuk dapat bersekolah di luar negeri dan mendapatkan beasiswa full (fully funded) pada jurusan computer science
