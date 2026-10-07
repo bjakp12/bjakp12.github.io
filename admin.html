@@ -83,7 +83,7 @@
     <div class="flex flex-wrap gap-2 mb-6">
       <button id="btnAdd" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add project</button>
       <button id="btnSavePreview" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Save &amp; Preview on site</button>
-      <button id="btnExport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Export projects.json</button>
+      <button id="btnExport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Export data files</button>
       <button id="btnImport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Import JSON</button>
       <input id="fileImport" type="file" accept="application/json" class="hidden">
       <button id="btnRevert" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset to default</button>
@@ -95,8 +95,8 @@
       <h3 class="text-sm font-medium mb-2">How to publish (GitHub Pages)</h3>
       <ol class="text-xs text-zinc-400 font-light leading-relaxed list-decimal ml-5 space-y-1">
         <li>Click <b class="text-zinc-200">Save &amp; Preview</b> to see changes instantly on <span class="font-mono">index.html</span> (this browser only).</li>
-        <li>Click <b class="text-zinc-200">Export projects.json</b>, then replace the repo's <span class="font-mono">projects.json</span> with the downloaded file.</li>
-        <li>Commit &amp; push: <span class="font-mono">git add projects.json &amp;&amp; git commit -m "Update projects" &amp;&amp; git push</span>. GitHub Pages redeploys automatically.</li>
+        <li>Click <b class="text-zinc-200">Export data files</b> (downloads <span class="font-mono">projects.json</span> + <span class="font-mono">projects.js</span>), then replace both files in the repo with the downloaded ones.</li>
+        <li>Commit &amp; push: <span class="font-mono">git add projects.json projects.js &amp;&amp; git commit -m "Update projects" &amp;&amp; git push</span>. GitHub Pages redeploys automatically.</li>
         <li>Recommended: do <b class="text-zinc-200">NOT</b> deploy <span class="font-mono">admin.html</span> publicly. Keep it local, or rename it to something unguessable (e.g. <span class="font-mono">manage-x7q2.html</span>) and never link it from the site.</li>
         <li>If you must host it: set a 12+ character password, and clear “Save &amp; Preview” plaintext data on shared computers via <span class="font-mono">Reset</span> → logout.</li>
       </ol>
@@ -431,14 +431,23 @@ async function autoEncrypt(reason) {
 function saveAndPreview() {
   localStorage.setItem(LS_PUB, JSON.stringify(projects, null, 2)); // plaintext preview for index.html
   autoEncrypt("preview");
-  alert(`Saved! Open index.html in this browser to preview ${projects.length} projects.\nThen Export projects.json and push it to publish publicly.`);
+  alert(`Saved! Open index.html in this browser to preview ${projects.length} projects.\nThen Export data files and push both files to publish publicly.`);
+}
+
+function downloadFile(name, content, type) {
+  const blob = new Blob([content], { type });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
 function exportJSON() {
-  const blob = new Blob([JSON.stringify(projects, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "projects.json"; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  const json = JSON.stringify(projects, null, 2);
+  downloadFile("projects.json", json, "application/json");
+  // projects.js mirrors the same data as a <script>-loadable global, so the
+  // public site renders projects without depending on fetch at all.
+  const js = "/* Project data for the portfolio — loaded via <script> tag (no fetch needed,\n   works on any static host including GitHub Pages and file://).\n   Regenerate this file from the admin dashboard (Export data files) or edit by hand. */\nwindow.PORTFOLIO_PROJECTS = " + json + ";\n";
+  setTimeout(() => downloadFile("projects.js", js, "text/javascript"), 400);
 }
 
 function importJSON(e) {

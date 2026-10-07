@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bijak Assidik | Portfolio</title>
+    <title>Bijak's Portofolio</title>
     <meta name="description" content="Portfolio of Bijak Assidik — Web Interface, IoT, and Documentary Film.">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..700&family=Montserrat:wght@200;300&display=swap" rel="stylesheet">
     <style>
         html { scroll-behavior: smooth; }
         section { scroll-margin-top: 110px; }
@@ -150,17 +153,26 @@
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(14px);} to { opacity: 1; transform: translateY(0);} }
         .animate-fadeUp { animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+
+        /* Brand + welcome typography */
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-welcome {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 200;
+            letter-spacing: 0.4em;
+            text-indent: 0.4em; /* recenter optical shift from letter-spacing */
+        }
     </style>
 </head>
 <body class="bg-[#050505] text-[#f5f5f7] font-sans antialiased selection:bg-white selection:text-black overflow-x-hidden">
 
     <div id="preloader" role="status" aria-label="Loading portfolio">
         <div id="loaderSpinner" class="spinner"></div>
-        <p id="welcomeText">Welcome</p>
+        <p id="welcomeText" class="font-welcome">w e l c o m e</p>
     </div>
 
     <header id="mainHeader" class="fixed top-8 left-6 sm:left-12 lg:left-16 z-50 transition-all duration-500 ease-in-out opacity-100 pointer-events-auto">
-        <span class="text-lg font-bold tracking-tight text-white uppercase mix-blend-difference selection:bg-transparent">bijak assidik</span>
+        <span class="text-lg font-bold tracking-tight text-white uppercase mix-blend-difference selection:bg-transparent font-cinzel">Bijak's Portofolio</span>
     </header>
 
     <div class="fixed top-0 left-0 w-full h-32 bg-gradient-to-b from-black via-black/80 to-transparent pointer-events-none z-40"></div>
@@ -175,7 +187,10 @@
         <!-- ================= HERO ================= -->
         <section id="hero" data-nav="home" class="scroll-reveal flex flex-col md:flex-row items-start md:items-center justify-between gap-12 mb-20">
             <div class="flex-1 order-2 md:order-1">
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-5 leading-[1.1]">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/60 border border-zinc-800 text-xs text-zinc-400 mb-5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Open for Project Collaboration
+                </div>
+                <h1 class="font-cinzel text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-5 leading-[1.1]">
                     Bijak Assidik P.R.
                 </h1>
                 <p class="text-base sm:text-lg text-zinc-400 max-w-2xl leading-relaxed mb-8 font-light">
@@ -269,21 +284,36 @@
         </section>
 
         <!-- ================= SERVICES ================= -->
-        <section id="services" data-nav="services" class="scroll-reveal mb-32">
-            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-3">Services &amp; Work Solutions</span>
-            <h2 class="text-3xl sm:text-4xl font-medium tracking-tight text-white mb-6 leading-tight max-w-3xl">
-                Turning Concepts Into Real, Visually Impactful Products.
-            </h2>
-            <p class="text-base text-zinc-400 font-light leading-relaxed mb-8 max-w-3xl">
-                I combine coding expertise and multimedia direction to deliver integrated creative solutions. Every project is crafted with a focus on functionality, code efficiency, and message strength.
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-light text-zinc-300">
-                <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Website Layout &amp; Frontend</div>
-                <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> High-End Asset Design</div>
-                <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> IoT Device Prototyping</div>
-                <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Documentary Video Editing</div>
-                <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Event Visual Direction</div>
-                <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Digital Channel Branding</div>
+        <section id="services" data-nav="services" class="scroll-reveal mb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7">
+                <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-3">Services &amp; Work Solutions</span>
+                <h2 class="text-3xl sm:text-4xl font-medium tracking-tight text-white mb-6 leading-tight">
+                    Turning Concepts Into Real, Visually Impactful Products.
+                </h2>
+                <p class="text-base text-zinc-400 font-light leading-relaxed mb-8">
+                    I combine coding expertise and multimedia direction to deliver integrated creative solutions. Every project is crafted with a focus on functionality, code efficiency, and message strength.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-light text-zinc-300">
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Website Layout &amp; Frontend</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> High-End Asset Design</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> IoT Device Prototyping</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Documentary Video Editing</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Event Visual Direction</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Digital Channel Branding</div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/80 text-center flex flex-col justify-center items-center">
+                <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-lg font-medium text-white mb-2">Let's Collaborate</h4>
+                <p class="text-xs text-zinc-400 font-light leading-relaxed mb-6">
+                    Need a neat landing page structure, a narrative-driven promotional video, or an IoT-based prototype brought to life? Let's discuss your project needs.
+                </p>
+                <button onclick="openModal()" class="w-full py-3 rounded-xl bg-white text-black font-medium text-sm transition hover:bg-zinc-200 cursor-pointer">
+                    Start a Project Discussion
+                </button>
             </div>
         </section>
 
@@ -395,6 +425,7 @@
         </div>
     </div>
 
+    <script src="projects.js"></script>
     <script>
         const PROJECTS_FALLBACK = [
             {
@@ -501,7 +532,12 @@
                     if (Array.isArray(parsed) && parsed.length) { PROJECTS = parsed; return true; }
                 }
             } catch (e) { /* ignore corrupt cache */ }
-            // 2) projects.json deployed alongside index.html (edit this file or use admin dashboard export).
+            // 2) projects.js loaded via <script> tag above — no fetch needed,
+            // so this works on any static host (GitHub Pages) and file:// too.
+            try {
+                if (Array.isArray(window.PORTFOLIO_PROJECTS) && window.PORTFOLIO_PROJECTS.length) { PROJECTS = window.PORTFOLIO_PROJECTS; return "updated"; }
+            } catch (e) { /* ignore */ }
+            // 3) projects.json deployed alongside index.html (edit this file or use admin dashboard export).
             // Returns "updated" when the list was replaced, "fallback" when the
             // built-in list is kept, or "error" when the fetch itself failed.
             let fetchFailed = false;
