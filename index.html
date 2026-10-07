@@ -63,7 +63,14 @@
             justify-content: center;
             align-items: center;
             transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            /* Last-resort fallback: never trap the user behind the loader,
+               even if all JavaScript below fails to run. */
+            animation: preloaderKill 0.8s ease 12s forwards;
         }
+        @keyframes preloaderKill { to { opacity: 0; visibility: hidden; } }
+        /* Fallback reveal for the page content (normally handled by JS much earlier). */
+        main { animation: mainForceShow 0.5s ease 12s forwards; }
+        @keyframes mainForceShow { to { opacity: 1; } }
         .spinner {
             width: 44px; height: 44px;
             border: 2px solid rgba(255, 255, 255, 0.05);
@@ -246,7 +253,7 @@
         </section>
 
         <!-- ================= PROJECTS (horizontal rail + flip cards) ================= -->
-        <section id="projects" data-nav="projects" class="scroll-reveal mb-32">
+        <section id="projects" data-nav="projects" class="mb-32">
             <div class="flex items-end justify-between mb-6">
                 <div>
                     <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Portfolio Documentation</span>
@@ -862,7 +869,20 @@
         const sleep = (ms) => new Promise(r => setTimeout(r, ms));
         function safeIcons() { try { if (window.lucide) lucide.createIcons(); } catch (e) { /* icons are decorative */ } }
 
+        /* Emergency reveal: shows everything even if any step above throws. */
+        function emergencyReveal() {
+            try {
+                var loader = document.getElementById("preloader");
+                if (loader) loader.style.display = "none";
+                document.body.style.overflow = "";
+                var main = document.querySelector("main");
+                if (main) main.classList.remove("opacity-0");
+                document.querySelectorAll(".scroll-reveal").forEach(function (el) { el.classList.add("revealed"); });
+            } catch (e) {}
+        }
+
         async function playIntro() {
+            try {
             const loader = document.getElementById("preloader");
             const spinner = document.getElementById("loaderSpinner");
             const welcome = document.getElementById("welcomeText");
@@ -891,15 +911,19 @@
             main.classList.remove("opacity-0");
             initScrollAnimations();
             initScrollSpy();
+            } catch (err) {
+                emergencyReveal();
+            }
         }
 
         /* ---------- Boot ---------- */
-        window.addEventListener("DOMContentLoaded", async () => {
+        window.addEventListener("DOMContentLoaded", () => {
+            try {
             safeIcons();
             // Projects are static HTML — sync UI, then play the intro.
             renderProjects();
             initRail();
-            playIntro();
+            playIntro().catch(function () { emergencyReveal(); });
 
             document.getElementById("leadForm").addEventListener("submit", function(e) {
                 e.preventDefault();
@@ -918,9 +942,17 @@
                     document.querySelectorAll(".flip-card.flipped").forEach(c => c.classList.remove("flipped"));
                 }
             });
+            } catch (err) {
+                emergencyReveal();
+            }
         });
 
         function initScrollAnimations() {
+            var els = document.querySelectorAll(".scroll-reveal");
+            if (!("IntersectionObserver" in window)) {
+                els.forEach(function (el) { el.classList.add("revealed"); });
+                return;
+            }
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) entry.target.classList.add("revealed");
