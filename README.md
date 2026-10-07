@@ -4,8 +4,8 @@ Short portfolio of Bijak Assidik Putu Riki — a student actively exploring the 
 
 ## Structure
 
-- `index.html` — the entire site. Projects are hardcoded as static HTML (`article.project-slide` inside `#projectTrack`), so they render with zero JavaScript data loading.
-- `admin.html` — local dashboard (login + auto-encrypted drafts) to add/edit/delete projects and generate paste-ready card HTML. Keep it local, never deploy or link it.
+- `index.html` — the entire site. Projects, reviews, and blog posts are hardcoded as static HTML (inside `PROJECTS-*`, `REVIEWS-*`, `BLOG-*` markers), so they render with zero JavaScript data loading.
+- `admin.html` — local dashboard (login + auto-encrypted drafts) to manage projects, reviews & blog and generate paste-ready HTML for each section. Keep it local, never deploy or link it.
 - `images/` — static assets
 - `.nojekyll` — disables Jekyll processing on GitHub Pages
 

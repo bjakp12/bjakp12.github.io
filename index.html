@@ -90,7 +90,7 @@
             margin: 0;
             opacity: 0;
             transform: translateY(14px);
-            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-size: clamp(1.15rem, 2.6vw, 1.9rem);
             font-weight: 600;
             letter-spacing: -0.02em;
             color: #fff;
@@ -120,7 +120,8 @@
         .project-slide { scroll-snap-align: start; }
 
         /* ============ Project cards: plain stacked layout (no 3D — renders everywhere) ============ */
-        .project-slide { scroll-snap-align: start; }
+        .project-slide { scroll-snap-align: start; transition: filter 0.25s ease; }
+        #projectTrack.is-moving .project-slide { filter: blur(2px) brightness(1.06); }
 
         /* ============ Pop-up modal animation ============ */
         .popup-hidden { display: none; }
@@ -150,8 +151,10 @@
         .font-welcome {
             font-family: 'Montserrat', sans-serif;
             font-weight: 200;
-            letter-spacing: 0.4em;
-            text-indent: 0.4em; /* recenter optical shift from letter-spacing */
+            letter-spacing: 0.32em;
+            text-indent: 0.32em; /* recenter optical shift from letter-spacing */
+            text-align: center;
+            max-width: 92vw;
         }
     </style>
 </head>
@@ -236,13 +239,13 @@
             </div>
         </section>
 
-        <!-- ================= PROJECTS (horizontal rail + flip cards) ================= -->
+        <!-- ================= PROJECTS (horizontal rail) ================= -->
         <section id="projects" data-nav="projects" class="mb-32">
             <div class="flex items-end justify-between mb-6">
                 <div>
                     <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Portfolio Documentation</span>
                     <h2 class="text-3xl font-medium tracking-tight text-white">Selected Projects</h2>
-                    <p class="text-xs text-zinc-500 mt-2 font-light">Hover or tap a card to flip it — click <span class="text-zinc-300">View Details</span> for the full preview.</p>
+                    <p class="text-xs text-zinc-500 mt-2 font-light">Click any card to open its photo gallery proof — use <span class="text-zinc-300">View Details</span> for the full story.</p>
                 </div>
                 <span id="projectCount" class="text-xs text-zinc-500 hidden sm:block font-mono">Archive / Case [06]</span>
             </div>
@@ -274,22 +277,22 @@
             <div id="projectTrack" class="flex gap-6 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
 
                 <!-- PROJECTS-START -->
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="pintarhub-portal" data-type="image" data-video="" data-link="" data-badge="" data-category="Web Platform / EdTech" data-title="Pintarhub Portal" data-short="An interactive web-based education portal for efficient self-paced learning management." data-description="An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators." data-image="images/ptr.JPEG" data-tags="HTML|CSS|JavaScript|EdTech">
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="pintarhub-portal" data-type="image" data-video="" data-link="" data-badge="" data-category="Web Platform / EdTech" data-title="Pintarhub Portal" data-short="An interactive web-based education portal for efficient self-paced learning management." data-description="An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators." data-image="images/ptr.JPEG" data-gallery="images/ptr.JPEG" data-tags="HTML|CSS|JavaScript|EdTech">
                     <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
                         <img src="images/ptr.JPEG" alt="Pintarhub Portal" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
                     </div>
                     <div class="p-6 flex flex-col flex-1">
                         <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Web Platform / EdTech</span>
-                        <h3 class="text-lg font-medium text-white mb-2">Pintarhub Portal</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light">An interactive web-based education portal for efficient self-paced learning management.</p>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">Pintarhub Portal</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">An interactive web-based education portal for efficient self-paced learning management.</p>
                         <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">HTML</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">CSS</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">JavaScript</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">EdTech</span></div>
-                        <div class="flex gap-2 mt-5">
+                        <div class="flex gap-2 mt-auto pt-5">
                             <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="giat-ukbi-documentary" data-type="video" data-video="https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v" data-link="" data-badge="" data-category="Documentary / Video Production" data-title="Giat UKBI Documentary" data-short="Official documentary production with SMAN 1 Padamara promoting the UKBI language test." data-description="Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film." data-image="images/ukbi.JPEG" data-tags="Directing|Premiere Pro|Documentary">
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="giat-ukbi-documentary" data-type="video" data-video="https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v" data-link="" data-badge="" data-category="Documentary / Video Production" data-title="Giat UKBI Documentary" data-short="Official documentary production with SMAN 1 Padamara promoting the UKBI language test." data-description="Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film." data-image="images/ukbi.JPEG" data-gallery="images/ukbi.JPEG" data-tags="Directing|Premiere Pro|Documentary">
                     <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
                         <img src="images/ukbi.JPEG" alt="Giat UKBI Documentary" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
                         <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
@@ -299,73 +302,72 @@
                         </div>
                     </div>
                     <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-emerald-400 uppercase block mb-1 flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> Click to Play Video</span>
-                        <h3 class="text-lg font-medium text-white mb-2">Giat UKBI Documentary</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light">Official documentary production with SMAN 1 Padamara promoting the UKBI language test.</p>
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Documentary / Video Production</span>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">Giat UKBI Documentary</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Official documentary production with SMAN 1 Padamara promoting the UKBI language test.</p>
                         <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Premiere Pro</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span></div>
-                        <div class="flex gap-2 mt-5">
+                        <div class="flex gap-2 mt-auto pt-5">
                             <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                             <button onclick="openVideoModal('https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v')" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play Video</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="smart-lamp-application" data-type="image" data-video="" data-link="" data-badge="" data-category="Hardware / IoT Integration" data-title="Smart Lamp Application" data-short="A microcontroller-based home lamp automation prototype with a digital control dashboard." data-description="A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi." data-image="images/sml.JPEG" data-tags="ESP32|Arduino|IoT Dashboard">
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="smart-lamp-application" data-type="image" data-video="" data-link="" data-badge="" data-category="Hardware / IoT Integration" data-title="Smart Lamp Application" data-short="A microcontroller-based home lamp automation prototype with a digital control dashboard." data-description="A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi." data-image="images/sml.JPEG" data-gallery="images/sml.JPEG" data-tags="ESP32|Arduino|IoT Dashboard">
                     <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
                         <img src="images/sml.JPEG" alt="Smart Lamp Application" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
                     </div>
                     <div class="p-6 flex flex-col flex-1">
                         <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Hardware / IoT Integration</span>
-                        <h3 class="text-lg font-medium text-white mb-2">Smart Lamp Application</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light">A microcontroller-based home lamp automation prototype with a digital control dashboard.</p>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">Smart Lamp Application</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">A microcontroller-based home lamp automation prototype with a digital control dashboard.</p>
                         <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">ESP32</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Arduino</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">IoT Dashboard</span></div>
-                        <div class="flex gap-2 mt-5">
+                        <div class="flex gap-2 mt-auto pt-5">
                             <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="hut-smara-euforia" data-type="image" data-video="" data-link="" data-badge="" data-category="Event Showcase / Web" data-title="HUT Smara Euforia" data-short="An interactive landing page documenting the school anniversary celebration." data-description="Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info." data-image="images/smr.JPEG" data-tags="Landing Page|Tailwind|Event">
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="hut-smara-euforia" data-type="image" data-video="" data-link="" data-badge="" data-category="Event Showcase / Web" data-title="HUT Smara Euforia" data-short="An interactive landing page documenting the school anniversary celebration." data-description="Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info." data-image="images/smr.JPEG" data-gallery="images/smr.JPEG" data-tags="Landing Page|Tailwind|Event">
                     <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
                         <img src="images/smr.JPEG" alt="HUT Smara Euforia" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
                     </div>
                     <div class="p-6 flex flex-col flex-1">
                         <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Event Showcase / Web</span>
-                        <h3 class="text-lg font-medium text-white mb-2">HUT Smara Euforia</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light">An interactive landing page documenting the school anniversary celebration.</p>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">HUT Smara Euforia</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">An interactive landing page documenting the school anniversary celebration.</p>
                         <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Landing Page</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Tailwind</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Event</span></div>
-                        <div class="flex gap-2 mt-5">
+                        <div class="flex gap-2 mt-auto pt-5">
                             <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="yang-terpanggil-documentary" data-type="image" data-video="" data-link="" data-badge="🏆 FFP &amp; ISMA Vol.9" data-category="Cinematography / Award Pick" data-title="&quot;Yang Terpanggil&quot; Documentary" data-short="An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards." data-description="A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading." data-image="images/cinema.JPEG" data-tags="Documentary|DaVinci Resolve|Directing">
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="yang-terpanggil-documentary" data-type="image" data-video="" data-link="" data-badge="" data-category="Cinematography / Award Pick" data-title="&quot;Yang Terpanggil&quot; Documentary" data-short="An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards." data-description="A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading." data-image="images/cinema.JPEG" data-gallery="images/cinema.JPEG" data-tags="Documentary|DaVinci Resolve|Directing">
                     <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
                         <img src="images/cinema.JPEG" alt="&quot;Yang Terpanggil&quot; Documentary" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                        <div class="absolute top-3 left-3 bg-zinc-950/80 border border-zinc-800 px-2.5 py-1 rounded-md text-[10px] text-amber-400 font-mono">🏆 FFP &amp; ISMA Vol.9</div>
                     </div>
                     <div class="p-6 flex flex-col flex-1">
                         <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Cinematography / Award Pick</span>
-                        <h3 class="text-lg font-medium text-white mb-2">&quot;Yang Terpanggil&quot; Documentary</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light">An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards.</p>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">&quot;Yang Terpanggil&quot; Documentary</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards.</p>
                         <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">DaVinci Resolve</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span></div>
-                        <div class="flex gap-2 mt-5">
+                        <div class="flex gap-2 mt-auto pt-5">
                             <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="multi-event-content-strategy" data-type="image" data-video="" data-link="" data-badge="" data-category="Creative Direction / Management" data-title="Multi-Event Content Strategy" data-short="Creative concepting, feed management, and visual asset production for events." data-description="Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy." data-image="images/jkf.JPEG" data-tags="Content Planning|Branding|Social Media">
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="multi-event-content-strategy" data-type="image" data-video="" data-link="" data-badge="" data-category="Creative Direction / Management" data-title="Multi-Event Content Strategy" data-short="Creative concepting, feed management, and visual asset production for events." data-description="Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy." data-image="images/jkf.JPEG" data-gallery="images/jkf.JPEG" data-tags="Content Planning|Branding|Social Media">
                     <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
                         <img src="images/jkf.JPEG" alt="Multi-Event Content Strategy" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
                     </div>
                     <div class="p-6 flex flex-col flex-1">
                         <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Creative Direction / Management</span>
-                        <h3 class="text-lg font-medium text-white mb-2">Multi-Event Content Strategy</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light">Creative concepting, feed management, and visual asset production for events.</p>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">Multi-Event Content Strategy</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Creative concepting, feed management, and visual asset production for events.</p>
                         <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Content Planning</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Branding</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Social Media</span></div>
-                        <div class="flex gap-2 mt-5">
+                        <div class="flex gap-2 mt-auto pt-5">
                             <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
@@ -413,6 +415,90 @@
             </div>
         </section>
 
+        <!-- ================= REVIEWS ================= -->
+        <section id="reviews" data-nav="reviews" class="scroll-reveal mb-32">
+            <div class="flex items-end justify-between mb-6">
+                <div>
+                    <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Client Words</span>
+                    <h2 class="text-3xl font-medium tracking-tight text-white">Reviews</h2>
+                    <p class="text-xs text-zinc-500 mt-2 font-light">Real feedback from people and teams I have collaborated with.</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <button onclick="scrollReviews(-1)" aria-label="Previous reviews" class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="scrollReviews(1)" aria-label="Next reviews" class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="reviewTrack" class="flex gap-5 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
+                <!-- REVIEWS-START -->
+                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-rizky-pratama" data-name="Rizky Pratama" data-role="Product Manager — Pintarhub Portal" data-rating="5" data-text="Bijak delivered our learning portal ahead of schedule. Page loads are instant, teachers learned the dashboard in a single day, and student logins tripled in the first month.">
+                    <div class="stars mb-4" data-rating="5"></div>
+                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;Bijak delivered our learning portal ahead of schedule. Page loads are instant, teachers learned the dashboard in a single day, and student logins tripled in the first month.&quot;</p>
+                    <div class="mt-auto pt-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">R</div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white truncate">Rizky Pratama</p>
+                            <p class="text-[11px] font-mono text-zinc-500 truncate">Pintarhub Portal</p>
+                        </div>
+                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
+                    </div>
+                </article>
+                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-sinta-maharani" data-name="Sinta Maharani" data-role="Event Coordinator — HUT Smara Euforia" data-rating="5" data-text="The anniversary landing page put our rundown, gallery, and registration info in one place. Visitor numbers doubled compared to last year's poster-only announcement.">
+                    <div class="stars mb-4" data-rating="5"></div>
+                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;The anniversary landing page put our rundown, gallery, and registration info in one place. Visitor numbers doubled compared to last year's poster-only announcement.&quot;</p>
+                    <div class="mt-auto pt-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">S</div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white truncate">Sinta Maharani</p>
+                            <p class="text-[11px] font-mono text-zinc-500 truncate">HUT Smara Euforia</p>
+                        </div>
+                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
+                    </div>
+                </article>
+                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-dimas-angga" data-name="Dimas Angga Saputra" data-role="Hardware Hobbyist — Smart Lamp Application" data-rating="5" data-text="The ESP32 lamp prototype has run in my house for months without a single disconnect. The control dashboard is simple enough for my parents to use every day.">
+                    <div class="stars mb-4" data-rating="5"></div>
+                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;The ESP32 lamp prototype has run in my house for months without a single disconnect. The control dashboard is simple enough for my parents to use every day.&quot;</p>
+                    <div class="mt-auto pt-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">D</div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white truncate">Dimas Angga Saputra</p>
+                            <p class="text-[11px] font-mono text-zinc-500 truncate">Smart Lamp Application</p>
+                        </div>
+                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
+                    </div>
+                </article>
+                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-nadia-putri" data-name="Nadia Putri" data-role="UKBI Committee — Giat UKBI Documentary" data-rating="5" data-text="The documentary captured our event professionally — clear interviews, steady shots, and a clean edit. We still reuse the film every year for promotion.">
+                    <div class="stars mb-4" data-rating="5"></div>
+                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;The documentary captured our event professionally — clear interviews, steady shots, and a clean edit. We still reuse the film every year for promotion.&quot;</p>
+                    <div class="mt-auto pt-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">N</div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white truncate">Nadia Putri</p>
+                            <p class="text-[11px] font-mono text-zinc-500 truncate">Giat UKBI Documentary</p>
+                        </div>
+                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
+                    </div>
+                </article>
+                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-fajar-nugroho" data-name="Fajar Nugroho" data-role="OSIS Advisor — Multi-Event Content Strategy" data-rating="4.5" data-text="Feed planning and visual assets stayed consistent across all our events and engagement rose noticeably. Only wish we had started the content calendar even earlier.">
+                    <div class="stars mb-4" data-rating="4.5"></div>
+                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;Feed planning and visual assets stayed consistent across all our events and engagement rose noticeably. Only wish we had started the content calendar even earlier.&quot;</p>
+                    <div class="mt-auto pt-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">F</div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white truncate">Fajar Nugroho</p>
+                            <p class="text-[11px] font-mono text-zinc-500 truncate">Multi-Event Content Strategy</p>
+                        </div>
+                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">4.5</span>
+                    </div>
+                </article>
+                <!-- REVIEWS-END -->
+            </div>
+        </section>
+
         <!-- ================= SKILLS ================= -->
         <section id="skills" data-nav="skills" class="scroll-reveal mb-24">
             <h2 class="text-xs font-mono tracking-widest text-zinc-500 uppercase mb-6">Tools &amp; Technical Capabilities</h2>
@@ -428,6 +514,50 @@
             </div>
         </section>
 
+        <!-- ================= BLOG ================= -->
+        <section id="blog" data-nav="blog" class="scroll-reveal mb-24">
+            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Notes &amp; Articles</span>
+            <h2 class="text-3xl font-medium tracking-tight text-white mb-2">Blog</h2>
+            <p class="text-xs text-zinc-500 font-light mb-8">Short write-ups from my builds and shoots — click any article for a preview.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- BLOG-START -->
+                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="blog-esp32-lamp" data-title="How I Built a Smart Lamp with ESP32" data-meta="Mar 12, 2026 · 6 min read" data-excerpt="From relay wiring and safe mains isolation to a Wi-Fi dashboard you can control from your phone." data-content="Most smart-lamp tutorials skip the boring-but-critical part: mains safety. In this build I used an opto-isolated relay module, a fused enclosure, and an ESP32 running a tiny web server for on/off plus scheduling. Total parts cost stayed under a week's lunch money, and the lamp has now survived months of daily use. Full wiring diagram and firmware notes are in the linked post." data-image="images/sml.JPEG" data-link="#" data-tags="IoT|ESP32|Tutorial">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/sml.JPEG" alt="How I Built a Smart Lamp with ESP32" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Mar 12, 2026 · 6 min read</span>
+                        <h3 class="text-lg font-medium text-white mb-2">How I Built a Smart Lamp with ESP32</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">From relay wiring and safe mains isolation to a Wi-Fi dashboard you can control from your phone.</p>
+                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">Read Preview <span aria-hidden="true">→</span></span>
+                    </div>
+                </article>
+                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="blog-documentary-festivals" data-title="Directing a Documentary That Wins Festivals" data-meta="Apr 28, 2026 · 8 min read" data-excerpt="Story first, gear second: how a school documentary made it to FFP and ISMA Vol.9." data-content="Festival juries remember characters, not cameras. We spent two weeks just finding the right subject and earning trust before recording a single frame. Shot list stayed minimal — one camera, natural light — so the crew could disappear into the scene. Editing took three passes: story, rhythm, then color. The awards were a bonus; the real win was a film people actually finish watching." data-image="images/cinema.JPEG" data-link="#" data-tags="Documentary|Directing|Festivals">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/cinema.JPEG" alt="Directing a Documentary That Wins Festivals" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Apr 28, 2026 · 8 min read</span>
+                        <h3 class="text-lg font-medium text-white mb-2">Directing a Documentary That Wins Festivals</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Story first, gear second: how a school documentary made it to FFP and ISMA Vol.9.</p>
+                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">Read Preview <span aria-hidden="true">→</span></span>
+                    </div>
+                </article>
+                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="blog-dark-ui" data-title="Dark Interfaces That Feel Premium, Not Gloomy" data-meta="Jun 02, 2026 · 5 min read" data-excerpt="Layered blacks, restrained blur, and one accent color: my recipe for this very portfolio." data-content="Pure black backgrounds feel cheap; the trick is layering — #050505 base, zinc-900 surfaces, hairline white/5 borders, and a single emerald or amber accent used sparingly. Glassmorphism only works when blur has something to blur, so I keep a faint grid texture underneath. Typography does the rest: tight tracking on display type, light weights for body. This portfolio is the live demo." data-image="images/ptr.JPEG" data-link="#" data-tags="Design|UI/UX|Frontend">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/ptr.JPEG" alt="Dark Interfaces That Feel Premium, Not Gloomy" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Jun 02, 2026 · 5 min read</span>
+                        <h3 class="text-lg font-medium text-white mb-2">Dark Interfaces That Feel Premium, Not Gloomy</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Layered blacks, restrained blur, and one accent color: my recipe for this very portfolio.</p>
+                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">Read Preview <span aria-hidden="true">→</span></span>
+                    </div>
+                </article>
+                <!-- BLOG-END -->
+            </div>
+        </section>
+
         <footer class="scroll-reveal border-t border-zinc-900 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-zinc-500 font-mono">
             <div>
                 <span>&copy; 2026 Bijak Assidik. All rights reserved.</span>
@@ -439,12 +569,14 @@
     </main>
 
     <!-- ================= Bottom nav (scroll-spy aware) ================= -->
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div class="glass-nav rounded-full px-2 py-1.5 flex items-center gap-1">
-            <button data-target="hero" class="nav-item px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white text-black transition-all duration-300 cursor-pointer">Home</button>
-            <button data-target="projects" class="nav-item px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Projects</button>
-            <button data-target="services" class="nav-item px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Services</button>
-            <button data-target="skills" class="nav-item px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Skills</button>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[94vw]">
+        <div class="glass-nav rounded-full px-2 py-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar">
+            <button data-target="hero" class="nav-item shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium tracking-wide bg-white text-black transition-all duration-300 cursor-pointer">Home</button>
+            <button data-target="projects" class="nav-item shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Projects</button>
+            <button data-target="services" class="nav-item shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Services</button>
+            <button data-target="reviews" class="nav-item shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Reviews</button>
+            <button data-target="skills" class="nav-item shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Skills</button>
+            <button data-target="blog" class="nav-item shrink-0 whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Blog</button>
         </div>
     </nav>
 
@@ -453,7 +585,7 @@
         <div class="popup-backdrop absolute inset-0 bg-black/85 backdrop-blur-xl" onclick="closeProjectModal()"></div>
         <div id="projectModalPanel" class="popup-panel relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
             <div class="relative aspect-video w-full bg-zinc-900">
-                <img id="pmImage" src="" alt="" class="w-full h-full object-cover">
+                <img id="pmImage" src="" alt="" class="w-full h-full object-cover transition-opacity duration-300">
                 <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent"></div>
                 <button onclick="closeProjectModal()" aria-label="Close details" class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-700 rounded-full hover:bg-zinc-800 transition text-white cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
@@ -465,7 +597,8 @@
             </div>
             <div class="p-6 sm:p-8">
                 <p id="pmDescription" class="text-sm text-zinc-400 font-light leading-relaxed mb-5"></p>
-                <div id="pmTags" class="flex flex-wrap gap-2 mb-6"></div>
+                <div id="pmTags" class="flex flex-wrap gap-2 mb-5"></div>
+                <div id="pmThumbs" class="hidden flex-wrap gap-2 mb-6"></div>
                 <div class="flex flex-wrap gap-3">
                     <button id="pmPlayBtn" onclick="" class="hidden px-5 py-2.5 rounded-full bg-white text-black font-medium text-xs items-center gap-2 hover:bg-zinc-200 transition cursor-pointer">
                         <span class="inline-flex items-center gap-2"><i data-lucide="play" class="w-3.5 h-3.5"></i> Play Video</span>
@@ -474,6 +607,31 @@
                         <span class="inline-flex items-center gap-2"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Visit Project</span>
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= Blog preview pop-up ================= -->
+    <div id="blogModal" class="popup-hidden fixed inset-0 z-[1002] flex items-center justify-center p-4">
+        <div class="popup-backdrop absolute inset-0 bg-black/85 backdrop-blur-xl" onclick="closeBlogModal()"></div>
+        <div class="popup-panel relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+            <div class="relative aspect-video w-full bg-zinc-900">
+                <img id="bImage" src="" alt="" class="w-full h-full object-cover" onerror="imgFallback(this)">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent"></div>
+                <button onclick="closeBlogModal()" aria-label="Close preview" class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-700 rounded-full hover:bg-zinc-800 transition text-white cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+                <div class="absolute bottom-4 left-6 right-6">
+                    <span id="bMeta" class="text-[10px] font-mono text-zinc-400 uppercase block mb-1"></span>
+                    <h3 id="bTitle" class="text-2xl font-medium text-white"></h3>
+                </div>
+            </div>
+            <div class="p-6 sm:p-8">
+                <p id="bContent" class="text-sm text-zinc-400 font-light leading-relaxed mb-5"></p>
+                <div id="bTags" class="flex flex-wrap gap-2 mb-6"></div>
+                <a id="bLinkBtn" href="#" target="_blank" rel="noopener" class="px-5 py-2.5 rounded-full bg-white text-black font-medium text-xs items-center gap-2 hover:bg-zinc-200 transition">
+                    <span class="inline-flex items-center gap-2">Visit Blog <span aria-hidden="true">→</span></span>
+                </a>
             </div>
         </div>
     </div>
@@ -571,22 +729,30 @@
             }
         }
 
-        /* ---------- Slow-to-fast smooth rail animation (easeInOutQuart) ---------- */
-        function easeInOutQuart(t) { return t < 0.5 ? 8*t*t*t*t : 1 - Math.pow(-2*t + 2, 4) / 2; }
+        /* ---------- Rail animation: interruptible ease-in acceleration + motion blur ---------- */
+        function easeInCubic(t) { return t * t * t; } // slow start → fast finish, like acceleration
 
-        function animateTrackTo(targetLeft, duration = 700) {
+        let railAnim = null;
+        function cancelRailAnim() {
             const track = document.getElementById("projectTrack");
+            if (railAnim) { cancelAnimationFrame(railAnim); railAnim = null; }
+            if (track) track.classList.remove("is-moving");
+        }
+        function animateTrackTo(targetLeft, duration = 600) {
+            const track = document.getElementById("projectTrack");
+            cancelRailAnim();
             const start = track.scrollLeft;
             const dist = targetLeft - start;
-            if (Math.abs(dist) < 2) return;
+            track.classList.add("is-moving");
+            if (Math.abs(dist) < 2) { track.classList.remove("is-moving"); updateRailUI(); return; }
             const t0 = performance.now();
             function frame(now) {
                 const t = Math.min((now - t0) / duration, 1);
-                track.scrollLeft = start + dist * easeInOutQuart(t); // slow start → fast middle → soft landing
-                if (t < 1) requestAnimationFrame(frame);
-                else updateRailUI();
+                track.scrollLeft = start + dist * easeInCubic(t);
+                if (t < 1) { railAnim = requestAnimationFrame(frame); }
+                else { railAnim = null; track.classList.remove("is-moving"); updateRailUI(); }
             }
-            requestAnimationFrame(frame);
+            railAnim = requestAnimationFrame(frame);
         }
 
         function cardStep() {
@@ -599,12 +765,31 @@
         function goToCard(i) {
             const track = document.getElementById("projectTrack");
             activeIndex = Math.max(0, Math.min(i, slideCount() - 1));
-            animateTrackTo(activeIndex * cardStep(), 750);
+            animateTrackTo(activeIndex * cardStep(), 600);
             renderDots();
             updateRailUI();
         }
 
         function stepRail(dir) { goToCard(activeIndex + dir); }
+
+        function scrollReviews(dir) {
+            const t = document.getElementById("reviewTrack");
+            if (!t) return;
+            const card = t.querySelector("article");
+            const step = card ? card.getBoundingClientRect().width + 20 : 340;
+            t.scrollBy({ left: dir * step, behavior: "smooth" });
+        }
+
+        const STAR_SVG = '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.94 6.36 6.96.82-5.16 4.73 1.4 6.89L12 17.27 5.86 20.8l1.4-6.89L2.1 9.18l6.96-.82z"/></svg>';
+        function paintStars() {
+            document.querySelectorAll(".stars").forEach(el => {
+                if (el.dataset.done) return;
+                el.dataset.done = "1";
+                const r = Math.max(0, Math.min(5, parseFloat(el.dataset.rating || "5")));
+                el.classList.add("relative", "inline-flex");
+                el.innerHTML = `<span class="flex gap-1 text-zinc-700">${STAR_SVG.repeat(5)}</span><span class="absolute inset-0 overflow-hidden" style="width:${(r / 5 * 100).toFixed(1)}%"><span class="flex gap-1 text-amber-400">${STAR_SVG.repeat(5)}</span></span>`;
+            });
+        }
 
         function updateRailUI() {
             const track = document.getElementById("projectTrack");
@@ -636,6 +821,15 @@
             });
         }
 
+        function bindBlogClick() {
+            document.querySelectorAll(".blog-card").forEach(card => {
+                card.addEventListener("click", (e) => {
+                    if (e.target.closest("button, a")) return;
+                    openBlogModal(card);
+                });
+            });
+        }
+
         function initRail() {
             const track = document.getElementById("projectTrack");
             document.getElementById("railPrev").addEventListener("click", () => stepRail(-1));
@@ -647,6 +841,7 @@
             }, { passive: true });
             // Shift vertical wheel into horizontal rail scrolling
             track.addEventListener("wheel", (e) => {
+                cancelRailAnim();
                 if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && e.deltaX === 0) {
                     e.preventDefault();
                     track.scrollLeft += e.deltaY;
@@ -655,6 +850,7 @@
             // Drag to scroll
             let down = false, startX = 0, startLeft = 0, moved = false;
             track.addEventListener("pointerdown", (e) => {
+                cancelRailAnim();
                 down = true; moved = false;
                 startX = e.clientX; startLeft = track.scrollLeft;
                 track.classList.add("dragging");
@@ -681,20 +877,37 @@
             });
         }
 
-        /* ---------- Project pop-up (reads the card's own data-* attributes) ---------- */
+        /* ---------- Project pop-up with 16:9 photo gallery (reads the card's own data-* attributes) ---------- */
+        function setMainPhoto(src, alt) {
+            const pmImg = document.getElementById("pmImage");
+            pmImg.style.opacity = "0";
+            pmImg.dataset.fbk = "";
+            pmImg.onerror = () => imgFallback(pmImg);
+            pmImg.alt = alt || "";
+            pmImg.onload = () => { pmImg.style.opacity = "1"; };
+            setTimeout(() => { pmImg.src = src; }, 150);
+            setTimeout(() => { pmImg.style.opacity = "1"; }, 900);
+        }
         function openProjectModal(card) {
             if (!card || !card.dataset) return;
             const d = card.dataset;
-            const pmImg = document.getElementById("pmImage");
-            pmImg.dataset.fbk = "";
-            pmImg.onerror = () => imgFallback(pmImg);
-            pmImg.src = d.image || "";
-            pmImg.alt = d.title || "";
+            const gallery = String(d.gallery || d.image || "").split("|").map(s => s.trim()).filter(Boolean);
+            setMainPhoto(gallery[0] || "", d.title || "");
             document.getElementById("pmCategory").textContent = d.category || "";
             document.getElementById("pmTitle").textContent = d.title || "";
             document.getElementById("pmDescription").textContent = d.description || d.short || "";
             const tags = document.getElementById("pmTags");
             tags.innerHTML = String(d.tags || "").split("|").map(s => s.trim()).filter(Boolean).map(t => `<span class="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-300">${escapeHtml(t)}</span>`).join("");
+            const thumbs = document.getElementById("pmThumbs");
+            if (gallery.length > 1) {
+                thumbs.classList.remove("hidden"); thumbs.classList.add("flex");
+                thumbs.innerHTML = gallery.map((g, i) => `<button data-g="${i}" aria-label="Show photo ${i + 1}" class="w-20 aspect-video rounded-lg overflow-hidden shrink-0 cursor-pointer transition ${i === 0 ? "border border-white/60" : "border border-zinc-700/60 hover:border-white/60"}"><img src="${String(g).replace(/"/g, "&quot;")}" alt="Project proof ${i + 1}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.opacity=0.2"></button>`).join("");
+                thumbs.querySelectorAll("[data-g]").forEach(b => b.addEventListener("click", () => {
+                    setMainPhoto(gallery[+b.dataset.g], d.title || "");
+                    thumbs.querySelectorAll("[data-g]").forEach(x => { x.classList.remove("border-white/60"); x.classList.add("border-zinc-700/60"); });
+                    b.classList.remove("border-zinc-700/60"); b.classList.add("border-white/60");
+                }));
+            } else { thumbs.classList.add("hidden"); thumbs.classList.remove("flex"); thumbs.innerHTML = ""; }
             const play = document.getElementById("pmPlayBtn");
             if (d.type === "video" && d.video) {
                 play.classList.remove("hidden"); play.classList.add("inline-flex");
@@ -770,8 +983,10 @@
         window.addEventListener("DOMContentLoaded", () => {
             try {
             safeIcons();
-            // Projects are static HTML — sync UI, then play the intro.
+            // Static content — sync UI, then play the intro.
             renderProjects();
+            paintStars();
+            bindBlogClick();
             initRail();
             playIntro().catch(function () { emergencyReveal(); });
 
@@ -788,7 +1003,7 @@
 
             document.addEventListener("keydown", (e) => {
                 if (e.key === "Escape") {
-                    closeProjectModal(); closeVideoModal(); closeModal();
+                    closeProjectModal(); closeBlogModal(); closeVideoModal(); closeModal();
                 }
             });
             } catch (err) {
@@ -849,7 +1064,9 @@
                 { id: "education", nav: "home" },
                 { id: "projects", nav: "projects" },
                 { id: "services", nav: "services" },
+                { id: "reviews", nav: "reviews" },
                 { id: "skills", nav: "skills" },
+                { id: "blog", nav: "blog" },
             ];
             const observer = new IntersectionObserver((entries) => {
                 if (spyLocked) return;
@@ -866,16 +1083,43 @@
                     if (found) setActiveNav(found.nav === "home" ? "hero" : found.nav);
                 }
             }, { rootMargin: "-35% 0px -50% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] });
-            ["hero", "education", "projects", "services", "skills"].forEach(id => {
+            ["hero", "education", "projects", "services", "reviews", "skills", "blog"].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) observer.observe(el);
             });
-            // Fallback: bottom of page always highlights Skills
+            // Fallback: bottom of page always highlights Blog
             window.addEventListener("scroll", () => {
                 if (spyLocked) return;
                 const nearBottom = innerHeight + window.scrollY >= document.body.scrollHeight - 120;
-                if (nearBottom) setActiveNav("skills");
+                if (nearBottom) setActiveNav("blog");
             }, { passive: true });
+        }
+
+        /* ---------- Blog preview pop-up (reads the card's own data-* attributes) ---------- */
+        function openBlogModal(card) {
+            if (!card || !card.dataset) return;
+            const d = card.dataset;
+            const bImg = document.getElementById("bImage");
+            bImg.dataset.fbk = "";
+            bImg.src = d.image || "";
+            bImg.alt = d.title || "";
+            document.getElementById("bMeta").textContent = d.meta || "";
+            document.getElementById("bTitle").textContent = d.title || "";
+            document.getElementById("bContent").textContent = d.content || d.excerpt || "";
+            document.getElementById("bTags").innerHTML = String(d.tags || "").split("|").map(s => s.trim()).filter(Boolean).map(t => `<span class="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-300">${escapeHtml(t)}</span>`).join("");
+            const link = document.getElementById("bLinkBtn");
+            if (d.link && d.link !== "#") { link.classList.remove("hidden"); link.classList.add("inline-flex"); link.href = d.link; }
+            else { link.classList.add("hidden"); link.classList.remove("inline-flex"); }
+            const m = document.getElementById("blogModal");
+            m.classList.remove("popup-hidden");
+            requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add("popup-open")));
+            document.body.style.overflow = "hidden";
+            safeIcons();
+        }
+        function closeBlogModal() {
+            const m = document.getElementById("blogModal");
+            m.classList.remove("popup-open");
+            setTimeout(() => { m.classList.add("popup-hidden"); document.body.style.overflow = ""; }, 450);
         }
 
         /* ---------- Contact modal ---------- */

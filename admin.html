@@ -15,6 +15,7 @@
   .shake { animation: shake 0.4s ease; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   textarea.code { font-family: ui-monospace, monospace; font-size: 11px; }
+  .tab-btn.active { background: #fff; color: #000; }
 </style>
 </head>
 <body class="bg-[#050505] text-zinc-100 font-sans antialiased min-h-screen">
@@ -28,8 +29,8 @@
   <div class="flex items-center justify-between mb-8">
     <div>
       <p class="text-[11px] font-mono tracking-widest text-zinc-500 uppercase">Restricted Area</p>
-      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Project Dashboard</h1>
-      <p class="text-xs text-zinc-500 mt-1">Manage projects, then paste the generated HTML into <span class="font-mono">index.html</span>.</p>
+      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Content Dashboard</h1>
+      <p class="text-xs text-zinc-500 mt-1">Manage <b class="text-zinc-300">projects</b>, <b class="text-zinc-300">reviews</b> &amp; <b class="text-zinc-300">blog</b> — then paste the generated HTML into <span class="font-mono">index.html</span>.</p>
     </div>
     <div id="sessionBox" class="hidden text-right">
       <p id="sessionUser" class="text-xs font-mono text-zinc-300"></p>
@@ -79,108 +80,232 @@
 
   <!-- ============ DASHBOARD VIEW ============ -->
   <div id="dashView" class="hidden">
-    <div class="flex flex-wrap gap-2 mb-6">
-      <button id="btnAdd" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add project</button>
-      <button id="btnCopyAll" class="px-4 py-2.5 rounded-full border border-emerald-800 text-emerald-200 text-xs hover:bg-emerald-950/40 transition cursor-pointer">Copy ALL cards HTML</button>
-      <button id="btnExport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Export backup JSON</button>
-      <button id="btnImport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Import backup</button>
-      <input id="fileImport" type="file" accept="application/json" class="hidden">
-      <button id="btnRevert" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset to default</button>
+    <div class="glass rounded-full p-1.5 flex gap-1 mb-6 w-fit">
+      <button data-tab="projects" class="tab-btn active px-5 py-2 rounded-full text-xs font-medium transition cursor-pointer">Projects</button>
+      <button data-tab="reviews" class="tab-btn px-5 py-2 rounded-full text-xs font-medium text-zinc-400 hover:text-white transition cursor-pointer">Reviews</button>
+      <button data-tab="blog" class="tab-btn px-5 py-2 rounded-full text-xs font-medium text-zinc-400 hover:text-white transition cursor-pointer">Blog</button>
     </div>
 
-    <div id="projectList" class="space-y-3"></div>
+    <!-- ===== PROJECTS TAB ===== -->
+    <div id="tab-projects">
+      <div class="flex flex-wrap gap-2 mb-6">
+        <button id="btnAddP" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add project</button>
+        <button id="btnCopyAllP" class="px-4 py-2.5 rounded-full border border-emerald-800 text-emerald-200 text-xs hover:bg-emerald-950/40 transition cursor-pointer">Copy ALL cards HTML</button>
+        <button id="btnResetP" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset projects</button>
+      </div>
+      <div id="listP" class="space-y-3"></div>
+      <div class="glass rounded-3xl p-6 mt-6">
+        <h3 class="text-sm font-medium mb-2">Generated projects HTML → paste between <span class="font-mono">PROJECTS-START</span> / <span class="font-mono">PROJECTS-END</span></h3>
+        <textarea id="outP" rows="7" readonly class="code w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none resize-y"></textarea>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button id="btnRegenP" class="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">Regenerate</button>
+          <button id="btnCopyP" class="px-4 py-2 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Copy</button>
+        </div>
+      </div>
+    </div>
 
-    <div class="glass rounded-3xl p-6 mt-8">
-      <h3 class="text-sm font-medium mb-2">Generated cards HTML (paste into index.html)</h3>
-      <p class="text-[11px] text-zinc-500 mb-3">Replaces everything between <span class="font-mono">&lt;!-- PROJECTS-START --&gt;</span> and <span class="font-mono">&lt;!-- PROJECTS-END --&gt;</span> in <span class="font-mono">index.html</span>.</p>
-      <textarea id="outHtml" rows="8" readonly class="code w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none resize-y" placeholder="HTML output appears here…"></textarea>
-      <div class="flex flex-wrap gap-2 mt-3">
-        <button id="btnRefreshOut" class="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">Regenerate HTML</button>
-        <button id="btnCopyOut" class="px-4 py-2 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Copy to clipboard</button>
+    <!-- ===== REVIEWS TAB ===== -->
+    <div id="tab-reviews" class="hidden">
+      <div class="flex flex-wrap gap-2 mb-6">
+        <button id="btnAddR" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add review</button>
+        <button id="btnCopyAllR" class="px-4 py-2.5 rounded-full border border-emerald-800 text-emerald-200 text-xs hover:bg-emerald-950/40 transition cursor-pointer">Copy ALL reviews HTML</button>
+        <button id="btnResetR" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset reviews</button>
+      </div>
+      <div id="listR" class="space-y-3"></div>
+      <div class="glass rounded-3xl p-6 mt-6">
+        <h3 class="text-sm font-medium mb-2">Generated reviews HTML → paste between <span class="font-mono">REVIEWS-START</span> / <span class="font-mono">REVIEWS-END</span></h3>
+        <textarea id="outR" rows="7" readonly class="code w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none resize-y"></textarea>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button id="btnRegenR" class="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">Regenerate</button>
+          <button id="btnCopyR" class="px-4 py-2 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BLOG TAB ===== -->
+    <div id="tab-blog" class="hidden">
+      <div class="flex flex-wrap gap-2 mb-6">
+        <button id="btnAddB" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add article</button>
+        <button id="btnCopyAllB" class="px-4 py-2.5 rounded-full border border-emerald-800 text-emerald-200 text-xs hover:bg-emerald-950/40 transition cursor-pointer">Copy ALL blog HTML</button>
+        <button id="btnResetB" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset blog</button>
+      </div>
+      <div id="listB" class="space-y-3"></div>
+      <div class="glass rounded-3xl p-6 mt-6">
+        <h3 class="text-sm font-medium mb-2">Generated blog HTML → paste between <span class="font-mono">BLOG-START</span> / <span class="font-mono">BLOG-END</span></h3>
+        <textarea id="outB" rows="7" readonly class="code w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none resize-y"></textarea>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button id="btnRegenB" class="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">Regenerate</button>
+          <button id="btnCopyB" class="px-4 py-2 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Copy</button>
+        </div>
       </div>
     </div>
 
     <div class="glass rounded-3xl p-6 mt-6">
-      <h3 class="text-sm font-medium mb-2">How to publish (GitHub Pages)</h3>
+      <h3 class="text-sm font-medium mb-2">Backup &amp; publish</h3>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button id="btnExport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Export backup JSON</button>
+        <button id="btnImport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Import backup</button>
+        <input id="fileImport" type="file" accept="application/json" class="hidden">
+        <button id="btnWipe" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Wipe all local data</button>
+        <a href="index.html" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition">← Back to site</a>
+      </div>
       <ol class="text-xs text-zinc-400 font-light leading-relaxed list-decimal ml-5 space-y-1">
-        <li>Manage projects above, then click <b class="text-zinc-200">Copy ALL cards HTML</b>.</li>
-        <li>In <span class="font-mono">index.html</span>, replace everything between <span class="font-mono">PROJECTS-START</span> and <span class="font-mono">PROJECTS-END</span> with the copied HTML.</li>
-        <li>Commit &amp; push: <span class="font-mono">git add -A &amp;&amp; git commit -m "Update projects" &amp;&amp; git push</span>. Pages redeploys automatically.</li>
+        <li>Copy each section's HTML and paste it between its markers in <span class="font-mono">index.html</span>.</li>
+        <li>Commit &amp; push: <span class="font-mono">git add -A &amp;&amp; git commit -m "Update content" &amp;&amp; git push</span>.</li>
         <li>Keep <span class="font-mono">admin.html</span> local — do not deploy or link it publicly.</li>
       </ol>
-      <div class="mt-4 flex flex-wrap gap-2">
-        <button id="btnWipe" class="text-[11px] px-3 py-1.5 rounded-full border border-red-900 text-red-300 hover:bg-red-950/40 transition cursor-pointer">Wipe all local data</button>
-        <a href="index.html" class="text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-900 transition">← Back to site</a>
-      </div>
     </div>
   </div>
 </div>
 
-<!-- ============ EDITOR MODAL ============ -->
-<div id="editorModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" id="editorBackdrop"></div>
+<!-- ============ PROJECT EDITOR MODAL ============ -->
+<div id="editorModalP" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" data-close="editorModalP"></div>
   <div class="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
     <div class="flex justify-between items-center mb-5">
-      <h3 id="editorTitle" class="text-lg font-medium">Add project</h3>
-      <button id="btnEditorClose" class="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-zinc-400 hover:text-white cursor-pointer">✕</button>
+      <h3 id="editorTitleP" class="text-lg font-medium">Add project</h3>
+      <button data-close="editorModalP" class="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-zinc-400 hover:text-white cursor-pointer">✕</button>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div class="sm:col-span-2">
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TITLE *</label>
-        <input id="f_title" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Pintarhub Portal">
+        <input id="p_title" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">CATEGORY *</label>
-        <input id="f_category" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Web Platform / EdTech">
+        <input id="p_category" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TYPE</label>
-        <select id="f_type" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
+        <select id="p_type" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
           <option value="image">Image card</option>
           <option value="video">Video card (YouTube embed)</option>
         </select>
       </div>
       <div class="sm:col-span-2">
-        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">SHORT TEXT * (card preview)</label>
-        <textarea id="f_short" rows="2" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none" placeholder="One-line preview shown on the card..."></textarea>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">SHORT TEXT *</label>
+        <textarea id="p_short" rows="2" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none"></textarea>
       </div>
       <div class="sm:col-span-2">
-        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">FULL DESCRIPTION * (detail pop-up)</label>
-        <textarea id="f_description" rows="4" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none" placeholder="Full project story, features, your role..."></textarea>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">FULL DESCRIPTION *</label>
+        <textarea id="p_description" rows="4" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none"></textarea>
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">IMAGE (path or URL)</label>
-        <input id="f_image" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="images/my-project.jpg">
-        <input id="f_imageFile" type="file" accept="image/*" class="mt-2 text-[11px] text-zinc-500 file:mr-3 file:px-3 file:py-1.5 file:rounded-full file:border file:border-zinc-700 file:bg-zinc-900 file:text-zinc-200 file:text-[11px] cursor-pointer">
-        <p class="text-[10px] text-zinc-600 mt-1">Tip: put the file in <span class="font-mono">images/</span> and reference it relatively.</p>
+        <input id="p_image" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="images/my-project.jpg">
+        <input id="p_imageFile" type="file" accept="image/*" class="mt-2 text-[11px] text-zinc-500 file:mr-3 file:px-3 file:py-1.5 file:rounded-full file:border file:border-zinc-700 file:bg-zinc-900 file:text-zinc-200 file:text-[11px] cursor-pointer">
       </div>
       <div>
-        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">VIDEO EMBED URL (video type only)</label>
-        <input id="f_videoUrl" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="https://www.youtube.com/embed/....">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">VIDEO EMBED URL (video only)</label>
+        <input id="p_videoUrl" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="https://www.youtube.com/embed/....">
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 mt-3">EXTERNAL LINK (optional)</label>
-        <input id="f_link" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="https://...">
+        <input id="p_link" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="https://...">
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">GALLERY (one image per line — auto-cropped 16:9 in the pop-up)</label>
+        <textarea id="p_gallery" rows="3" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none font-mono text-xs" placeholder="images/shot-1.jpg&#10;images/shot-2.jpg"></textarea>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TAGS (comma separated)</label>
+        <input id="p_tags" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
+      <p class="text-[11px] font-mono text-zinc-400 mb-2">CARD HTML PREVIEW</p>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <button id="btnPreviewP" class="px-3 py-1.5 rounded-full border border-zinc-700 text-[11px] hover:bg-zinc-900 transition cursor-pointer">Generate preview</button>
+        <button id="btnCopyOneP" class="px-3 py-1.5 rounded-full border border-zinc-700 text-[11px] hover:bg-zinc-900 transition cursor-pointer">Copy this card</button>
+      </div>
+      <textarea id="outOneP" rows="4" readonly class="code w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-400 focus:outline-none resize-y"></textarea>
+    </div>
+    <p id="editorErrorP" class="hidden text-xs text-red-400 mt-4"></p>
+    <div class="flex gap-2 mt-6">
+      <button id="btnSaveP" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save project</button>
+      <button data-close="editorModalP" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REVIEW EDITOR MODAL ============ -->
+<div id="editorModalR" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" data-close="editorModalR"></div>
+  <div class="relative w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="flex justify-between items-center mb-5">
+      <h3 id="editorTitleR" class="text-lg font-medium">Add review</h3>
+      <button data-close="editorModalR" class="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-zinc-400 hover:text-white cursor-pointer">✕</button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">NAME *</label>
+        <input id="r_name" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
       </div>
       <div>
-        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">BADGE (optional, e.g. 🏆 Award)</label>
-        <input id="f_badge" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">ROLE — PROJECT *</label>
+        <input id="r_role" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Product Manager — Pintarhub Portal">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">RATING *</label>
+        <select id="r_rating" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
+          <option value="5">5.0 — Excellent</option>
+          <option value="4.5">4.5 — Great</option>
+          <option value="4">4.0 — Good</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">REVIEW TEXT *</label>
+        <textarea id="r_text" rows="4" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none"></textarea>
+      </div>
+    </div>
+    <p id="editorErrorR" class="hidden text-xs text-red-400 mt-4"></p>
+    <div class="flex gap-2 mt-6">
+      <button id="btnSaveR" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save review</button>
+      <button data-close="editorModalR" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BLOG EDITOR MODAL ============ -->
+<div id="editorModalB" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" data-close="editorModalB"></div>
+  <div class="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="flex justify-between items-center mb-5">
+      <h3 id="editorTitleB" class="text-lg font-medium">Add article</h3>
+      <button data-close="editorModalB" class="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-zinc-400 hover:text-white cursor-pointer">✕</button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TITLE *</label>
+        <input id="b_title" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">DATE · READ TIME *</label>
+        <input id="b_meta" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Mar 12, 2026 · 6 min read">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">IMAGE</label>
+        <input id="b_image" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="images/post.jpg">
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">EXCERPT *</label>
+        <textarea id="b_excerpt" rows="2" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none"></textarea>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">FULL PREVIEW CONTENT *</label>
+        <textarea id="b_content" rows="5" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">BLOG LINK (# hides the button)</label>
+        <input id="b_link" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="#">
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TAGS (comma separated)</label>
-        <input id="f_tags" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="HTML, Tailwind, IoT">
+        <input id="b_tags" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
       </div>
     </div>
-    <div class="sm:col-span-2 mt-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
-      <p class="text-[11px] font-mono text-zinc-400 mb-2">CARD HTML PREVIEW FOR THIS PROJECT</p>
-      <div class="flex flex-wrap gap-2 mb-3">
-        <button id="btnPreviewCard" class="px-3 py-1.5 rounded-full border border-zinc-700 text-[11px] hover:bg-zinc-900 transition cursor-pointer">Generate preview</button>
-        <button id="btnCopyCard" class="px-3 py-1.5 rounded-full border border-zinc-700 text-[11px] hover:bg-zinc-900 transition cursor-pointer">Copy this card HTML</button>
-      </div>
-      <textarea id="outCard" rows="4" readonly class="code w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-400 focus:outline-none resize-y"></textarea>
-    </div>
-    <p id="editorError" class="hidden text-xs text-red-400 mt-4"></p>
+    <p id="editorErrorB" class="hidden text-xs text-red-400 mt-4"></p>
     <div class="flex gap-2 mt-6">
-      <button id="btnEditorSave" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save project</button>
-      <button id="btnEditorCancel" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
+      <button id="btnSaveB" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save article</button>
+      <button data-close="editorModalB" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
     </div>
   </div>
 </div>
@@ -203,16 +328,19 @@
 
 <script>
 "use strict";
-/* Portfolio Admin — encrypted project manager + static card HTML generator.
-   Auth: username + PBKDF2-SHA256(password, salt, 210k). Drafts: AES-GCM-256.
-   Keys live ONLY in memory. Output: paste-ready <article> HTML for index.html. */
+/* Content Admin — encrypted manager for projects + reviews + blog.
+   Auth: PBKDF2-SHA256 (210k) + AES-GCM-256 drafts. Keys live only in memory.
+   Output: paste-ready static HTML for index.html markers. */
 const LS_AUTH = "portfolio_admin_auth_v2";
-const LS_ENC  = "portfolio_projects_enc_v2";
+const LS_ENC  = "portfolio_content_enc_v3";
 const LS_LOCK = "portfolio_admin_lock_v2";
 const SS_SESS = "portfolio_admin_session_v2";
 const ITER = 210000, SESSION_MIN = 30, MAX_FAILS = 5, LOCK_MS = 60000;
 
-let encKey = null, authedUser = null, projects = [], editingId = null, encryptTimer = null, sessionInt = null;
+let encKey = null, authedUser = null;
+let projects = [], reviews = [], blogs = [];
+let editingP = null, editingR = null, editingB = null;
+let encryptTimer = null, sessionInt = null;
 
 const $ = id => document.getElementById(id);
 const te = new TextEncoder(), td = new TextDecoder();
@@ -249,50 +377,10 @@ const getLock = () => { try { return JSON.parse(localStorage.getItem(LS_LOCK)) |
 const setLock = o => localStorage.setItem(LS_LOCK, JSON.stringify(o));
 
 function slug(s) {
-  return (s || "project").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || ("project-" + Date.now().toString(36));
+  return (s || "item").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || ("item-" + Date.now().toString(36));
 }
 function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function escAttr(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-
-/* ---------------- static card HTML generator (mirrors index.html markup) ---------------- */
-function cardHtml(p) {
-  const tags = (p.tags || []).map(t => t.trim()).filter(Boolean);
-  const tagSpans = tags.slice(0, 4).map(t => `<span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">${esc(t)}</span>`).join("");
-  const isVideo = p.type === "video" && p.videoUrl;
-  const badgeDiv = p.badge ? `\n                        <div class="absolute top-3 left-3 bg-zinc-950/80 border border-zinc-800 px-2.5 py-1 rounded-md text-[10px] text-amber-400 font-mono">${esc(p.badge)}</div>` : "";
-  const playOverlay = isVideo ? `
-                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
-                                <svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </div>
-                        </div>` : "";
-  const catLabel = isVideo
-    ? `<span class="text-[10px] font-mono text-emerald-400 uppercase block mb-1 flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> Click to Play Video</span>`
-    : `<span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">${esc(p.category)}</span>`;
-  const buttons = isVideo
-    ? `
-                        <div class="flex gap-2 mt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
-                            <button onclick="openVideoModal('${escAttr(p.videoUrl)}')" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play Video</button>
-                        </div>`
-    : `
-                        <div class="flex gap-2 mt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
-                        </div>`;
-  return `                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="${escAttr(p.id)}" data-type="${escAttr(p.type)}" data-video="${escAttr(p.videoUrl || "")}" data-link="${escAttr(p.link || "")}" data-badge="${escAttr(p.badge || "")}" data-category="${escAttr(p.category)}" data-title="${escAttr(p.title)}" data-short="${escAttr(p.short)}" data-description="${escAttr(p.description)}" data-image="${escAttr(p.image)}" data-tags="${escAttr(tags.join("|"))}">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="${escAttr(p.image)}" alt="${escAttr(p.title)}" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">${badgeDiv}${playOverlay}
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        ${catLabel}
-                        <h3 class="text-lg font-medium text-white mb-2">${esc(p.title)}</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light">${esc(p.short)}</p>
-                        <div class="flex flex-wrap gap-1.5 mt-4">${tagSpans}</div>${buttons}
-                    </div>
-                </article>`;
-}
-
-function allCardsHtml() { return projects.map(cardHtml).join("\n\n"); }
 
 async function copyText(t) {
   try { await navigator.clipboard.writeText(t); return true; }
@@ -304,6 +392,96 @@ async function copyText(t) {
     ta.remove(); return ok;
   }
 }
+
+/* ---------------- HTML generators (mirror index.html markup exactly) ---------------- */
+function projectCardHtml(p) {
+  const tags = (p.tags || []).map(t => String(t).trim()).filter(Boolean);
+  const tagSpans = tags.slice(0, 4).map(t => `<span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">${esc(t)}</span>`).join("");
+  const isVideo = p.type === "video" && p.videoUrl;
+  const gallery = (p.gallery && p.gallery.length ? p.gallery : [p.image]).filter(Boolean);
+  const playOverlay = isVideo ? `
+                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
+                                <svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>` : "";
+  const catLabel = `<span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">${esc(p.category)}</span>`;
+  const buttons = isVideo
+    ? `
+                        <div class="flex gap-2 mt-auto pt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
+                            <button onclick="openVideoModal('${escAttr(p.videoUrl)}')" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play Video</button>
+                        </div>`
+    : `
+                        <div class="flex gap-2 mt-auto pt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
+                        </div>`;
+  return `                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="${escAttr(p.id)}" data-type="${escAttr(p.type)}" data-video="${escAttr(p.videoUrl || "")}" data-link="${escAttr(p.link || "")}" data-badge="" data-category="${escAttr(p.category)}" data-title="${escAttr(p.title)}" data-short="${escAttr(p.short)}" data-description="${escAttr(p.description)}" data-image="${escAttr(p.image)}" data-gallery="${escAttr(gallery.join("|"))}" data-tags="${escAttr(tags.join("|"))}">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="${escAttr(p.image)}" alt="${escAttr(p.title)}" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">${playOverlay}
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        ${catLabel}
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">${esc(p.title)}</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">${esc(p.short)}</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4">${tagSpans}</div>${buttons}
+                    </div>
+                </article>`;
+}
+
+function reviewCardHtml(r) {
+  const initial = (r.name || "?").trim().charAt(0).toUpperCase() || "?";
+  return `                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="${escAttr(r.id)}" data-name="${escAttr(r.name)}" data-role="${escAttr(r.role)}" data-rating="${escAttr(String(r.rating))}" data-text="${escAttr(r.text)}">
+                    <div class="stars mb-4" data-rating="${escAttr(String(r.rating))}"></div>
+                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;${esc(r.text)}&quot;</p>
+                    <div class="mt-auto pt-5 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">${esc(initial)}</div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white truncate">${esc(r.name)}</p>
+                            <p class="text-[11px] font-mono text-zinc-500 truncate">${esc(r.role)}</p>
+                        </div>
+                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">${esc(String(Number(r.rating).toFixed(1)))}</span>
+                    </div>
+                </article>`;
+}
+
+function blogCardHtml(b) {
+  const tags = (b.tags || []).map(t => String(t).trim()).filter(Boolean);
+  return `                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="${escAttr(b.id)}" data-title="${escAttr(b.title)}" data-meta="${escAttr(b.meta)}" data-excerpt="${escAttr(b.excerpt)}" data-content="${escAttr(b.content)}" data-image="${escAttr(b.image)}" data-link="${escAttr(b.link || "#")}" data-tags="${escAttr(tags.join("|"))}">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="${escAttr(b.image)}" alt="${escAttr(b.title)}" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">${esc(b.meta)}</span>
+                        <h3 class="text-lg font-medium text-white mb-2">${esc(b.title)}</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">${esc(b.excerpt)}</p>
+                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">Read Preview <span aria-hidden="true">→</span></span>
+                    </div>
+                </article>`;
+}
+
+/* ---------------- defaults (mirror index.html content) ---------------- */
+const FALLBACK_P = [
+  { id: "pintarhub-portal", category: "Web Platform / EdTech", title: "Pintarhub Portal", short: "An interactive web-based education portal for efficient self-paced learning management.", description: "An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators.", image: "images/ptr.JPEG", gallery: ["images/ptr.JPEG"], tags: ["HTML", "CSS", "JavaScript", "EdTech"], type: "image", videoUrl: "", link: "" },
+  { id: "giat-ukbi-documentary", category: "Documentary / Video Production", title: "Giat UKBI Documentary", short: "Official documentary production with SMAN 1 Padamara promoting the UKBI language test.", description: "Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film.", image: "images/ukbi.JPEG", gallery: ["images/ukbi.JPEG"], tags: ["Directing", "Premiere Pro", "Documentary"], type: "video", videoUrl: "https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v", link: "" },
+  { id: "smart-lamp-application", category: "Hardware / IoT Integration", title: "Smart Lamp Application", short: "A microcontroller-based home lamp automation prototype with a digital control dashboard.", description: "A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi.", image: "images/sml.JPEG", gallery: ["images/sml.JPEG"], tags: ["ESP32", "Arduino", "IoT Dashboard"], type: "image", videoUrl: "", link: "" },
+  { id: "hut-smara-euforia", category: "Event Showcase / Web", title: "HUT Smara Euforia", short: "An interactive landing page documenting the school anniversary celebration.", description: "Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info.", image: "images/smr.JPEG", gallery: ["images/smr.JPEG"], tags: ["Landing Page", "Tailwind", "Event"], type: "image", videoUrl: "", link: "" },
+  { id: "yang-terpanggil-documentary", category: "Cinematography / Award Pick", title: "\"Yang Terpanggil\" Documentary", short: "An award-winning short documentary honored at FFP & Indonesia Student Movie Awards.", description: "A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading.", image: "images/cinema.JPEG", gallery: ["images/cinema.JPEG"], tags: ["Documentary", "DaVinci Resolve", "Directing"], type: "image", videoUrl: "", link: "" },
+  { id: "multi-event-content-strategy", category: "Creative Direction / Management", title: "Multi-Event Content Strategy", short: "Creative concepting, feed management, and visual asset production for events.", description: "Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy.", image: "images/jkf.JPEG", gallery: ["images/jkf.JPEG"], tags: ["Content Planning", "Branding", "Social Media"], type: "image", videoUrl: "", link: "" }
+];
+const FALLBACK_R = [
+  { id: "review-rizky-pratama", name: "Rizky Pratama", role: "Product Manager — Pintarhub Portal", rating: 5, text: "Bijak delivered our learning portal ahead of schedule. Page loads are instant, teachers learned the dashboard in a single day, and student logins tripled in the first month." },
+  { id: "review-sinta-maharani", name: "Sinta Maharani", role: "Event Coordinator — HUT Smara Euforia", rating: 5, text: "The anniversary landing page put our rundown, gallery, and registration info in one place. Visitor numbers doubled compared to last year's poster-only announcement." },
+  { id: "review-dimas-angga", name: "Dimas Angga Saputra", role: "Hardware Hobbyist — Smart Lamp Application", rating: 5, text: "The ESP32 lamp prototype has run in my house for months without a single disconnect. The control dashboard is simple enough for my parents to use every day." },
+  { id: "review-nadia-putri", name: "Nadia Putri", role: "UKBI Committee — Giat UKBI Documentary", rating: 5, text: "The documentary captured our event professionally — clear interviews, steady shots, and a clean edit. We still reuse the film every year for promotion." },
+  { id: "review-fajar-nugroho", name: "Fajar Nugroho", role: "OSIS Advisor — Multi-Event Content Strategy", rating: 4.5, text: "Feed planning and visual assets stayed consistent across all our events and engagement rose noticeably. Only wish we had started the content calendar even earlier." }
+];
+const FALLBACK_B = [
+  { id: "blog-esp32-lamp", title: "How I Built a Smart Lamp with ESP32", meta: "Mar 12, 2026 · 6 min read", excerpt: "From relay wiring and safe mains isolation to a Wi-Fi dashboard you can control from your phone.", content: "Most smart-lamp tutorials skip the boring-but-critical part: mains safety. In this build I used an opto-isolated relay module, a fused enclosure, and an ESP32 running a tiny web server for on/off plus scheduling. Total parts cost stayed under a week's lunch money, and the lamp has now survived months of daily use. Full wiring diagram and firmware notes are in the linked post.", image: "images/sml.JPEG", link: "#", tags: ["IoT", "ESP32", "Tutorial"] },
+  { id: "blog-documentary-festivals", title: "Directing a Documentary That Wins Festivals", meta: "Apr 28, 2026 · 8 min read", excerpt: "Story first, gear second: how a school documentary made it to FFP and ISMA Vol.9.", content: "Festival juries remember characters, not cameras. We spent two weeks just finding the right subject and earning trust before recording a single frame. Shot list stayed minimal — one camera, natural light — so the crew could disappear into the scene. Editing took three passes: story, rhythm, then color. The awards were a bonus; the real win was a film people actually finish watching.", image: "images/cinema.JPEG", link: "#", tags: ["Documentary", "Directing", "Festivals"] },
+  { id: "blog-dark-ui", title: "Dark Interfaces That Feel Premium, Not Gloomy", meta: "Jun 02, 2026 · 5 min read", excerpt: "Layered blacks, restrained blur, and one accent color: my recipe for this very portfolio.", content: "Pure black backgrounds feel cheap; the trick is layering — #050505 base, zinc-900 surfaces, hairline white/5 borders, and a single emerald or amber accent used sparingly. Glassmorphism only works when blur has something to blur, so I keep a faint grid texture underneath. Typography does the rest: tight tracking on display type, light weights for body. This portfolio is the live demo.", image: "images/ptr.JPEG", link: "#", tags: ["Design", "UI/UX", "Frontend"] }
+];
+const clone = o => JSON.parse(JSON.stringify(o));
 
 /* ---------------- boot ---------------- */
 window.addEventListener("DOMContentLoaded", () => {
@@ -324,40 +502,55 @@ window.addEventListener("DOMContentLoaded", () => {
   $("pwBackdrop").addEventListener("click", () => $("pwModal").classList.add("hidden"));
   $("btnPwSave").addEventListener("click", onChangePassword);
 
-  $("btnAdd").addEventListener("click", () => openEditor(null));
-  $("btnEditorClose").addEventListener("click", closeEditor);
-  $("btnEditorCancel").addEventListener("click", closeEditor);
-  $("editorBackdrop").addEventListener("click", closeEditor);
-  $("btnEditorSave").addEventListener("click", saveEditor);
-  $("f_imageFile").addEventListener("change", onImagePicked);
-  $("btnPreviewCard").addEventListener("click", previewEditorCard);
-  $("btnCopyCard").addEventListener("click", async () => {
-    const p = readEditor(); if (!p) return;
-    alert(await copyText(cardHtml(p)) ? "Card HTML copied!" : "Copy failed — select the text manually.");
-  });
+  document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+  document.querySelectorAll("[data-close]").forEach(el => el.addEventListener("click", () => $(el.dataset.close).classList.add("hidden")));
 
-  $("btnCopyAll").addEventListener("click", async () => {
-    $("outHtml").value = allCardsHtml();
-    alert(await copyText(allCardsHtml()) ? `Copied HTML for ${projects.length} cards! Paste between PROJECTS-START / PROJECTS-END.` : "Copy failed — select the text manually.");
-  });
-  $("btnRefreshOut").addEventListener("click", () => { $("outHtml").value = allCardsHtml(); });
-  $("btnCopyOut").addEventListener("click", async () => {
-    alert(await copyText($("outHtml").value) ? "Copied!" : "Copy failed — select the text manually.");
-  });
+  $("btnAddP").addEventListener("click", () => openEditorP(null));
+  $("btnSaveP").addEventListener("click", saveEditorP);
+  $("p_imageFile").addEventListener("change", e => pickImage(e, "p_image"));
+  $("btnPreviewP").addEventListener("click", () => { const p = readEditorP(); if (p) $("outOneP").value = projectCardHtml(p); });
+  $("btnCopyOneP").addEventListener("click", async () => { const p = readEditorP(); if (!p) return; alert(await copyText(projectCardHtml(p)) ? "Card HTML copied!" : "Copy failed — select manually."); });
+  $("btnCopyAllP").addEventListener("click", async () => { refreshOutputs(); alert(await copyText($("outP").value) ? `Copied HTML for ${projects.length} cards!` : "Copy failed — select manually."); });
+  $("btnRegenP").addEventListener("click", refreshOutputs);
+  $("btnCopyP").addEventListener("click", async () => { alert(await copyText($("outP").value) ? "Copied!" : "Copy failed."); });
+  $("btnResetP").addEventListener("click", () => { if (confirm("Reset projects to default?")) { projects = clone(FALLBACK_P); afterChange(); } });
+
+  $("btnAddR").addEventListener("click", () => openEditorR(null));
+  $("btnSaveR").addEventListener("click", saveEditorR);
+  $("btnCopyAllR").addEventListener("click", async () => { refreshOutputs(); alert(await copyText($("outR").value) ? `Copied HTML for ${reviews.length} reviews!` : "Copy failed."); });
+  $("btnRegenR").addEventListener("click", refreshOutputs);
+  $("btnCopyR").addEventListener("click", async () => { alert(await copyText($("outR").value) ? "Copied!" : "Copy failed."); });
+  $("btnResetR").addEventListener("click", () => { if (confirm("Reset reviews to default?")) { reviews = clone(FALLBACK_R); afterChange(); } });
+
+  $("btnAddB").addEventListener("click", () => openEditorB(null));
+  $("btnSaveB").addEventListener("click", saveEditorB);
+  $("btnCopyAllB").addEventListener("click", async () => { refreshOutputs(); alert(await copyText($("outB").value) ? `Copied HTML for ${blogs.length} articles!` : "Copy failed."); });
+  $("btnRegenB").addEventListener("click", refreshOutputs);
+  $("btnCopyB").addEventListener("click", async () => { alert(await copyText($("outB").value) ? "Copied!" : "Copy failed."); });
+  $("btnResetB").addEventListener("click", () => { if (confirm("Reset blog to default?")) { blogs = clone(FALLBACK_B); afterChange(); } });
+
   $("btnExport").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(projects, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ projects, reviews, blogs }, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "projects-backup.json"; a.click();
+    a.href = URL.createObjectURL(blob); a.download = "content-backup.json"; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   });
   $("btnImport").addEventListener("click", () => $("fileImport").click());
   $("fileImport").addEventListener("change", importJSON);
-  $("btnRevert").addEventListener("click", resetDefault);
   $("btnWipe").addEventListener("click", wipeAll);
 
-  document.addEventListener("keydown", e => { if (e.key === "Escape") { closeEditor(); $("pwModal").classList.add("hidden"); } });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") ["editorModalP", "editorModalR", "editorModalB", "pwModal"].forEach(id => $(id).classList.add("hidden")); });
   window.addEventListener("beforeunload", () => { encKey = null; });
 });
+
+function switchTab(name) {
+  document.querySelectorAll(".tab-btn").forEach(b => {
+    const on = b.dataset.tab === name;
+    b.classList.toggle("active", on);
+    b.classList.toggle("text-zinc-400", !on);
+  });
+  ["projects", "reviews", "blog"].forEach(t => $("tab-" + t).classList.toggle("hidden", t !== name));
+}
 
 function refreshLockUI() {
   const { fails, lockUntil } = getLock();
@@ -425,8 +618,7 @@ async function unlock(username, isNew) {
   $("sessionUser").textContent = "● " + username;
   startSessionTimer();
   await loadData(isNew);
-  renderList();
-  $("outHtml").value = allCardsHtml();
+  renderAll(); refreshOutputs();
 }
 
 function startSessionTimer() {
@@ -443,7 +635,7 @@ function startSessionTimer() {
 }
 
 function lock(msg) {
-  encKey = null; authedUser = null; projects = [];
+  encKey = null; authedUser = null; projects = []; reviews = []; blogs = [];
   sessionStorage.removeItem(SS_SESS); clearInterval(sessionInt);
   $("dashView").classList.add("hidden");
   $("sessionBox").classList.add("hidden");
@@ -459,35 +651,40 @@ function lock(msg) {
 }
 
 /* ---------------- data ---------------- */
-const FALLBACK = [
-  { id: "pintarhub-portal", category: "Web Platform / EdTech", title: "Pintarhub Portal", short: "An interactive web-based education portal for efficient self-paced learning management.", description: "An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators.", image: "images/ptr.JPEG", tags: ["HTML", "CSS", "JavaScript", "EdTech"], type: "image", videoUrl: "", badge: "", link: "" },
-  { id: "giat-ukbi-documentary", category: "Documentary / Video Production", title: "Giat UKBI Documentary", short: "Official documentary production with SMAN 1 Padamara promoting the UKBI language test.", description: "Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film.", image: "images/ukbi.JPEG", tags: ["Directing", "Premiere Pro", "Documentary"], type: "video", videoUrl: "https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v", badge: "", link: "" },
-  { id: "smart-lamp-application", category: "Hardware / IoT Integration", title: "Smart Lamp Application", short: "A microcontroller-based home lamp automation prototype with a digital control dashboard.", description: "A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi.", image: "images/sml.JPEG", tags: ["ESP32", "Arduino", "IoT Dashboard"], type: "image", videoUrl: "", badge: "", link: "" },
-  { id: "hut-smara-euforia", category: "Event Showcase / Web", title: "HUT Smara Euforia", short: "An interactive landing page documenting the school anniversary celebration.", description: "Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info.", image: "images/smr.JPEG", tags: ["Landing Page", "Tailwind", "Event"], type: "image", videoUrl: "", badge: "", link: "" },
-  { id: "yang-terpanggil-documentary", category: "Cinematography / Award Pick", title: "\"Yang Terpanggil\" Documentary", short: "An award-winning short documentary honored at FFP & Indonesia Student Movie Awards.", description: "A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading.", image: "images/cinema.JPEG", tags: ["Documentary", "DaVinci Resolve", "Directing"], type: "image", videoUrl: "", badge: "🏆 FFP & ISMA Vol.9", link: "" },
-  { id: "multi-event-content-strategy", category: "Creative Direction / Management", title: "Multi-Event Content Strategy", short: "Creative concepting, feed management, and visual asset production for events.", description: "Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy.", image: "images/jkf.JPEG", tags: ["Content Planning", "Branding", "Social Media"], type: "image", videoUrl: "", badge: "", link: "" }
-];
-
 async function loadData(isNew) {
-  if (isNew) { projects = JSON.parse(JSON.stringify(FALLBACK)); await autoEncrypt("initialized"); return; }
+  if (isNew) { projects = clone(FALLBACK_P); reviews = clone(FALLBACK_R); blogs = clone(FALLBACK_B); await autoEncrypt("initialized"); return; }
   try {
     const blob = JSON.parse(localStorage.getItem(LS_ENC));
-    if (blob && blob.iv && blob.data) { projects = await decJSON(encKey, blob); return; }
-  } catch { /* fall through to default */ }
-  projects = JSON.parse(JSON.stringify(FALLBACK));
+    if (blob && blob.iv && blob.data) {
+      const d = await decJSON(encKey, blob);
+      projects = Array.isArray(d.projects) ? d.projects : clone(FALLBACK_P);
+      reviews = Array.isArray(d.reviews) ? d.reviews : clone(FALLBACK_R);
+      blogs = Array.isArray(d.blogs) ? d.blogs : clone(FALLBACK_B);
+      return;
+    }
+  } catch { /* fall through */ }
+  projects = clone(FALLBACK_P); reviews = clone(FALLBACK_R); blogs = clone(FALLBACK_B);
   await autoEncrypt("loaded");
 }
 
 async function autoEncrypt(reason) {
-  $("encStatusText").textContent = "Encrypting…";
+  const st = $("encStatusText");
+  if (st) st.textContent = "Encrypting…";
   clearTimeout(encryptTimer);
   encryptTimer = setTimeout(async () => {
     try {
       if (!encKey) return;
-      localStorage.setItem(LS_ENC, JSON.stringify(await encJSON(encKey, projects)));
-      $("encStatusText").textContent = `Encrypted draft • AES-GCM-256 • saved ${new Date().toLocaleTimeString()} (${reason})`;
-    } catch { $("encStatusText").textContent = "Encryption failed — browser blocked WebCrypto."; }
+      localStorage.setItem(LS_ENC, JSON.stringify(await encJSON(encKey, { projects, reviews, blogs })));
+      if (st) st.textContent = `Encrypted draft • AES-GCM-256 • saved ${new Date().toLocaleTimeString()} (${reason})`;
+    } catch { if (st) st.textContent = "Encryption failed — browser blocked WebCrypto."; }
   }, 400);
+}
+
+function afterChange() { renderAll(); refreshOutputs(); autoEncrypt("edit"); }
+function refreshOutputs() {
+  $("outP").value = projects.map(projectCardHtml).join("\n\n");
+  $("outR").value = reviews.map(reviewCardHtml).join("\n\n");
+  $("outB").value = blogs.map(blogCardHtml).join("\n\n");
 }
 
 function importJSON(e) {
@@ -496,120 +693,176 @@ function importJSON(e) {
   r.onload = () => {
     try {
       const d = JSON.parse(r.result);
-      if (!Array.isArray(d)) throw new Error("JSON must be an array of projects.");
-      projects = d.map((p, i) => ({ id: String(p.id || slug(p.title || ("project-" + i))), category: p.category || "General", title: p.title || "Untitled", short: p.short || p.description || "", description: p.description || p.short || "", image: p.image || "images/profile.svg", tags: Array.isArray(p.tags) ? p.tags : String(p.tags || "").split(/[,|]/).map(s => s.trim()).filter(Boolean), type: p.type === "video" ? "video" : "image", videoUrl: p.videoUrl || "", badge: p.badge || "", link: p.link || "" }));
-      renderList(); $("outHtml").value = allCardsHtml(); autoEncrypt("import");
+      const normP = a => (Array.isArray(a) ? a : []).map((p, i) => ({ id: String(p.id || slug(p.title || ("project-" + i))), category: p.category || "General", title: p.title || "Untitled", short: p.short || p.description || "", description: p.description || p.short || "", image: p.image || "images/profile.svg", gallery: Array.isArray(p.gallery) && p.gallery.length ? p.gallery : [p.image || "images/profile.svg"], tags: Array.isArray(p.tags) ? p.tags : String(p.tags || "").split(/[,|]/).map(s => s.trim()).filter(Boolean), type: p.type === "video" ? "video" : "image", videoUrl: p.videoUrl || "", link: p.link || "" }));
+      if (d.projects || d.reviews || d.blogs || Array.isArray(d)) {
+        if (Array.isArray(d)) projects = normP(d);
+        else {
+          if (d.projects) projects = normP(d.projects);
+          if (Array.isArray(d.reviews)) reviews = d.reviews;
+          if (Array.isArray(d.blogs)) blogs = d.blogs;
+        }
+        afterChange();
+      } else throw new Error("Unrecognized backup format.");
     } catch (err) { alert("Import failed: " + err.message); }
     e.target.value = "";
   };
   r.readAsText(f);
 }
 
-function resetDefault() {
-  if (!confirm("Reset all projects to the built-in default? Your current list will be replaced.")) return;
-  projects = JSON.parse(JSON.stringify(FALLBACK)); renderList(); $("outHtml").value = allCardsHtml(); autoEncrypt("reset");
-}
-
 function wipeAll() {
-  if (!confirm("Wipe ALL local data (account + encrypted drafts)? You will need to create a new account.")) return;
+  if (!confirm("Wipe ALL local data (account + encrypted drafts)?")) return;
   if (!confirm("Really wipe? Press OK again to confirm.")) return;
   localStorage.removeItem(LS_AUTH); localStorage.removeItem(LS_ENC); localStorage.removeItem(LS_LOCK);
   location.reload();
 }
 
-/* ---------------- list rendering ---------------- */
-function renderList() {
-  const box = $("projectList");
-  if (!projects.length) { box.innerHTML = `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No projects yet. Click “+ Add project”.</div>`; return; }
-  box.innerHTML = projects.map((p, i) => `
+/* ---------------- project list + editor ---------------- */
+function renderAll() { renderListP(); renderListR(); renderListB(); }
+
+function rowHtml(p, i, n, sub) {
+  return `
     <div class="glass rounded-2xl p-4 flex gap-4 items-center">
-      <img src="${escAttr(p.image)}" onerror="this.style.opacity=0.2" class="w-20 h-14 rounded-xl object-cover bg-zinc-900 shrink-0" alt="">
       <div class="flex-1 min-w-0">
-        <p class="text-[10px] font-mono text-zinc-500 uppercase truncate">${esc(p.category)} · ${esc(p.type)}</p>
-        <h4 class="text-sm font-medium truncate">${esc(p.title)}</h4>
-        <p class="text-[11px] text-zinc-500 truncate">${esc(p.short || p.description)}</p>
+        <h4 class="text-sm font-medium truncate">${esc(p.title || p.name)}</h4>
+        <p class="text-[11px] text-zinc-500 truncate">${esc(sub)}</p>
       </div>
       <div class="flex flex-col sm:flex-row gap-1.5 shrink-0">
-        <button data-act="up" data-i="${i}" ${i === 0 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↑</button>
-        <button data-act="down" data-i="${i}" ${i === projects.length - 1 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↓</button>
-        <button data-act="edit" data-i="${i}" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 cursor-pointer">Edit</button>
-        <button data-act="del" data-i="${i}" class="px-3 py-1.5 rounded-lg border border-red-900 text-red-300 text-[11px] hover:bg-red-950/40 cursor-pointer">Delete</button>
+        <button data-act="up" data-i="${i}" data-list="${n}" ${i === 0 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↑</button>
+        <button data-act="down" data-i="${i}" data-list="${n}" ${i === len(n) - 1 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↓</button>
+        <button data-act="edit" data-i="${i}" data-list="${n}" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 cursor-pointer">Edit</button>
+        <button data-act="del" data-i="${i}" data-list="${n}" class="px-3 py-1.5 rounded-lg border border-red-900 text-red-300 text-[11px] hover:bg-red-950/40 cursor-pointer">Delete</button>
       </div>
-    </div>`).join("");
-  box.querySelectorAll("button[data-act]").forEach(b => b.addEventListener("click", () => {
-    const i = +b.dataset.i, act = b.dataset.act;
-    if (act === "up" && i > 0) { [projects[i - 1], projects[i]] = [projects[i], projects[i - 1]]; }
-    if (act === "down" && i < projects.length - 1) { [projects[i + 1], projects[i]] = [projects[i], projects[i + 1]]; }
-    if (act === "edit") { openEditor(projects[i].id); return; }
-    if (act === "del") {
-      if (!confirm(`Delete "${projects[i].title}"?`)) return;
-      if (prompt(`Type the project title to confirm deletion:\n${projects[i].title}`) !== projects[i].title) { alert("Title did not match — deletion cancelled."); return; }
-      projects.splice(i, 1);
-    }
-    renderList(); $("outHtml").value = allCardsHtml(); autoEncrypt(act);
-  }));
+    </div>`;
 }
+function getList(n) { return n === "P" ? projects : n === "R" ? reviews : blogs; }
+function len(n) { return getList(n).length; }
 
-/* ---------------- editor ---------------- */
-function readEditor() {
-  const err = $("editorError"); err.classList.add("hidden");
-  const title = $("f_title").value.trim(), category = $("f_category").value.trim();
-  const short = $("f_short").value.trim(), desc = $("f_description").value.trim();
-  const type = $("f_type").value, image = $("f_image").value.trim() || "images/profile.svg";
-  const videoUrl = $("f_videoUrl").value.trim(), link = $("f_link").value.trim(), badge = $("f_badge").value.trim();
-  const tags = $("f_tags").value.split(",").map(s => s.trim()).filter(Boolean);
-  if (!title || !category || !short || !desc) { err.textContent = "Title, category, short text, and full description are required."; err.classList.remove("hidden"); return null; }
-  if (type === "video" && !videoUrl) { err.textContent = "Video type requires a YouTube embed URL."; err.classList.remove("hidden"); return null; }
-  let id = editingId || slug(title), n = 1;
-  const base = id;
-  while (projects.some(x => x.id === id && x.id !== editingId)) id = base + "-" + (++n);
-  return { id, title, category, short, description: desc, type, image, videoUrl, link, badge, tags };
+function renderListP() {
+  $("listP").innerHTML = projects.length
+    ? projects.map((p, i) => rowHtml(p, i, "P", `${p.category} · ${p.type}`)).join("")
+    : `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No projects yet.</div>`;
 }
-
-function openEditor(id) {
-  editingId = id;
-  const p = id ? projects.find(x => x.id === id) : null;
-  $("editorTitle").textContent = p ? "Edit project" : "Add project";
-  $("editorError").classList.add("hidden");
-  $("outCard").value = "";
-  $("f_title").value = p?.title || "";
-  $("f_category").value = p?.category || "";
-  $("f_type").value = p?.type || "image";
-  $("f_short").value = p?.short || "";
-  $("f_description").value = p?.description || "";
-  $("f_image").value = p?.image || "";
-  $("f_imageFile").value = "";
-  $("f_videoUrl").value = p?.videoUrl || "";
-  $("f_link").value = p?.link || "";
-  $("f_badge").value = p?.badge || "";
-  $("f_tags").value = (p?.tags || []).join(", ");
-  $("editorModal").classList.remove("hidden");
+function renderListR() {
+  $("listR").innerHTML = reviews.length
+    ? reviews.map((r, i) => rowHtml(r, i, "R", `${r.role} · ★ ${r.rating}`)).join("")
+    : `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No reviews yet.</div>`;
 }
-
-function closeEditor() { $("editorModal").classList.add("hidden"); editingId = null; }
-
-function previewEditorCard() {
-  const p = readEditor(); if (!p) return;
-  $("outCard").value = cardHtml(p);
+function renderListB() {
+  $("listB").innerHTML = blogs.length
+    ? blogs.map((b, i) => rowHtml(b, i, "B", b.meta)).join("")
+    : `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No articles yet.</div>`;
 }
+document.addEventListener("click", e => {
+  const b = e.target.closest("button[data-act]");
+  if (!b || $("dashView").classList.contains("hidden")) return;
+  const i = +b.dataset.i, n = b.dataset.list, act = b.dataset.act;
+  const arr = getList(n);
+  if (act === "up" && i > 0) { [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; }
+  else if (act === "down" && i < arr.length - 1) { [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]]; }
+  else if (act === "edit") {
+    if (n === "P") openEditorP(arr[i].id);
+    else if (n === "R") openEditorR(arr[i].id);
+    else openEditorB(arr[i].id);
+    return;
+  }
+  else if (act === "del") {
+    const label = arr[i].title || arr[i].name;
+    if (!confirm(`Delete "${label}"?`)) return;
+    if (prompt(`Type the title to confirm deletion:\n${label}`) !== label) { alert("Did not match — deletion cancelled."); return; }
+    arr.splice(i, 1);
+  }
+  afterChange();
+});
 
-function onImagePicked(e) {
+function pickImage(e, targetId) {
   const f = e.target.files[0]; if (!f) return;
-  if (f.size > 900 * 1024) { alert("Image is larger than ~900KB — prefer placing the file in images/ and typing its path instead."); }
+  if (f.size > 900 * 1024) alert("Image is larger than ~900KB — prefer placing the file in images/ and typing its path instead.");
   const r = new FileReader();
-  r.onload = () => { $("f_image").value = r.result; };
+  r.onload = () => { $(targetId).value = r.result; };
   r.readAsDataURL(f);
 }
 
-function saveEditor() {
-  const p = readEditor(); if (!p) return;
-  if (editingId) {
-    const i = projects.findIndex(x => x.id === editingId);
-    if (i >= 0) projects[i] = p;
-  } else {
-    projects.push(p);
-  }
-  closeEditor(); renderList(); $("outHtml").value = allCardsHtml(); autoEncrypt(editingId ? "edit" : "add");
+function readEditorP() {
+  const err = $("editorErrorP"); err.classList.add("hidden");
+  const title = $("p_title").value.trim(), category = $("p_category").value.trim();
+  const short = $("p_short").value.trim(), desc = $("p_description").value.trim();
+  const type = $("p_type").value, image = $("p_image").value.trim() || "images/profile.svg";
+  const videoUrl = $("p_videoUrl").value.trim(), link = $("p_link").value.trim();
+  const gallery = $("p_gallery").value.split("\n").map(s => s.trim()).filter(Boolean);
+  const tags = $("p_tags").value.split(",").map(s => s.trim()).filter(Boolean);
+  if (!title || !category || !short || !desc) { err.textContent = "Title, category, short text, and full description are required."; err.classList.remove("hidden"); return null; }
+  if (type === "video" && !videoUrl) { err.textContent = "Video type requires a YouTube embed URL."; err.classList.remove("hidden"); return null; }
+  let id = editingP || slug(title); const base = id; let k = 1;
+  while (projects.some(x => x.id === id && x.id !== editingP)) id = base + "-" + (++k);
+  return { id, title, category, short, description: desc, type, image, gallery: gallery.length ? gallery : [image], videoUrl, link, tags };
+}
+function openEditorP(id) {
+  editingP = id;
+  const p = id ? projects.find(x => x.id === id) : null;
+  $("editorTitleP").textContent = p ? "Edit project" : "Add project";
+  $("editorErrorP").classList.add("hidden"); $("outOneP").value = "";
+  $("p_title").value = p?.title || ""; $("p_category").value = p?.category || "";
+  $("p_type").value = p?.type || "image"; $("p_short").value = p?.short || "";
+  $("p_description").value = p?.description || ""; $("p_image").value = p?.image || "";
+  $("p_imageFile").value = ""; $("p_videoUrl").value = p?.videoUrl || "";
+  $("p_link").value = p?.link || ""; $("p_gallery").value = (p?.gallery || []).join("\n");
+  $("p_tags").value = (p?.tags || []).join(", ");
+  $("editorModalP").classList.remove("hidden");
+}
+function saveEditorP() {
+  const p = readEditorP(); if (!p) return;
+  if (editingP) { const i = projects.findIndex(x => x.id === editingP); if (i >= 0) projects[i] = p; }
+  else projects.push(p);
+  $("editorModalP").classList.add("hidden"); editingP = null; afterChange();
+}
+
+function openEditorR(id) {
+  editingR = id;
+  const r = id ? reviews.find(x => x.id === id) : null;
+  $("editorTitleR").textContent = r ? "Edit review" : "Add review";
+  $("editorErrorR").classList.add("hidden");
+  $("r_name").value = r?.name || ""; $("r_role").value = r?.role || "";
+  $("r_rating").value = String(r?.rating ?? 5); $("r_text").value = r?.text || "";
+  $("editorModalR").classList.remove("hidden");
+}
+function saveEditorR() {
+  const err = $("editorErrorR"); err.classList.add("hidden");
+  const name = $("r_name").value.trim(), role = $("r_role").value.trim(), text = $("r_text").value.trim();
+  const rating = parseFloat($("r_rating").value) || 5;
+  if (!name || !role || !text) { err.textContent = "Name, role, and review text are required."; err.classList.remove("hidden"); return; }
+  let id = editingR || ("review-" + slug(name)); const base = id; let k = 1;
+  while (reviews.some(x => x.id === id && x.id !== editingR)) id = base + "-" + (++k);
+  const obj = { id, name, role, rating, text };
+  if (editingR) { const i = reviews.findIndex(x => x.id === editingR); if (i >= 0) reviews[i] = obj; }
+  else reviews.push(obj);
+  $("editorModalR").classList.add("hidden"); editingR = null; afterChange();
+}
+
+function openEditorB(id) {
+  editingB = id;
+  const b = id ? blogs.find(x => x.id === id) : null;
+  $("editorTitleB").textContent = b ? "Edit article" : "Add article";
+  $("editorErrorB").classList.add("hidden");
+  $("b_title").value = b?.title || ""; $("b_meta").value = b?.meta || "";
+  $("b_excerpt").value = b?.excerpt || ""; $("b_content").value = b?.content || "";
+  $("b_image").value = b?.image || ""; $("b_link").value = b?.link ?? "#";
+  $("b_tags").value = (b?.tags || []).join(", ");
+  $("editorModalB").classList.remove("hidden");
+}
+function saveEditorB() {
+  const err = $("editorErrorB"); err.classList.add("hidden");
+  const title = $("b_title").value.trim(), meta = $("b_meta").value.trim();
+  const excerpt = $("b_excerpt").value.trim(), content = $("b_content").value.trim();
+  const image = $("b_image").value.trim() || "images/profile.svg";
+  const link = $("b_link").value.trim() || "#";
+  const tags = $("b_tags").value.split(",").map(s => s.trim()).filter(Boolean);
+  if (!title || !meta || !excerpt || !content) { err.textContent = "Title, date, excerpt, and content are required."; err.classList.remove("hidden"); return; }
+  let id = editingB || ("blog-" + slug(title)); const base = id; let k = 1;
+  while (blogs.some(x => x.id === id && x.id !== editingB)) id = base + "-" + (++k);
+  const obj = { id, title, meta, excerpt, content, image, link, tags };
+  if (editingB) { const i = blogs.findIndex(x => x.id === editingB); if (i >= 0) blogs[i] = obj; }
+  else blogs.push(obj);
+  $("editorModalB").classList.add("hidden"); editingB = null; afterChange();
 }
 
 /* ---------------- change password ---------------- */
