@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Portfolio Manager</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  html { scroll-behavior: smooth; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.07); }
+  input, textarea, select { color-scheme: dark; }
+  .shake { animation: shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+</style>
+</head>
+<body class="bg-[#050505] text-zinc-100 font-sans antialiased min-h-screen">
+
+<div class="fixed inset-0 -z-10 bg-[#050505]">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/50 via-[#050505] to-[#050505]"></div>
+</div>
+
+<div class="max-w-5xl mx-auto px-5 sm:px-8 py-10">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <p class="text-[11px] font-mono tracking-widest text-zinc-500 uppercase">Restricted Area</p>
+      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Project Dashboard</h1>
+      <p class="text-xs text-zinc-500 mt-1">Manage <span class="font-mono">projects.json</span> — changes preview instantly, publish by committing the exported file.</p>
+    </div>
+    <div id="sessionBox" class="hidden text-right">
+      <p id="sessionUser" class="text-xs font-mono text-zinc-300"></p>
+      <p id="sessionTimer" class="text-[11px] font-mono text-zinc-500"></p>
+      <div class="flex gap-2 mt-2 justify-end">
+        <button id="btnChangePw" class="text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-900 transition cursor-pointer">Change password</button>
+        <button id="btnLogout" class="text-[11px] px-3 py-1.5 rounded-full bg-white text-black hover:bg-zinc-200 transition cursor-pointer">Lock / Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="encStatus" class="hidden mb-6 flex items-center gap-2 text-[11px] font-mono px-4 py-2.5 rounded-xl border border-emerald-900/60 bg-emerald-950/30 text-emerald-300">
+    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+    <span id="encStatusText">Encrypted draft • AES-GCM • saved</span>
+  </div>
+
+  <!-- ============ AUTH VIEW ============ -->
+  <div id="authView" class="glass rounded-3xl p-6 sm:p-10 max-w-md mx-auto">
+    <div id="authSetupIntro" class="hidden mb-6 p-4 rounded-2xl bg-amber-950/40 border border-amber-900/50 text-xs text-amber-200 leading-relaxed">
+      No admin account exists on this browser yet. Create a username + password now. They are stored only as a salted PBKDF2 hash — never plaintext.
+    </div>
+    <h2 id="authTitle" class="text-xl font-medium mb-1">Admin login</h2>
+    <p class="text-xs text-zinc-500 mb-6">5 wrong attempts lock this browser for 60 seconds. Session auto-locks after 30 minutes.</p>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">USERNAME</label>
+        <input id="authUser" autocomplete="username" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="admin username">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">PASSWORD</label>
+        <input id="authPass" type="password" autocomplete="current-password" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="••••••••">
+        <p id="pwHint" class="hidden text-[11px] text-zinc-500 mt-1.5">Min. 8 characters. Use 12+ with upper/lowercase, numbers &amp; symbols.</p>
+      </div>
+      <div id="authConfirmWrap" class="hidden">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">CONFIRM PASSWORD</label>
+        <input id="authPass2" type="password" autocomplete="new-password" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="repeat password">
+      </div>
+      <p id="authError" class="hidden text-xs text-red-400"></p>
+      <p id="lockInfo" class="hidden text-xs text-amber-300 font-mono"></p>
+      <button id="btnAuth" class="w-full py-3.5 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Unlock Dashboard</button>
+    </div>
+    <div class="mt-6 text-[11px] text-zinc-600 leading-relaxed">
+      Security: PBKDF2-SHA256 (210,000 iterations) + AES-GCM-256. Drafts are auto-encrypted at rest.
+      On GitHub Pages there is no server — anyone with the file can read <span class="font-mono">projects.json</span> (it must be public for the site to render).
+      Real protection = your password + keeping <span class="font-mono">admin.html</span> unlinked / deployed separately. See Publish guide below.
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <div id="dashView" class="hidden">
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button id="btnAdd" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add project</button>
+      <button id="btnSavePreview" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Save &amp; Preview on site</button>
+      <button id="btnExport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Export projects.json</button>
+      <button id="btnImport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Import JSON</button>
+      <input id="fileImport" type="file" accept="application/json" class="hidden">
+      <button id="btnRevert" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset to default</button>
+    </div>
+
+    <div id="projectList" class="space-y-3"></div>
+
+    <div class="glass rounded-3xl p-6 mt-8">
+      <h3 class="text-sm font-medium mb-2">How to publish (GitHub Pages)</h3>
+      <ol class="text-xs text-zinc-400 font-light leading-relaxed list-decimal ml-5 space-y-1">
+        <li>Click <b class="text-zinc-200">Save &amp; Preview</b> to see changes instantly on <span class="font-mono">index.html</span> (this browser only).</li>
+        <li>Click <b class="text-zinc-200">Export projects.json</b>, then replace the repo's <span class="font-mono">projects.json</span> with the downloaded file.</li>
+        <li>Commit &amp; push: <span class="font-mono">git add projects.json &amp;&amp; git commit -m "Update projects" &amp;&amp; git push</span>. GitHub Pages redeploys automatically.</li>
+        <li>Recommended: do <b class="text-zinc-200">NOT</b> deploy <span class="font-mono">admin.html</span> publicly. Keep it local, or rename it to something unguessable (e.g. <span class="font-mono">manage-x7q2.html</span>) and never link it from the site.</li>
+        <li>If you must host it: set a 12+ character password, and clear “Save &amp; Preview” plaintext data on shared computers via <span class="font-mono">Reset</span> → logout.</li>
+      </ol>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button id="btnWipe" class="text-[11px] px-3 py-1.5 rounded-full border border-red-900 text-red-300 hover:bg-red-950/40 transition cursor-pointer">Wipe all local data</button>
+        <a href="index.html" class="text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-900 transition">← Back to site</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDITOR MODAL ============ -->
+<div id="editorModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" id="editorBackdrop"></div>
+  <div class="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="flex justify-between items-center mb-5">
+      <h3 id="editorTitle" class="text-lg font-medium">Add project</h3>
+      <button id="btnEditorClose" class="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-zinc-400 hover:text-white cursor-pointer">✕</button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TITLE *</label>
+        <input id="f_title" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Pintarhub Portal">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">CATEGORY *</label>
+        <input id="f_category" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Web Platform / EdTech">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TYPE</label>
+        <select id="f_type" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
+          <option value="image">Image card</option>
+          <option value="video">Video card (YouTube embed)</option>
+        </select>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">CARD SHORT TEXT * (front of flip card)</label>
+        <textarea id="f_short" rows="2" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none" placeholder="One-line preview shown on the card front..."></textarea>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">FULL DESCRIPTION * (back of flip card + popup)</label>
+        <textarea id="f_description" rows="4" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none" placeholder="Full project story, features, your role..."></textarea>
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">IMAGE (path or URL)</label>
+        <input id="f_image" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="images/my-project.jpg">
+        <input id="f_imageFile" type="file" accept="image/*" class="mt-2 text-[11px] text-zinc-500 file:mr-3 file:px-3 file:py-1.5 file:rounded-full file:border file:border-zinc-700 file:bg-zinc-900 file:text-zinc-200 file:text-[11px] cursor-pointer">
+        <p class="text-[10px] text-zinc-600 mt-1">Tip: put the file in <span class="font-mono">images/</span> and reference it relatively — or upload to embed (increases file size).</p>
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">VIDEO EMBED URL (only for video type)</label>
+        <input id="f_videoUrl" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="https://www.youtube.com/embed/....">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5 mt-3">EXTERNAL LINK (optional)</label>
+        <input id="f_link" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="https://...">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">BADGE (optional, e.g. 🏆 Award)</label>
+        <input id="f_badge" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="">
+      </div>
+      <div>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">TAGS (comma separated)</label>
+        <input id="f_tags" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="HTML, Tailwind, IoT">
+      </div>
+    </div>
+    <p id="editorError" class="hidden text-xs text-red-400 mt-4"></p>
+    <div class="flex gap-2 mt-6">
+      <button id="btnEditorSave" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save project</button>
+      <button id="btnEditorCancel" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHANGE PASSWORD MODAL ============ -->
+<div id="pwModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" id="pwBackdrop"></div>
+  <div class="relative w-full max-w-sm bg-zinc-950 border border-zinc-800 rounded-3xl p-6">
+    <h3 class="text-lg font-medium mb-4">Change password</h3>
+    <input id="pwCurrent" type="password" placeholder="Current password" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm mb-3 focus:outline-none focus:border-zinc-500">
+    <input id="pwNew" type="password" placeholder="New password (min 8 chars)" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm mb-3 focus:outline-none focus:border-zinc-500">
+    <input id="pwNew2" type="password" placeholder="Confirm new password" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm mb-3 focus:outline-none focus:border-zinc-500">
+    <p id="pwError" class="hidden text-xs text-red-400 mb-3"></p>
+    <div class="flex gap-2">
+      <button id="btnPwSave" class="flex-1 py-2.5 bg-white text-black text-sm font-medium rounded-xl hover:bg-zinc-200 transition cursor-pointer">Update</button>
+      <button id="btnPwCancel" class="px-4 py-2.5 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   Portfolio Admin — static-safe security model
+   - Auth:   username (plaintext) + PBKDF2-SHA256(password, salt, 210k) hash
+   - Crypto: AES-GCM-256 drafts, key = PBKDF2(password, encSalt, 210k)
+   - Keys live ONLY in memory. Nothing plaintext secret touches disk
+     except the public preview override (required for index.html to render)
+     which contains PROJECT DATA only — never credentials.
+   - GitHub Pages has no server: projects.json is inherently public.
+     Keep admin.html local / unlinked / obscurely-named for real safety.
+===================================================================== */
+const LS_AUTH = "portfolio_admin_auth_v1";
+const LS_ENC  = "portfolio_projects_enc_v1";
+const LS_PUB  = "portfolio_projects_v1";
+const LS_LOCK = "portfolio_admin_lock_v1";
+const SS_SESS = "portfolio_admin_session_v1";
+const ITER = 210000, SESSION_MIN = 30, MAX_FAILS = 5, LOCK_MS = 60000;
+
+let encKey = null, authedUser = null, projects = [], editingId = null, encryptTimer = null, sessionInt = null;
+
+const $ = id => document.getElementById(id);
+const te = new TextEncoder(), td = new TextDecoder();
+const b64e = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0)).buffer;
+const rand = n => crypto.getRandomValues(new Uint8Array(n));
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+function timingSafeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+}
+async function pbkdf2(password, saltBuf, iter = ITER) {
+  const base = await crypto.subtle.importKey("raw", te.encode(password), "PBKDF2", false, ["deriveBits", "deriveKey"]);
+  return crypto.subtle.deriveBits({ name: "PBKDF2", salt: saltBuf, iterations: iter, hash: "SHA-256" }, base, 256);
+}
+async function aesKeyFrom(password, encSaltB64) {
+  const base = await crypto.subtle.importKey("raw", te.encode(password), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: new Uint8Array(b64d(encSaltB64)), iterations: ITER, hash: "SHA-256" },
+    base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+async function encJSON(key, obj) {
+  const iv = rand(12);
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, te.encode(JSON.stringify(obj)));
+  return { iv: b64e(iv), data: b64e(ct) };
+}
+async function decJSON(key, blob) {
+  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(b64d(blob.iv)) }, key, b64d(blob.data));
+  return JSON.parse(td.decode(pt));
+}
+const getAuth = () => { try { return JSON.parse(localStorage.getItem(LS_AUTH)); } catch { return null; } };
+const getLock = () => { try { return JSON.parse(localStorage.getItem(LS_LOCK)) || { fails: 0, lockUntil: 0 }; } catch { return { fails: 0, lockUntil: 0 }; } };
+const setLock = o => localStorage.setItem(LS_LOCK, JSON.stringify(o));
+
+function slug(s) {
+  return (s || "project").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || ("project-" + Date.now().toString(36));
+}
+
+/* ---------------- boot ---------------- */
+window.addEventListener("DOMContentLoaded", async () => {
+  if (!crypto.subtle || !window.isSecureContext && location.protocol !== "file:") {
+    // WebCrypto PBKDF2/AES-GCM needs a secure context (https, localhost, or file)
+  }
+  const auth = getAuth();
+  const isSetup = !auth;
+  $("authSetupIntro").classList.toggle("hidden", !isSetup);
+  $("authConfirmWrap").classList.toggle("hidden", !isSetup);
+  $("pwHint").classList.toggle("hidden", !isSetup);
+  $("authTitle").textContent = isSetup ? "Create admin account" : "Admin login";
+  $("btnAuth").textContent = isSetup ? "Create & Unlock" : "Unlock Dashboard";
+  refreshLockUI();
+
+  $("btnAuth").addEventListener("click", onAuth);
+  [$("authUser"), $("authPass"), $("authPass2")].forEach(el => el.addEventListener("keydown", e => { if (e.key === "Enter") onAuth(); }));
+  $("btnLogout").addEventListener("click", lock);
+  $("btnChangePw").addEventListener("click", () => { $("pwModal").classList.remove("hidden"); });
+  $("btnPwCancel").addEventListener("click", () => $("pwModal").classList.add("hidden"));
+  $("pwBackdrop").addEventListener("click", () => $("pwModal").classList.add("hidden"));
+  $("btnPwSave").addEventListener("click", onChangePassword);
+
+  $("btnAdd").addEventListener("click", () => openEditor(null));
+  $("btnEditorClose").addEventListener("click", closeEditor);
+  $("btnEditorCancel").addEventListener("click", closeEditor);
+  $("editorBackdrop").addEventListener("click", closeEditor);
+  $("btnEditorSave").addEventListener("click", saveEditor);
+  $("f_imageFile").addEventListener("change", onImagePicked);
+
+  $("btnSavePreview").addEventListener("click", saveAndPreview);
+  $("btnExport").addEventListener("click", exportJSON);
+  $("btnImport").addEventListener("click", () => $("fileImport").click());
+  $("fileImport").addEventListener("change", importJSON);
+  $("btnRevert").addEventListener("click", resetDefault);
+  $("btnWipe").addEventListener("click", wipeAll);
+
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { closeEditor(); $("pwModal").classList.add("hidden"); } });
+  window.addEventListener("beforeunload", () => { encKey = null; }); // never persist keys
+});
+
+function refreshLockUI() {
+  const { fails, lockUntil } = getLock();
+  const left = lockUntil - Date.now();
+  $("lockInfo").classList.toggle("hidden", left <= 0);
+  $("btnAuth").disabled = left > 0;
+  $("btnAuth").classList.toggle("opacity-40", left > 0);
+  if (left > 0) {
+    $("lockInfo").textContent = `Locked — too many attempts. Retry in ${Math.ceil(left / 1000)}s (${fails}/${MAX_FAILS}).`;
+    setTimeout(refreshLockUI, 1000);
+  } else if (fails > 0) {
+    $("lockInfo").classList.remove("hidden");
+    $("lockInfo").textContent = `Warning: ${fails}/${MAX_FAILS} failed attempts.`;
+  }
+}
+
+/* ---------------- auth ---------------- */
+async function onAuth() {
+  const err = $("authError"); err.classList.add("hidden");
+  const lock = getLock();
+  if (lock.lockUntil > Date.now()) { refreshLockUI(); return; }
+  const username = $("authUser").value.trim();
+  const password = $("authPass").value;
+  try {
+    const existing = getAuth();
+    if (!existing) {
+      // --- first-run setup ---
+      if (username.length < 4) throw new Error("Username must be at least 4 characters.");
+      if (password.length < 8) throw new Error("Password must be at least 8 characters (12+ recommended).");
+      if (password !== $("authPass2").value) throw new Error("Passwords do not match.");
+      const authSalt = b64e(rand(16)), encSalt = b64e(rand(16));
+      const hash = hex(await pbkdf2(password, new Uint8Array(b64d(authSalt))));
+      localStorage.setItem(LS_AUTH, JSON.stringify({ user: username, authSalt, encSalt, hash, iter: ITER, createdAt: Date.now() }));
+      encKey = await aesKeyFrom(password, encSalt);
+      await unlock(username, password, true);
+    } else {
+      // --- login ---
+      const okUser = timingSafeEqual(username, existing.user);
+      const hash = hex(await pbkdf2(password, new Uint8Array(b64d(existing.authSalt)), existing.iter || ITER));
+      const okPass = timingSafeEqual(hash, existing.hash);
+      if (!okUser || !okPass) {
+        const fails = (lock.fails || 0) + 1;
+        setLock(fails >= MAX_FAILS ? { fails: 0, lockUntil: Date.now() + LOCK_MS } : { fails, lockUntil: 0 });
+        refreshLockUI();
+        throw new Error(`Invalid username or password. (${Math.min(fails, MAX_FAILS)}/${MAX_FAILS})`);
+      }
+      setLock({ fails: 0, lockUntil: 0 });
+      encKey = await aesKeyFrom(password, existing.encSalt);
+      await unlock(existing.user, password, false);
+    }
+  } catch (e) {
+    err.textContent = e.message || "Authentication failed.";
+    err.classList.remove("hidden");
+    $("authView").classList.remove("shake"); void $("authView").offsetWidth;
+    $("authView").classList.add("shake");
+  } finally {
+    $("authPass").value = ""; $("authPass2").value = "";
+  }
+}
+
+async function unlock(username, password, isNew) {
+  authedUser = username;
+  sessionStorage.setItem(SS_SESS, JSON.stringify({ user: username, exp: Date.now() + SESSION_MIN * 60000 }));
+  $("authView").classList.add("hidden");
+  $("dashView").classList.remove("hidden");
+  $("sessionBox").classList.remove("hidden");
+  $("encStatus").classList.remove("hidden"); $("encStatus").classList.add("flex");
+  $("sessionUser").textContent = "● " + username;
+  startSessionTimer();
+  await loadData(isNew);
+  renderList();
+}
+
+function startSessionTimer() {
+  clearInterval(sessionInt);
+  const tick = () => {
+    try {
+      const s = JSON.parse(sessionStorage.getItem(SS_SESS));
+      const left = s.exp - Date.now();
+      if (left <= 0) { lock("Session expired — locked automatically."); return; }
+      $("sessionTimer").textContent = `auto-lock in ${Math.floor(left / 60000)}:${String(Math.floor(left % 60000 / 1000)).padStart(2, "0")}`;
+    } catch { lock(); }
+  };
+  tick(); sessionInt = setInterval(tick, 1000);
+}
+
+function lock(msg) {
+  encKey = null; authedUser = null; projects = [];
+  sessionStorage.removeItem(SS_SESS); clearInterval(sessionInt);
+  $("dashView").classList.add("hidden");
+  $("sessionBox").classList.add("hidden");
+  $("encStatus").classList.add("hidden"); $("encStatus").classList.remove("flex");
+  $("authView").classList.remove("hidden");
+  const auth = getAuth();
+  $("authSetupIntro").classList.add("hidden");
+  $("authConfirmWrap").classList.add("hidden");
+  $("authTitle").textContent = auth ? "Admin login" : "Create admin account";
+  if (msg) { $("authError").textContent = msg; $("authError").classList.remove("hidden"); }
+  $("authUser").value = "";
+}
+
+/* ---------------- data ---------------- */
+const FALLBACK = [
+  { id: "pintarhub-portal", category: "Web Platform / EdTech", title: "Pintarhub Portal", short: "An interactive web-based education portal for efficient self-paced learning management.", description: "An interactive web-based education portal for managing self-paced learning systems efficiently.", image: "images/ptr.JPEG", tags: ["HTML", "CSS", "JavaScript", "EdTech"], type: "image", videoUrl: "", badge: "", link: "" },
+  { id: "giat-ukbi-documentary", category: "Documentary / Video Production", title: "Giat UKBI Documentary", short: "Official documentary production with SMAN 1 Padamara promoting the UKBI language test.", description: "Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI).", image: "images/ukbi.JPEG", tags: ["Directing", "Premiere Pro", "Documentary"], type: "video", videoUrl: "https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v", badge: "", link: "" },
+  { id: "smart-lamp-application", category: "Hardware / IoT Integration", title: "Smart Lamp Application", short: "A microcontroller-based home lamp automation prototype with a digital control dashboard.", description: "A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard.", image: "images/sml.JPEG", tags: ["ESP32", "Arduino", "IoT Dashboard"], type: "image", videoUrl: "", badge: "", link: "" },
+  { id: "hut-smara-euforia", category: "Event Showcase / Web", title: "HUT Smara Euforia", short: "An interactive landing page documenting the school anniversary celebration.", description: "Design and development of an interactive landing page for the school anniversary celebration.", image: "images/smr.JPEG", tags: ["Landing Page", "Tailwind", "Event"], type: "image", videoUrl: "", badge: "", link: "" },
+  { id: "yang-terpanggil-documentary", category: "Cinematography / Award Pick", title: "\"Yang Terpanggil\" Documentary", short: "An award-winning short documentary honored at FFP & Indonesia Student Movie Awards.", description: "A short documentary film titled 'Yang Terpanggil' that won awards at FFP and ISMA Vol.9.", image: "images/cinema.JPEG", tags: ["Documentary", "DaVinci Resolve", "Directing"], type: "image", videoUrl: "", badge: "🏆 FFP & ISMA Vol.9", link: "" },
+  { id: "multi-event-content-strategy", category: "Creative Direction / Management", title: "Multi-Event Content Strategy", short: "Creative concepting, feed management, and visual asset production for events.", description: "Creative idea conceptualization, feed management, and visual asset production for event publications.", image: "images/jkf.JPEG", tags: ["Content Planning", "Branding", "Social Media"], type: "image", videoUrl: "", badge: "", link: "" }
+];
+
+async function loadData(isNew) {
+  if (isNew) { projects = [...FALLBACK]; await autoEncrypt("initialized"); return; }
+  // 1) encrypted draft (preferred, password-protected)
+  try {
+    const blob = JSON.parse(localStorage.getItem(LS_ENC));
+    if (blob && blob.iv && blob.data) { projects = await decJSON(encKey, blob); return; }
+  } catch { /* wrong key or corrupt → fall through */ }
+  // 2) public preview override in this browser
+  try {
+    const raw = localStorage.getItem(LS_PUB);
+    if (raw) { const p = JSON.parse(raw); if (Array.isArray(p) && p.length) { projects = p; await autoEncrypt("migrated"); return; } }
+  } catch {}
+  // 3) deployed projects.json
+  try {
+    const r = await fetch("projects.json", { cache: "no-store" });
+    if (r.ok) { const d = await r.json(); if (Array.isArray(d) && d.length) { projects = d; await autoEncrypt("loaded"); return; } }
+  } catch {}
+  projects = [...FALLBACK];
+}
+
+/* Auto-encrypt every change at rest (debounced) */
+async function autoEncrypt(reason) {
+  $("encStatusText").textContent = "Encrypting…";
+  clearTimeout(encryptTimer);
+  encryptTimer = setTimeout(async () => {
+    try {
+      if (!encKey) return;
+      localStorage.setItem(LS_ENC, JSON.stringify(await encJSON(encKey, projects)));
+      const t = new Date().toLocaleTimeString();
+      $("encStatusText").textContent = `Encrypted draft • AES-GCM-256 • saved ${t} (${reason})`;
+    } catch { $("encStatusText").textContent = "Encryption failed — browser blocked WebCrypto."; }
+  }, 400);
+}
+
+function saveAndPreview() {
+  localStorage.setItem(LS_PUB, JSON.stringify(projects, null, 2)); // plaintext preview for index.html
+  autoEncrypt("preview");
+  alert(`Saved! Open index.html in this browser to preview ${projects.length} projects.\nThen Export projects.json and push it to publish publicly.`);
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(projects, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "projects.json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function importJSON(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!Array.isArray(d)) throw new Error("JSON must be an array of projects.");
+      projects = d.map((p, i) => ({ id: slug(p.title || ("project-" + i)) + "-" + i, category: p.category || "General", title: p.title || "Untitled", short: p.short || p.description || "", description: p.description || p.short || "", image: p.image || "images/profile.svg", tags: Array.isArray(p.tags) ? p.tags : String(p.tags || "").split(",").map(s => s.trim()).filter(Boolean), type: p.type === "video" ? "video" : "image", videoUrl: p.videoUrl || "", badge: p.badge || "", link: p.link || "" }));
+      renderList(); autoEncrypt("import");
+    } catch (err) { alert("Import failed: " + err.message); }
+    e.target.value = "";
+  };
+  r.readAsText(f);
+}
+
+function resetDefault() {
+  if (!confirm("Reset all projects to the built-in default? Your current list will be replaced.")) return;
+  projects = [...FALLBACK]; renderList(); autoEncrypt("reset");
+}
+
+function wipeAll() {
+  if (!confirm("Wipe ALL local data (account, encrypted drafts, previews)? You will need to create a new account.")) return;
+  if (!confirm("Really wipe? Type OK by pressing OK again.")) return;
+  localStorage.removeItem(LS_AUTH); localStorage.removeItem(LS_ENC); localStorage.removeItem(LS_PUB); localStorage.removeItem(LS_LOCK);
+  location.reload();
+}
+
+/* ---------------- list rendering ---------------- */
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function renderList() {
+  const box = $("projectList");
+  if (!projects.length) { box.innerHTML = `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No projects yet. Click “+ Add project”.</div>`; return; }
+  box.innerHTML = projects.map((p, i) => `
+    <div class="glass rounded-2xl p-4 flex gap-4 items-center">
+      <img src="${esc(p.image)}" onerror="this.style.opacity=0.2" class="w-20 h-14 rounded-xl object-cover bg-zinc-900 shrink-0" alt="">
+      <div class="flex-1 min-w-0">
+        <p class="text-[10px] font-mono text-zinc-500 uppercase truncate">${esc(p.category)} · ${esc(p.type)}</p>
+        <h4 class="text-sm font-medium truncate">${esc(p.title)}</h4>
+        <p class="text-[11px] text-zinc-500 truncate">${esc(p.short || p.description)}</p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-1.5 shrink-0">
+        <button data-act="up" data-i="${i}" ${i === 0 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↑</button>
+        <button data-act="down" data-i="${i}" ${i === projects.length - 1 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↓</button>
+        <button data-act="edit" data-i="${i}" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 cursor-pointer">Edit</button>
+        <button data-act="del" data-i="${i}" class="px-3 py-1.5 rounded-lg border border-red-900 text-red-300 text-[11px] hover:bg-red-950/40 cursor-pointer">Delete</button>
+      </div>
+    </div>`).join("");
+  box.querySelectorAll("button[data-act]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i, act = b.dataset.act;
+    if (act === "up" && i > 0) { [projects[i - 1], projects[i]] = [projects[i], projects[i - 1]]; }
+    if (act === "down" && i < projects.length - 1) { [projects[i + 1], projects[i]] = [projects[i], projects[i + 1]]; }
+    if (act === "edit") { openEditor(projects[i].id); return; }
+    if (act === "del") {
+      if (!confirm(`Delete "${projects[i].title}"?`)) return;
+      if (prompt(`Type the project title to confirm deletion:\n${projects[i].title}`) !== projects[i].title) { alert("Title did not match — deletion cancelled."); return; }
+      projects.splice(i, 1);
+    }
+    renderList(); autoEncrypt(act);
+  }));
+}
+
+/* ---------------- editor ---------------- */
+function openEditor(id) {
+  editingId = id;
+  const p = id ? projects.find(x => x.id === id) : null;
+  $("editorTitle").textContent = p ? "Edit project" : "Add project";
+  $("editorError").classList.add("hidden");
+  $("f_title").value = p?.title || "";
+  $("f_category").value = p?.category || "";
+  $("f_type").value = p?.type || "image";
+  $("f_short").value = p?.short || "";
+  $("f_description").value = p?.description || "";
+  $("f_image").value = p?.image || "";
+  $("f_imageFile").value = "";
+  $("f_videoUrl").value = p?.videoUrl || "";
+  $("f_link").value = p?.link || "";
+  $("f_badge").value = p?.badge || "";
+  $("f_tags").value = (p?.tags || []).join(", ");
+  $("editorModal").classList.remove("hidden");
+}
+
+function closeEditor() { $("editorModal").classList.add("hidden"); editingId = null; }
+
+function onImagePicked(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 900 * 1024) { alert("Image is larger than ~900KB — it will bloat the JSON. Prefer placing the file in images/ and typing its path instead."); }
+  const r = new FileReader();
+  r.onload = () => { $("f_image").value = r.result; };
+  r.readAsDataURL(f);
+}
+
+function saveEditor() {
+  const err = $("editorError"); err.classList.add("hidden");
+  const title = $("f_title").value.trim(), category = $("f_category").value.trim();
+  const short = $("f_short").value.trim(), desc = $("f_description").value.trim();
+  const type = $("f_type").value, image = $("f_image").value.trim() || "images/profile.svg";
+  const videoUrl = $("f_videoUrl").value.trim(), link = $("f_link").value.trim(), badge = $("f_badge").value.trim();
+  const tags = $("f_tags").value.split(",").map(s => s.trim()).filter(Boolean);
+  if (!title || !category || !short || !desc) { err.textContent = "Title, category, short text, and full description are required."; err.classList.remove("hidden"); return; }
+  if (type === "video" && !videoUrl) { err.textContent = "Video type requires a YouTube embed URL."; err.classList.remove("hidden"); return; }
+  if (editingId) {
+    const p = projects.find(x => x.id === editingId);
+    Object.assign(p, { title, category, short, description: desc, type, image, videoUrl, link, badge, tags });
+  } else {
+    let id = slug(title), n = 1;
+    while (projects.some(x => x.id === id)) id = slug(title) + "-" + (++n);
+    projects.push({ id, title, category, short, description: desc, type, image, videoUrl, link, badge, tags });
+  }
+  closeEditor(); renderList(); autoEncrypt(editingId ? "edit" : "add");
+}
+
+/* ---------------- change password ---------------- */
+async function onChangePassword() {
+  const err = $("pwError"); err.classList.add("hidden");
+  const cur = $("pwCurrent").value, nw = $("pwNew").value, nw2 = $("pwNew2").value;
+  try {
+    const auth = getAuth(); if (!auth) throw new Error("No account found.");
+    const h = hex(await pbkdf2(cur, new Uint8Array(b64d(auth.authSalt)), auth.iter || ITER));
+    if (!timingSafeEqual(h, auth.hash)) throw new Error("Current password is wrong.");
+    if (nw.length < 8) throw new Error("New password must be at least 8 characters.");
+    if (nw !== nw2) throw new Error("New passwords do not match.");
+    const authSalt = b64e(rand(16)), encSalt = b64e(rand(16));
+    auth.authSalt = authSalt; auth.encSalt = encSalt;
+    auth.hash = hex(await pbkdf2(nw, new Uint8Array(b64d(authSalt))));
+    localStorage.setItem(LS_AUTH, JSON.stringify(auth));
+    encKey = await aesKeyFrom(nw, encSalt);
+    await autoEncrypt("password-change");
+    sessionStorage.setItem(SS_SESS, JSON.stringify({ user: auth.user, exp: Date.now() + SESSION_MIN * 60000 }));
+    $("pwModal").classList.add("hidden");
+    $("pwCurrent").value = $("pwNew").value = $("pwNew2").value = "";
+    alert("Password updated and drafts re-encrypted.");
+  } catch (e) { err.textContent = e.message; err.classList.remove("hidden"); }
+}
+</script>
+</body>
+</html>

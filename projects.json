@@ -1,0 +1,80 @@
+[
+  {
+    "badge": "🏆 FFP & ISMA Vol.9",
+    "badgeColor": "amber",
+    "category": "Web Platform / EdTech",
+    "description": "An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators.",
+    "id": "pintarhub-portal",
+    "image": "images/ptr.JPEG",
+    "link": "",
+    "tags": ["HTML", "CSS", "JavaScript", "EdTech"],
+    "title": "Pintarhub Portal",
+    "type": "image",
+    "videoUrl": ""
+  },
+  {
+    "badge": "",
+    "badgeColor": "",
+    "category": "Documentary / Video Production",
+    "description": "Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film.",
+    "id": "giat-ukbi-documentary",
+    "image": "images/ukbi.JPEG",
+    "link": "",
+    "tags": ["Directing", "Premiere Pro", "Documentary"],
+    "title": "Giat UKBI Documentary",
+    "type": "video",
+    "videoUrl": "https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v"
+  },
+  {
+    "badge": "",
+    "badgeColor": "",
+    "category": "Hardware / IoT Integration",
+    "description": "A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi.",
+    "id": "smart-lamp-application",
+    "image": "images/sml.JPEG",
+    "link": "",
+    "tags": ["ESP32", "Arduino", "IoT Dashboard"],
+    "title": "Smart Lamp Application",
+    "type": "image",
+    "videoUrl": ""
+  },
+  {
+    "badge": "",
+    "badgeColor": "",
+    "category": "Event Showcase / Web",
+    "description": "Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info.",
+    "id": "hut-smara-euforia",
+    "image": "images/smr.JPEG",
+    "link": "",
+    "tags": ["Landing Page", "Tailwind", "Event"],
+    "title": "HUT Smara Euforia",
+    "type": "image",
+    "videoUrl": ""
+  },
+  {
+    "badge": "🏆 FFP & ISMA Vol.9",
+    "badgeColor": "amber",
+    "category": "Cinematography / Award Pick",
+    "description": "A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading.",
+    "id": "yang-terpanggil-documentary",
+    "image": "images/cinema.JPEG",
+    "link": "",
+    "tags": ["Documentary", "DaVinci Resolve", "Directing"],
+    "title": "\"Yang Terpanggil\" Documentary",
+    "type": "image",
+    "videoUrl": ""
+  },
+  {
+    "badge": "",
+    "badgeColor": "",
+    "category": "Creative Direction / Management",
+    "description": "Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy.",
+    "id": "multi-event-content-strategy",
+    "image": "images/jkf.JPEG",
+    "link": "",
+    "tags": ["Content Planning", "Branding", "Social Media"],
+    "title": "Multi-Event Content Strategy",
+    "type": "image",
+    "videoUrl": ""
+  }
+]
