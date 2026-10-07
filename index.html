@@ -48,13 +48,15 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* Preloader */
+        /* Preloader (phase 1: slower spinner, phase 2: full-black welcome) */
         #preloader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #050505;
             z-index: 9999;
             display: flex;
+            flex-direction: column;
+            gap: 28px;
             justify-content: center;
             align-items: center;
             transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
@@ -64,9 +66,35 @@
             border: 2px solid rgba(255, 255, 255, 0.05);
             border-radius: 50%;
             border-top-color: #fff;
-            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            animation: spin 1.4s linear infinite;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .spinner-done {
+            opacity: 0;
+            transform: scale(0.85);
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Welcome text: fade in (0.5s) + hold (1s) + fade out (0.5s) = 2s */
+        #welcomeText {
+            margin: 0;
+            opacity: 0;
+            transform: translateY(14px);
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #fff;
+            user-select: none;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #welcomeText.welcome-show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #welcomeText.welcome-hide {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -126,8 +154,9 @@
 </head>
 <body class="bg-[#050505] text-[#f5f5f7] font-sans antialiased selection:bg-white selection:text-black overflow-x-hidden">
 
-    <div id="preloader">
-        <div class="spinner"></div>
+    <div id="preloader" role="status" aria-label="Loading portfolio">
+        <div id="loaderSpinner" class="spinner"></div>
+        <p id="welcomeText">Welcome</p>
     </div>
 
     <header id="mainHeader" class="fixed top-8 left-6 sm:left-12 lg:left-16 z-50 transition-all duration-500 ease-in-out opacity-100 pointer-events-auto">
@@ -231,8 +260,10 @@
                 </div>
             </div>
 
-            <!-- Horizontal scrollable track (rendered by JS from projects.json) -->
-            <div id="projectTrack" class="flex gap-6 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1"></div>
+            <!-- Horizontal scrollable track (rendered by JS: built-in list first, then projects.json) -->
+            <div id="projectTrack" class="flex gap-6 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1"><noscript><p class="text-sm text-zinc-400">Please enable JavaScript to view the projects.</p></noscript></div>
+
+            <p id="railError" class="hidden text-[11px] font-mono text-amber-300/90 mt-3">Couldn&apos;t load <span class="text-amber-200">projects.json</span> — showing built-in projects. <button onclick="retryProjects()" class="underline hover:text-amber-100 cursor-pointer">Retry</button></p>
 
             <p class="text-[11px] text-zinc-600 font-mono mt-3 hidden sm:block">Tip: drag to scroll · use ← → arrow buttons · mouse-wheel shifts horizontally</p>
         </section>
@@ -436,23 +467,54 @@
             return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
         }
 
+        /* Inline SVG placeholder used when a project image 404s (e.g. missing
+           file or case mismatch on GitHub Pages' case-sensitive hosting). */
+        const PLACEHOLDER_IMG = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="800" height="450" fill="#18181b"/><text x="400" y="225" fill="#52525b" font-family="sans-serif" font-size="28" text-anchor="middle">Image not found</text></svg>'
+        );
+
+        function imgFallback(el) {
+            if (!el || el.dataset.fbk) { if (el) el.style.opacity = "0.15"; return; }
+            el.dataset.fbk = "1";
+            el.src = PLACEHOLDER_IMG;
+        }
+
+        function showRailError() {
+            document.getElementById("railError")?.classList.remove("hidden");
+        }
+        function hideRailError() {
+            document.getElementById("railError")?.classList.add("hidden");
+        }
+        async function retryProjects() {
+            hideRailError();
+            const status = await loadProjects();
+            if (status === "updated") renderProjects();
+            else if (status === "error") showRailError();
+        }
+
         async function loadProjects() {
             // 1) Admin-saved override in this browser (instant preview after dashboard edits)
             try {
                 const raw = localStorage.getItem(PUBLIC_OVERRIDE_KEY);
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed) && parsed.length) { PROJECTS = parsed; return; }
+                    if (Array.isArray(parsed) && parsed.length) { PROJECTS = parsed; return true; }
                 }
             } catch (e) { /* ignore corrupt cache */ }
-            // 2) projects.json deployed alongside index.html (edit this file or use admin dashboard export)
+            // 2) projects.json deployed alongside index.html (edit this file or use admin dashboard export).
+            // Returns "updated" when the list was replaced, "fallback" when the
+            // built-in list is kept, or "error" when the fetch itself failed.
+            let fetchFailed = false;
             try {
                 const res = await fetch("projects.json", { cache: "no-store" });
                 if (res.ok) {
                     const data = await res.json();
-                    if (Array.isArray(data) && data.length) PROJECTS = data;
+                    if (Array.isArray(data) && data.length) { PROJECTS = data; return "updated"; }
+                } else {
+                    fetchFailed = true;
                 }
-            } catch (e) { /* offline / file:// fallback below */ }
+            } catch (e) { /* offline / blocked fetch: keep built-in list */ fetchFailed = true; }
+            return fetchFailed ? "error" : "fallback";
         }
 
         function badgeHtml(p) {
@@ -481,7 +543,7 @@
                     <!-- FRONT: same glass-card preview style -->
                     <div class="flip-face absolute inset-0 rounded-2xl glass-card overflow-hidden flex flex-col">
                         <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                            <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="lazy" class="w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700" onerror="this.style.opacity=0.15">
+                            <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="lazy" class="w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
                             ${badgeHtml(p)}
                             ${frontAction}
                         </div>
@@ -647,8 +709,11 @@
         function openProjectModal(id) {
             const p = PROJECTS.find(x => x.id === id);
             if (!p) return;
-            document.getElementById("pmImage").src = p.image;
-            document.getElementById("pmImage").alt = p.title;
+            const pmImg = document.getElementById("pmImage");
+            pmImg.dataset.fbk = "";
+            pmImg.onerror = () => imgFallback(pmImg);
+            pmImg.src = p.image;
+            pmImg.alt = p.title;
             document.getElementById("pmCategory").textContent = p.category || "";
             document.getElementById("pmTitle").textContent = p.title || "";
             document.getElementById("pmDescription").textContent = p.description || p.short || "";
@@ -674,24 +739,53 @@
             setTimeout(() => { m.classList.add("popup-hidden"); document.body.style.overflow = ""; }, 450);
         }
 
+        /* ---------- Intro: slower loading → full-black welcome (2s fade in/out) → portfolio ---------- */
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+        async function playIntro() {
+            const loader = document.getElementById("preloader");
+            const spinner = document.getElementById("loaderSpinner");
+            const welcome = document.getElementById("welcomeText");
+            const main = document.querySelector("main");
+            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            document.body.style.overflow = "hidden";
+
+            // Phase 1 — slower loading spinner so first paint never flashes
+            await sleep(reduceMotion ? 200 : 1600);
+
+            // Phase 2 — full-black screen, "Welcome": fade in 0.5s + hold 1s + fade out 0.5s
+            spinner.classList.add("spinner-done");
+            if (!reduceMotion) {
+                welcome.classList.add("welcome-show");
+                await sleep(1500);
+                welcome.classList.remove("welcome-show");
+                welcome.classList.add("welcome-hide");
+                await sleep(500);
+            }
+
+            // Phase 3 — reveal portfolio
+            loader.style.opacity = "0";
+            await sleep(800);
+            loader.style.display = "none";
+            document.body.style.overflow = "";
+            main.classList.remove("opacity-0");
+            initScrollAnimations();
+            initScrollSpy();
+        }
+
         /* ---------- Boot ---------- */
         window.addEventListener("DOMContentLoaded", async () => {
             if (window.lucide) lucide.createIcons();
-            await loadProjects();
+            // Paint the built-in list instantly so the rail is never empty
+            // (even if projects.json is slow, blocked, or missing on Pages).
             renderProjects();
             initRail();
-
-            setTimeout(() => {
-                const loader = document.getElementById("preloader");
-                const main = document.querySelector("main");
-                loader.style.opacity = "0";
-                setTimeout(() => {
-                    loader.style.display = "none";
-                    main.classList.remove("opacity-0");
-                    initScrollAnimations();
-                    initScrollSpy();
-                }, 800);
-            }, 800);
+            // Then upgrade to the deployed projects.json when it arrives.
+            loadProjects().then((status) => {
+                if (status === "updated") renderProjects();
+                else if (status === "error") showRailError();
+            }).catch(() => showRailError());
+            playIntro();
 
             document.getElementById("leadForm").addEventListener("submit", function(e) {
                 e.preventDefault();
