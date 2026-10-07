@@ -119,24 +119,8 @@
         #projectTrack.dragging * { pointer-events: none; }
         .project-slide { scroll-snap-align: start; }
 
-        /* ============ Flip card ============ */
-        .flip-card { perspective: 1400px; }
-        .flip-inner {
-            position: relative;
-            width: 100%; height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        /* Desktop: flip on hover. Mobile / touch: flip via .flipped class on tap */
-        @media (hover: hover) {
-            .flip-card:hover .flip-inner { transform: rotateY(180deg); }
-        }
-        .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
-        .flip-face {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-        .flip-back { transform: rotateY(180deg); }
+        /* ============ Project cards: plain stacked layout (no 3D — renders everywhere) ============ */
+        .project-slide { scroll-snap-align: start; }
 
         /* ============ Pop-up modal animation ============ */
         .popup-hidden { display: none; }
@@ -286,182 +270,107 @@
                 </div>
             </div>
 
-            <!-- Hardcoded project cards: pure static HTML, no fetch, no render step -->
+            <!-- Plain static project cards (edit in place, or generate via admin.html between PROJECTS-START / PROJECTS-END) -->
             <div id="projectTrack" class="flex gap-6 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
 
-                <article class="project-slide flip-card group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px]" data-index="0" data-id="pintarhub-portal">
-                    <div class="flip-inner rounded-2xl h-[420px]">
-                        <div class="flip-face absolute inset-0 rounded-2xl glass-card overflow-hidden flex flex-col">
-                            <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                                <img src="images/ptr.JPEG" alt="Pintarhub Portal" loading="lazy" class="w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                                <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 border border-zinc-700/60 text-[10px] font-mono text-zinc-300 backdrop-blur-md">Hover / tap to flip</div>
-                            </div>
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Web Platform / EdTech</span>
-                                <h3 class="text-lg font-medium text-white mb-2">Pintarhub Portal</h3>
-                                <p class="text-xs text-zinc-400 leading-relaxed font-light flex-1">An interactive web-based education portal for efficient self-paced learning management.</p>
-                                <button onclick="openProjectModal('pintarhub-portal')" class="mt-4 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[11px] font-medium text-white hover:bg-white hover:text-black transition cursor-pointer self-start">View Details</button>
-                            </div>
-                        </div>
-                        <div class="flip-face flip-back absolute inset-0 rounded-2xl overflow-hidden flex flex-col bg-zinc-950 border border-zinc-700/50 shadow-2xl">
-                            <div class="p-6 flex flex-col h-full">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Project Description</span>
-                                <h3 class="text-lg font-medium text-white mb-3">Pintarhub Portal</h3>
-                                <p class="text-xs text-zinc-300 leading-relaxed font-light flex-1 overflow-y-auto no-scrollbar">An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">HTML</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">CSS</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">JavaScript</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">EdTech</span></div>
-                                <div class="flex gap-2 mt-5">
-                                    <button onclick="openProjectModal('pintarhub-portal')" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">Preview</button>
-                                </div>
-                            </div>
+                <!-- PROJECTS-START -->
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="pintarhub-portal" data-type="image" data-video="" data-link="" data-badge="" data-category="Web Platform / EdTech" data-title="Pintarhub Portal" data-short="An interactive web-based education portal for efficient self-paced learning management." data-description="An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators." data-image="images/ptr.JPEG" data-tags="HTML|CSS|JavaScript|EdTech">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/ptr.JPEG" alt="Pintarhub Portal" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Web Platform / EdTech</span>
+                        <h3 class="text-lg font-medium text-white mb-2">Pintarhub Portal</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light">An interactive web-based education portal for efficient self-paced learning management.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">HTML</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">CSS</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">JavaScript</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">EdTech</span></div>
+                        <div class="flex gap-2 mt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide flip-card group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px]" data-index="1" data-id="giat-ukbi-documentary">
-                    <div class="flip-inner rounded-2xl h-[420px]">
-                        <div class="flip-face absolute inset-0 rounded-2xl glass-card overflow-hidden flex flex-col">
-                            <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                                <img src="images/ukbi.JPEG" alt="Giat UKBI Documentary" loading="lazy" class="w-full h-full object-cover opacity-50 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                                <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                    <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
-                                        <svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-[10px] font-mono text-emerald-400 uppercase block mb-1 flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> Click to Play Video</span>
-                                <h3 class="text-lg font-medium text-white mb-2">Giat UKBI Documentary</h3>
-                                <p class="text-xs text-zinc-400 leading-relaxed font-light flex-1">Official documentary production with SMAN 1 Padamara promoting the UKBI language test.</p>
-                                <button onclick="openProjectModal('giat-ukbi-documentary')" class="mt-4 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[11px] font-medium text-white hover:bg-white hover:text-black transition cursor-pointer self-start">View Details</button>
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="giat-ukbi-documentary" data-type="video" data-video="https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v" data-link="" data-badge="" data-category="Documentary / Video Production" data-title="Giat UKBI Documentary" data-short="Official documentary production with SMAN 1 Padamara promoting the UKBI language test." data-description="Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film." data-image="images/ukbi.JPEG" data-tags="Directing|Premiere Pro|Documentary">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/ukbi.JPEG" alt="Giat UKBI Documentary" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
+                                <svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                             </div>
                         </div>
-                        <div class="flip-face flip-back absolute inset-0 rounded-2xl overflow-hidden flex flex-col bg-zinc-950 border border-zinc-700/50 shadow-2xl">
-                            <div class="p-6 flex flex-col h-full">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Project Description</span>
-                                <h3 class="text-lg font-medium text-white mb-3">Giat UKBI Documentary</h3>
-                                <p class="text-xs text-zinc-300 leading-relaxed font-light flex-1 overflow-y-auto no-scrollbar">Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Premiere Pro</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span></div>
-                                <div class="flex gap-2 mt-5">
-                                    <button onclick="openProjectModal('giat-ukbi-documentary')" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">Preview</button>
-                                    <button onclick="openVideoModal('https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v')" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play Video</button>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-emerald-400 uppercase block mb-1 flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> Click to Play Video</span>
+                        <h3 class="text-lg font-medium text-white mb-2">Giat UKBI Documentary</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light">Official documentary production with SMAN 1 Padamara promoting the UKBI language test.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Premiere Pro</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span></div>
+                        <div class="flex gap-2 mt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
+                            <button onclick="openVideoModal('https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v')" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play Video</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide flip-card group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px]" data-index="2" data-id="smart-lamp-application">
-                    <div class="flip-inner rounded-2xl h-[420px]">
-                        <div class="flip-face absolute inset-0 rounded-2xl glass-card overflow-hidden flex flex-col">
-                            <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                                <img src="images/sml.JPEG" alt="Smart Lamp Application" loading="lazy" class="w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                                <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 border border-zinc-700/60 text-[10px] font-mono text-zinc-300 backdrop-blur-md">Hover / tap to flip</div>
-                            </div>
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Hardware / IoT Integration</span>
-                                <h3 class="text-lg font-medium text-white mb-2">Smart Lamp Application</h3>
-                                <p class="text-xs text-zinc-400 leading-relaxed font-light flex-1">A microcontroller-based home lamp automation prototype with a digital control dashboard.</p>
-                                <button onclick="openProjectModal('smart-lamp-application')" class="mt-4 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[11px] font-medium text-white hover:bg-white hover:text-black transition cursor-pointer self-start">View Details</button>
-                            </div>
-                        </div>
-                        <div class="flip-face flip-back absolute inset-0 rounded-2xl overflow-hidden flex flex-col bg-zinc-950 border border-zinc-700/50 shadow-2xl">
-                            <div class="p-6 flex flex-col h-full">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Project Description</span>
-                                <h3 class="text-lg font-medium text-white mb-3">Smart Lamp Application</h3>
-                                <p class="text-xs text-zinc-300 leading-relaxed font-light flex-1 overflow-y-auto no-scrollbar">A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">ESP32</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Arduino</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">IoT Dashboard</span></div>
-                                <div class="flex gap-2 mt-5">
-                                    <button onclick="openProjectModal('smart-lamp-application')" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">Preview</button>
-                                </div>
-                            </div>
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="smart-lamp-application" data-type="image" data-video="" data-link="" data-badge="" data-category="Hardware / IoT Integration" data-title="Smart Lamp Application" data-short="A microcontroller-based home lamp automation prototype with a digital control dashboard." data-description="A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi." data-image="images/sml.JPEG" data-tags="ESP32|Arduino|IoT Dashboard">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/sml.JPEG" alt="Smart Lamp Application" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Hardware / IoT Integration</span>
+                        <h3 class="text-lg font-medium text-white mb-2">Smart Lamp Application</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light">A microcontroller-based home lamp automation prototype with a digital control dashboard.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">ESP32</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Arduino</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">IoT Dashboard</span></div>
+                        <div class="flex gap-2 mt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide flip-card group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px]" data-index="3" data-id="hut-smara-euforia">
-                    <div class="flip-inner rounded-2xl h-[420px]">
-                        <div class="flip-face absolute inset-0 rounded-2xl glass-card overflow-hidden flex flex-col">
-                            <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                                <img src="images/smr.JPEG" alt="HUT Smara Euforia" loading="lazy" class="w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                                <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 border border-zinc-700/60 text-[10px] font-mono text-zinc-300 backdrop-blur-md">Hover / tap to flip</div>
-                            </div>
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Event Showcase / Web</span>
-                                <h3 class="text-lg font-medium text-white mb-2">HUT Smara Euforia</h3>
-                                <p class="text-xs text-zinc-400 leading-relaxed font-light flex-1">An interactive landing page documenting the school anniversary celebration.</p>
-                                <button onclick="openProjectModal('hut-smara-euforia')" class="mt-4 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[11px] font-medium text-white hover:bg-white hover:text-black transition cursor-pointer self-start">View Details</button>
-                            </div>
-                        </div>
-                        <div class="flip-face flip-back absolute inset-0 rounded-2xl overflow-hidden flex flex-col bg-zinc-950 border border-zinc-700/50 shadow-2xl">
-                            <div class="p-6 flex flex-col h-full">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Project Description</span>
-                                <h3 class="text-lg font-medium text-white mb-3">HUT Smara Euforia</h3>
-                                <p class="text-xs text-zinc-300 leading-relaxed font-light flex-1 overflow-y-auto no-scrollbar">Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Landing Page</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Tailwind</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Event</span></div>
-                                <div class="flex gap-2 mt-5">
-                                    <button onclick="openProjectModal('hut-smara-euforia')" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">Preview</button>
-                                </div>
-                            </div>
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="hut-smara-euforia" data-type="image" data-video="" data-link="" data-badge="" data-category="Event Showcase / Web" data-title="HUT Smara Euforia" data-short="An interactive landing page documenting the school anniversary celebration." data-description="Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info." data-image="images/smr.JPEG" data-tags="Landing Page|Tailwind|Event">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/smr.JPEG" alt="HUT Smara Euforia" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Event Showcase / Web</span>
+                        <h3 class="text-lg font-medium text-white mb-2">HUT Smara Euforia</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light">An interactive landing page documenting the school anniversary celebration.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Landing Page</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Tailwind</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Event</span></div>
+                        <div class="flex gap-2 mt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide flip-card group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px]" data-index="4" data-id="yang-terpanggil-documentary">
-                    <div class="flip-inner rounded-2xl h-[420px]">
-                        <div class="flip-face absolute inset-0 rounded-2xl glass-card overflow-hidden flex flex-col">
-                            <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                                <img src="images/cinema.JPEG" alt="&quot;Yang Terpanggil&quot; Documentary" loading="lazy" class="w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                                <div class="absolute top-3 left-3 bg-zinc-950/80 border border-zinc-800 px-2.5 py-1 rounded-md text-[10px] text-amber-400 font-mono">🏆 FFP &amp; ISMA Vol.9</div>
-                                <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 border border-zinc-700/60 text-[10px] font-mono text-zinc-300 backdrop-blur-md">Hover / tap to flip</div>
-                            </div>
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Cinematography / Award Pick</span>
-                                <h3 class="text-lg font-medium text-white mb-2">&quot;Yang Terpanggil&quot; Documentary</h3>
-                                <p class="text-xs text-zinc-400 leading-relaxed font-light flex-1">An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards.</p>
-                                <button onclick="openProjectModal('yang-terpanggil-documentary')" class="mt-4 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[11px] font-medium text-white hover:bg-white hover:text-black transition cursor-pointer self-start">View Details</button>
-                            </div>
-                        </div>
-                        <div class="flip-face flip-back absolute inset-0 rounded-2xl overflow-hidden flex flex-col bg-zinc-950 border border-zinc-700/50 shadow-2xl">
-                            <div class="p-6 flex flex-col h-full">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Project Description</span>
-                                <h3 class="text-lg font-medium text-white mb-3">&quot;Yang Terpanggil&quot; Documentary</h3>
-                                <p class="text-xs text-zinc-300 leading-relaxed font-light flex-1 overflow-y-auto no-scrollbar">A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">DaVinci Resolve</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span></div>
-                                <div class="flex gap-2 mt-5">
-                                    <button onclick="openProjectModal('yang-terpanggil-documentary')" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">Preview</button>
-                                </div>
-                            </div>
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="yang-terpanggil-documentary" data-type="image" data-video="" data-link="" data-badge="🏆 FFP &amp; ISMA Vol.9" data-category="Cinematography / Award Pick" data-title="&quot;Yang Terpanggil&quot; Documentary" data-short="An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards." data-description="A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading." data-image="images/cinema.JPEG" data-tags="Documentary|DaVinci Resolve|Directing">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/cinema.JPEG" alt="&quot;Yang Terpanggil&quot; Documentary" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                        <div class="absolute top-3 left-3 bg-zinc-950/80 border border-zinc-800 px-2.5 py-1 rounded-md text-[10px] text-amber-400 font-mono">🏆 FFP &amp; ISMA Vol.9</div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Cinematography / Award Pick</span>
+                        <h3 class="text-lg font-medium text-white mb-2">&quot;Yang Terpanggil&quot; Documentary</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light">An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">DaVinci Resolve</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span></div>
+                        <div class="flex gap-2 mt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide flip-card group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px]" data-index="5" data-id="multi-event-content-strategy">
-                    <div class="flip-inner rounded-2xl h-[420px]">
-                        <div class="flip-face absolute inset-0 rounded-2xl glass-card overflow-hidden flex flex-col">
-                            <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                                <img src="images/jkf.JPEG" alt="Multi-Event Content Strategy" loading="lazy" class="w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                                <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 border border-zinc-700/60 text-[10px] font-mono text-zinc-300 backdrop-blur-md">Hover / tap to flip</div>
-                            </div>
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Creative Direction / Management</span>
-                                <h3 class="text-lg font-medium text-white mb-2">Multi-Event Content Strategy</h3>
-                                <p class="text-xs text-zinc-400 leading-relaxed font-light flex-1">Creative concepting, feed management, and visual asset production for events.</p>
-                                <button onclick="openProjectModal('multi-event-content-strategy')" class="mt-4 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-[11px] font-medium text-white hover:bg-white hover:text-black transition cursor-pointer self-start">View Details</button>
-                            </div>
-                        </div>
-                        <div class="flip-face flip-back absolute inset-0 rounded-2xl overflow-hidden flex flex-col bg-zinc-950 border border-zinc-700/50 shadow-2xl">
-                            <div class="p-6 flex flex-col h-full">
-                                <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Project Description</span>
-                                <h3 class="text-lg font-medium text-white mb-3">Multi-Event Content Strategy</h3>
-                                <p class="text-xs text-zinc-300 leading-relaxed font-light flex-1 overflow-y-auto no-scrollbar">Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy.</p>
-                                <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Content Planning</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Branding</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Social Media</span></div>
-                                <div class="flex gap-2 mt-5">
-                                    <button onclick="openProjectModal('multi-event-content-strategy')" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">Preview</button>
-                                </div>
-                            </div>
+                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="multi-event-content-strategy" data-type="image" data-video="" data-link="" data-badge="" data-category="Creative Direction / Management" data-title="Multi-Event Content Strategy" data-short="Creative concepting, feed management, and visual asset production for events." data-description="Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy." data-image="images/jkf.JPEG" data-tags="Content Planning|Branding|Social Media">
+                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/jkf.JPEG" alt="Multi-Event Content Strategy" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Creative Direction / Management</span>
+                        <h3 class="text-lg font-medium text-white mb-2">Multi-Event Content Strategy</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light">Creative concepting, feed management, and visual asset production for events.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Content Planning</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Branding</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Social Media</span></div>
+                        <div class="flex gap-2 mt-5">
+                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
                         </div>
                     </div>
                 </article>
+                <!-- PROJECTS-END -->
 
             </div>
 
@@ -613,70 +522,8 @@
     </div>
 
     <script>
-        const PROJECTS_FALLBACK = [
-            {
-                id: "pintarhub-portal",
-                category: "Web Platform / EdTech",
-                title: "Pintarhub Portal",
-                short: "An interactive web-based education portal for efficient self-paced learning management.",
-                description: "An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators.",
-                image: "images/ptr.JPEG",
-                tags: ["HTML", "CSS", "JavaScript", "EdTech"],
-                type: "image", videoUrl: "", badge: "", link: ""
-            },
-            {
-                id: "giat-ukbi-documentary",
-                category: "Documentary / Video Production",
-                title: "Giat UKBI Documentary",
-                short: "Official documentary production with SMAN 1 Padamara promoting the UKBI language test.",
-                description: "Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film.",
-                image: "images/ukbi.JPEG",
-                tags: ["Directing", "Premiere Pro", "Documentary"],
-                type: "video", videoUrl: "https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v", badge: "", link: ""
-            },
-            {
-                id: "smart-lamp-application",
-                category: "Hardware / IoT Integration",
-                title: "Smart Lamp Application",
-                short: "A microcontroller-based home lamp automation prototype with a digital control dashboard.",
-                description: "A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi.",
-                image: "images/sml.JPEG",
-                tags: ["ESP32", "Arduino", "IoT Dashboard"],
-                type: "image", videoUrl: "", badge: "", link: ""
-            },
-            {
-                id: "hut-smara-euforia",
-                category: "Event Showcase / Web",
-                title: "HUT Smara Euforia",
-                short: "An interactive landing page documenting the school anniversary celebration.",
-                description: "Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info.",
-                image: "images/smr.JPEG",
-                tags: ["Landing Page", "Tailwind", "Event"],
-                type: "image", videoUrl: "", badge: "", link: ""
-            },
-            {
-                id: "yang-terpanggil-documentary",
-                category: "Cinematography / Award Pick",
-                title: "\"Yang Terpanggil\" Documentary",
-                short: "An award-winning short documentary honored at FFP & Indonesia Student Movie Awards.",
-                description: "A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading.",
-                image: "images/cinema.JPEG",
-                tags: ["Documentary", "DaVinci Resolve", "Directing"],
-                type: "image", videoUrl: "", badge: "🏆 FFP & ISMA Vol.9", link: ""
-            },
-            {
-                id: "multi-event-content-strategy",
-                category: "Creative Direction / Management",
-                title: "Multi-Event Content Strategy",
-                short: "Creative concepting, feed management, and visual asset production for events.",
-                description: "Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy.",
-                image: "images/jkf.JPEG",
-                tags: ["Content Planning", "Branding", "Social Media"],
-                type: "image", videoUrl: "", badge: "", link: ""
-            }
-        ];
-
-        let PROJECTS = [...PROJECTS_FALLBACK];
+        /* Modal + rail read project data from each card's data-* attributes (single source of truth). */
+        function slideCount() { return document.querySelectorAll(".project-slide").length; }
         let activeIndex = 0;
 
         function escapeHtml(s) {
@@ -705,18 +552,23 @@
             renderDots();
             updateRailUI();
             safeIcons();
-            bindFlipTap();
+            bindCardClick();
         }
 
         function renderDots() {
-            // Dots are hardcoded as static HTML below — just bind clicks once.
+            // Rebuild dots from the actual card count, so pasted-in projects just work.
             const dots = document.getElementById("railDots");
             if (!dots) return;
-            dots.querySelectorAll("[data-dot]").forEach(d => {
-                if (d.dataset.bound) return;
-                d.dataset.bound = "1";
-                d.addEventListener("click", () => goToCard(parseInt(d.dataset.dot, 10)));
-            });
+            const n = slideCount();
+            dots.innerHTML = "";
+            for (let i = 0; i < n; i++) {
+                const b = document.createElement("button");
+                b.dataset.dot = String(i);
+                b.setAttribute("aria-label", "Go to project " + (i + 1));
+                b.className = "h-1.5 rounded-full transition-all duration-300 cursor-pointer " + (i === activeIndex ? "w-6 bg-white" : "w-1.5 bg-zinc-700 hover:bg-zinc-500");
+                b.addEventListener("click", () => goToCard(i));
+                dots.appendChild(b);
+            }
         }
 
         /* ---------- Slow-to-fast smooth rail animation (easeInOutQuart) ---------- */
@@ -746,7 +598,7 @@
 
         function goToCard(i) {
             const track = document.getElementById("projectTrack");
-            activeIndex = Math.max(0, Math.min(i, PROJECTS.length - 1));
+            activeIndex = Math.max(0, Math.min(i, slideCount() - 1));
             animateTrackTo(activeIndex * cardStep(), 750);
             renderDots();
             updateRailUI();
@@ -758,30 +610,28 @@
             const track = document.getElementById("projectTrack");
             if (!track) return;
             const step = cardStep();
-            activeIndex = Math.max(0, Math.min(Math.round(track.scrollLeft / step), PROJECTS.length - 1));
+            activeIndex = Math.max(0, Math.min(Math.round(track.scrollLeft / step), slideCount() - 1));
             const counter = document.getElementById("railCounter");
-            if (counter) counter.textContent = `${String(activeIndex+1).padStart(2,"0")} / ${String(PROJECTS.length).padStart(2,"0")}`;
+            if (counter) counter.textContent = `${String(activeIndex+1).padStart(2,"0")} / ${String(slideCount()).padStart(2,"0")}`;
             const prev = document.getElementById("railPrev");
             const next = document.getElementById("railNext");
             if (prev) prev.disabled = activeIndex <= 0;
-            if (next) next.disabled = activeIndex >= PROJECTS.length - 1;
+            if (next) next.disabled = activeIndex >= slideCount() - 1;
             const dots = document.getElementById("railDots");
             if (dots) [...dots.children].forEach((d, i) => {
                 d.className = `h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i===activeIndex ? "w-6 bg-white" : "w-1.5 bg-zinc-700 hover:bg-zinc-500"}`;
             });
         }
 
-        function bindFlipTap() {
-            // Touch devices: tap toggles flip; tap on button still opens modal (stopPropagation via inline onclick)
-            document.querySelectorAll(".flip-card").forEach(card => {
+        function bindCardClick() {
+            // Click a card (not a button) to open its detail pop-up; video cards play directly.
+            document.querySelectorAll(".project-slide").forEach(card => {
                 card.addEventListener("click", (e) => {
                     if (e.target.closest("button, a")) return;
-                    const p = PROJECTS[parseInt(card.dataset.index, 10)];
-                    if (p && p.type === "video" && p.videoUrl && !card.classList.contains("flipped")) {
-                        openVideoModal(p.videoUrl); return;
+                    if (card.dataset.type === "video" && card.dataset.video) {
+                        openVideoModal(card.dataset.video); return;
                     }
-                    if (window.matchMedia("(hover: none)").matches) card.classList.toggle("flipped");
-                    else openProjectModal(card.dataset.id);
+                    openProjectModal(card);
                 });
             });
         }
@@ -831,27 +681,27 @@
             });
         }
 
-        /* ---------- Project pop-up ---------- */
-        function openProjectModal(id) {
-            const p = PROJECTS.find(x => x.id === id);
-            if (!p) return;
+        /* ---------- Project pop-up (reads the card's own data-* attributes) ---------- */
+        function openProjectModal(card) {
+            if (!card || !card.dataset) return;
+            const d = card.dataset;
             const pmImg = document.getElementById("pmImage");
             pmImg.dataset.fbk = "";
             pmImg.onerror = () => imgFallback(pmImg);
-            pmImg.src = p.image;
-            pmImg.alt = p.title;
-            document.getElementById("pmCategory").textContent = p.category || "";
-            document.getElementById("pmTitle").textContent = p.title || "";
-            document.getElementById("pmDescription").textContent = p.description || p.short || "";
+            pmImg.src = d.image || "";
+            pmImg.alt = d.title || "";
+            document.getElementById("pmCategory").textContent = d.category || "";
+            document.getElementById("pmTitle").textContent = d.title || "";
+            document.getElementById("pmDescription").textContent = d.description || d.short || "";
             const tags = document.getElementById("pmTags");
-            tags.innerHTML = (p.tags || []).map(t => `<span class="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-300">${escapeHtml(t)}</span>`).join("");
+            tags.innerHTML = String(d.tags || "").split("|").map(s => s.trim()).filter(Boolean).map(t => `<span class="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-300">${escapeHtml(t)}</span>`).join("");
             const play = document.getElementById("pmPlayBtn");
-            if (p.type === "video" && p.videoUrl) {
+            if (d.type === "video" && d.video) {
                 play.classList.remove("hidden"); play.classList.add("inline-flex");
-                play.onclick = () => { closeProjectModal(); setTimeout(() => openVideoModal(p.videoUrl), 150); };
+                play.onclick = () => { closeProjectModal(); setTimeout(() => openVideoModal(d.video), 150); };
             } else { play.classList.add("hidden"); play.classList.remove("inline-flex"); play.onclick = null; }
             const link = document.getElementById("pmLinkBtn");
-            if (p.link) { link.classList.remove("hidden"); link.classList.add("inline-flex"); link.href = p.link; }
+            if (d.link) { link.classList.remove("hidden"); link.classList.add("inline-flex"); link.href = d.link; }
             else { link.classList.add("hidden"); link.classList.remove("inline-flex"); }
             const m = document.getElementById("projectModal");
             m.classList.remove("popup-hidden");
@@ -939,7 +789,6 @@
             document.addEventListener("keydown", (e) => {
                 if (e.key === "Escape") {
                     closeProjectModal(); closeVideoModal(); closeModal();
-                    document.querySelectorAll(".flip-card.flipped").forEach(c => c.classList.remove("flipped"));
                 }
             });
             } catch (err) {

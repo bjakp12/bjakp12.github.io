@@ -5,12 +5,15 @@ Short portfolio of Bijak Assidik Putu Riki — a student actively exploring the 
 ## Structure
 
 - `index.html` — the entire site. Projects are hardcoded as static HTML (`article.project-slide` inside `#projectTrack`), so they render with zero JavaScript data loading.
+- `admin.html` — local dashboard (login + auto-encrypted drafts) to add/edit/delete projects and generate paste-ready card HTML. Keep it local, never deploy or link it.
 - `images/` — static assets
 - `.nojekyll` — disables Jekyll processing on GitHub Pages
 
-## Edit projects
+## Edit projects (via dashboard)
 
-Edit the `article` blocks inside `#projectTrack` in `index.html` directly (copy an existing block, change text/image/tags), then commit & push.
+1. Open `admin.html` locally, unlock, manage projects.
+2. Click **Copy ALL cards HTML**, then in `index.html` replace everything between `PROJECTS-START` and `PROJECTS-END`.
+3. Commit & push.
 
 ## Publish (GitHub Pages)
 
