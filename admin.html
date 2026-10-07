@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard — Portfolio Manager</title>
+<title>Admin Dashboard — Live Database</title>
 <meta name="robots" content="noindex, nofollow">
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <style>
   html { scroll-behavior: smooth; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -14,8 +18,9 @@
   input, textarea, select { color-scheme: dark; }
   .shake { animation: shake 0.4s ease; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-  textarea.code { font-family: ui-monospace, monospace; font-size: 11px; }
   .tab-btn.active { background: #fff; color: #000; }
+  .live-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.35} }
 </style>
 </head>
 <body class="bg-[#050505] text-zinc-100 font-sans antialiased min-h-screen">
@@ -28,53 +33,50 @@
 
   <div class="flex items-center justify-between mb-8">
     <div>
-      <p class="text-[11px] font-mono tracking-widest text-zinc-500 uppercase">Restricted Area</p>
+      <p class="text-[11px] font-mono tracking-widest text-zinc-500 uppercase">Restricted Area · Live Database</p>
       <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Content Dashboard</h1>
-      <p class="text-xs text-zinc-500 mt-1">Manage <b class="text-zinc-300">projects</b>, <b class="text-zinc-300">reviews</b> &amp; <b class="text-zinc-300">blog</b> — then paste the generated HTML into <span class="font-mono">index.html</span>.</p>
+      <p class="text-xs text-zinc-500 mt-1 flex items-center gap-2">
+        <span id="liveDot" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+        <span id="liveText">Manage projects, reviews &amp; blog — changes appear on the site instantly.</span>
+      </p>
     </div>
     <div id="sessionBox" class="hidden text-right">
       <p id="sessionUser" class="text-xs font-mono text-zinc-300"></p>
-      <p id="sessionTimer" class="text-[11px] font-mono text-zinc-500"></p>
       <div class="flex gap-2 mt-2 justify-end">
-        <button id="btnChangePw" class="text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-900 transition cursor-pointer">Change password</button>
-        <button id="btnLogout" class="text-[11px] px-3 py-1.5 rounded-full bg-white text-black hover:bg-zinc-200 transition cursor-pointer">Lock / Logout</button>
+        <button id="btnLogout" class="text-[11px] px-3 py-1.5 rounded-full bg-white text-black hover:bg-zinc-200 transition cursor-pointer">Logout</button>
       </div>
     </div>
   </div>
 
-  <div id="encStatus" class="hidden mb-6 items-center gap-2 text-[11px] font-mono px-4 py-2.5 rounded-xl border border-emerald-900/60 bg-emerald-950/30 text-emerald-300">
-    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-    <span id="encStatusText">Encrypted draft • AES-GCM • saved</span>
+  <!-- ============ NO CONFIG HELP ============ -->
+  <div id="noConfigView" class="hidden glass rounded-3xl p-6 sm:p-10 max-w-xl mx-auto">
+    <h2 class="text-xl font-medium mb-2">Firebase is not connected yet</h2>
+    <ol class="text-xs text-zinc-400 leading-relaxed list-decimal ml-5 space-y-2 mt-4">
+      <li>Create a free project at <span class="font-mono text-zinc-200">console.firebase.google.com</span>.</li>
+      <li>Left menu → <b class="text-zinc-200">Build → Firestore Database</b> → Create database (production mode, any region).</li>
+      <li>Left menu → <b class="text-zinc-200">Build → Authentication</b> → Get started → enable <b class="text-zinc-200">Email/Password</b> → add a user (your admin email + strong password).</li>
+      <li>Project Overview (gear icon) → Project settings → <b class="text-zinc-200">Your apps → Web app</b> → copy the <span class="font-mono">firebaseConfig</span> values.</li>
+      <li>Copy <span class="font-mono">firebase-config.example.js</span> to <span class="font-mono">firebase-config.js</span>, paste your values, and deploy it together with this file.</li>
+      <li>In Authentication → Settings → <b class="text-zinc-200">Authorized domains</b>, add <span class="font-mono">bjakp12.github.io</span>.</li>
+      <li>Publish the rules in <span class="font-mono">firestore.rules</span> (Firestore → Rules tab → paste → Publish).</li>
+    </ol>
   </div>
 
   <!-- ============ AUTH VIEW ============ -->
-  <div id="authView" class="glass rounded-3xl p-6 sm:p-10 max-w-md mx-auto">
-    <div id="authSetupIntro" class="hidden mb-6 p-4 rounded-2xl bg-amber-950/40 border border-amber-900/50 text-xs text-amber-200 leading-relaxed">
-      No admin account exists on this browser yet. Create a username + password now. They are stored only as a salted PBKDF2 hash — never plaintext.
-    </div>
-    <h2 id="authTitle" class="text-xl font-medium mb-1">Admin login</h2>
-    <p class="text-xs text-zinc-500 mb-6">5 wrong attempts lock this browser for 60 seconds. Session auto-locks after 30 minutes.</p>
+  <div id="authView" class="hidden glass rounded-3xl p-6 sm:p-10 max-w-md mx-auto">
+    <h2 class="text-xl font-medium mb-1">Admin login</h2>
+    <p class="text-xs text-zinc-500 mb-6">Verified by Firebase Authentication. Only users you create in the console can sign in.</p>
     <div class="space-y-4">
       <div>
-        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">USERNAME</label>
-        <input id="authUser" autocomplete="username" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="admin username">
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">EMAIL</label>
+        <input id="authEmail" type="email" autocomplete="username" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="admin@example.com">
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">PASSWORD</label>
         <input id="authPass" type="password" autocomplete="current-password" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="••••••••">
-        <p id="pwHint" class="hidden text-[11px] text-zinc-500 mt-1.5">Min. 8 characters. Use 12+ with upper/lowercase, numbers &amp; symbols.</p>
-      </div>
-      <div id="authConfirmWrap" class="hidden">
-        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">CONFIRM PASSWORD</label>
-        <input id="authPass2" type="password" autocomplete="new-password" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="repeat password">
       </div>
       <p id="authError" class="hidden text-xs text-red-400"></p>
-      <p id="lockInfo" class="hidden text-xs text-amber-300 font-mono"></p>
-      <button id="btnAuth" class="w-full py-3.5 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Unlock Dashboard</button>
-    </div>
-    <div class="mt-6 text-[11px] text-zinc-600 leading-relaxed">
-      Security: PBKDF2-SHA256 (210,000 iterations) + AES-GCM-256. Drafts auto-encrypt at rest; keys live only in memory.
-      Keep <span class="font-mono">admin.html</span> local and never link it from the public site.
+      <button id="btnAuth" class="w-full py-3.5 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Sign in</button>
     </div>
   </div>
 
@@ -86,79 +88,44 @@
       <button data-tab="blog" class="tab-btn px-5 py-2 rounded-full text-xs font-medium text-zinc-400 hover:text-white transition cursor-pointer">Blog</button>
     </div>
 
-    <!-- ===== PROJECTS TAB ===== -->
     <div id="tab-projects">
       <div class="flex flex-wrap gap-2 mb-6">
         <button id="btnAddP" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add project</button>
-        <button id="btnCopyAllP" class="px-4 py-2.5 rounded-full border border-emerald-800 text-emerald-200 text-xs hover:bg-emerald-950/40 transition cursor-pointer">Copy ALL cards HTML</button>
-        <button id="btnResetP" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset projects</button>
+        <button id="btnSeed" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Seed default content</button>
       </div>
       <div id="listP" class="space-y-3"></div>
-      <div class="glass rounded-3xl p-6 mt-6">
-        <h3 class="text-sm font-medium mb-2">Generated projects HTML → paste between <span class="font-mono">PROJECTS-START</span> / <span class="font-mono">PROJECTS-END</span></h3>
-        <textarea id="outP" rows="7" readonly class="code w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none resize-y"></textarea>
-        <div class="flex flex-wrap gap-2 mt-3">
-          <button id="btnRegenP" class="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">Regenerate</button>
-          <button id="btnCopyP" class="px-4 py-2 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Copy</button>
-        </div>
-      </div>
     </div>
 
-    <!-- ===== REVIEWS TAB ===== -->
     <div id="tab-reviews" class="hidden">
       <div class="flex flex-wrap gap-2 mb-6">
         <button id="btnAddR" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add review</button>
-        <button id="btnCopyAllR" class="px-4 py-2.5 rounded-full border border-emerald-800 text-emerald-200 text-xs hover:bg-emerald-950/40 transition cursor-pointer">Copy ALL reviews HTML</button>
-        <button id="btnResetR" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset reviews</button>
       </div>
       <div id="listR" class="space-y-3"></div>
-      <div class="glass rounded-3xl p-6 mt-6">
-        <h3 class="text-sm font-medium mb-2">Generated reviews HTML → paste between <span class="font-mono">REVIEWS-START</span> / <span class="font-mono">REVIEWS-END</span></h3>
-        <textarea id="outR" rows="7" readonly class="code w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none resize-y"></textarea>
-        <div class="flex flex-wrap gap-2 mt-3">
-          <button id="btnRegenR" class="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">Regenerate</button>
-          <button id="btnCopyR" class="px-4 py-2 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Copy</button>
-        </div>
-      </div>
     </div>
 
-    <!-- ===== BLOG TAB ===== -->
     <div id="tab-blog" class="hidden">
       <div class="flex flex-wrap gap-2 mb-6">
         <button id="btnAddB" class="px-4 py-2.5 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">+ Add article</button>
-        <button id="btnCopyAllB" class="px-4 py-2.5 rounded-full border border-emerald-800 text-emerald-200 text-xs hover:bg-emerald-950/40 transition cursor-pointer">Copy ALL blog HTML</button>
-        <button id="btnResetB" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Reset blog</button>
       </div>
       <div id="listB" class="space-y-3"></div>
-      <div class="glass rounded-3xl p-6 mt-6">
-        <h3 class="text-sm font-medium mb-2">Generated blog HTML → paste between <span class="font-mono">BLOG-START</span> / <span class="font-mono">BLOG-END</span></h3>
-        <textarea id="outB" rows="7" readonly class="code w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none resize-y"></textarea>
-        <div class="flex flex-wrap gap-2 mt-3">
-          <button id="btnRegenB" class="px-4 py-2 rounded-full bg-white text-black text-xs font-medium hover:bg-zinc-200 transition cursor-pointer">Regenerate</button>
-          <button id="btnCopyB" class="px-4 py-2 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Copy</button>
-        </div>
-      </div>
     </div>
 
     <div class="glass rounded-3xl p-6 mt-6">
-      <h3 class="text-sm font-medium mb-2">Backup &amp; publish</h3>
-      <div class="flex flex-wrap gap-2 mb-4">
-        <button id="btnExport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Export backup JSON</button>
-        <button id="btnImport" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition cursor-pointer">Import backup</button>
-        <input id="fileImport" type="file" accept="application/json" class="hidden">
-        <button id="btnWipe" class="px-4 py-2.5 rounded-full border border-red-900 text-red-300 text-xs hover:bg-red-950/40 transition cursor-pointer">Wipe all local data</button>
-        <a href="index.html" class="px-4 py-2.5 rounded-full border border-zinc-700 text-xs hover:bg-zinc-900 transition">← Back to site</a>
-      </div>
+      <h3 class="text-sm font-medium mb-2">How this works</h3>
       <ol class="text-xs text-zinc-400 font-light leading-relaxed list-decimal ml-5 space-y-1">
-        <li>Copy each section's HTML and paste it between its markers in <span class="font-mono">index.html</span>.</li>
-        <li>Commit &amp; push: <span class="font-mono">git add -A &amp;&amp; git commit -m "Update content" &amp;&amp; git push</span>.</li>
-        <li>Keep <span class="font-mono">admin.html</span> local — do not deploy or link it publicly.</li>
+        <li>Everything you save here goes straight into <b class="text-zinc-200">Firestore</b> — the live database.</li>
+        <li>The public site listens to the database in <b class="text-zinc-200">real time</b>: edits appear within seconds, no rebuild, no re-export.</li>
+        <li>Writes require login (enforced by <span class="font-mono">firestore.rules</span> on Google's servers — not just in this page).</li>
+        <li>Images: put files in the repo's <span class="font-mono">images/</span> folder and push, then reference them (e.g. <span class="font-mono">images/shot.jpg</span>) — or paste any <span class="font-mono">https://</span> image URL.</li>
       </ol>
+      <div class="mt-4">
+        <a href="index.html" class="text-[11px] px-3 py-1.5 rounded-full border border-zinc-700 hover:bg-zinc-900 transition">← Back to site</a>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ============ PROJECT EDITOR MODAL ============ -->
+<!-- ============ PROJECT EDITOR ============ -->
 <div id="editorModalP" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" data-close="editorModalP"></div>
   <div class="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -191,9 +158,8 @@
         <textarea id="p_description" rows="4" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 resize-none"></textarea>
       </div>
       <div>
-        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">IMAGE (path or URL)</label>
+        <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">IMAGE (path or URL) *</label>
         <input id="p_image" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="images/my-project.jpg">
-        <input id="p_imageFile" type="file" accept="image/*" class="mt-2 text-[11px] text-zinc-500 file:mr-3 file:px-3 file:py-1.5 file:rounded-full file:border file:border-zinc-700 file:bg-zinc-900 file:text-zinc-200 file:text-[11px] cursor-pointer">
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">VIDEO EMBED URL (video only)</label>
@@ -210,23 +176,15 @@
         <input id="p_tags" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500">
       </div>
     </div>
-    <div class="mt-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
-      <p class="text-[11px] font-mono text-zinc-400 mb-2">CARD HTML PREVIEW</p>
-      <div class="flex flex-wrap gap-2 mb-3">
-        <button id="btnPreviewP" class="px-3 py-1.5 rounded-full border border-zinc-700 text-[11px] hover:bg-zinc-900 transition cursor-pointer">Generate preview</button>
-        <button id="btnCopyOneP" class="px-3 py-1.5 rounded-full border border-zinc-700 text-[11px] hover:bg-zinc-900 transition cursor-pointer">Copy this card</button>
-      </div>
-      <textarea id="outOneP" rows="4" readonly class="code w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-400 focus:outline-none resize-y"></textarea>
-    </div>
     <p id="editorErrorP" class="hidden text-xs text-red-400 mt-4"></p>
     <div class="flex gap-2 mt-6">
-      <button id="btnSaveP" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save project</button>
+      <button id="btnSaveP" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save to live database</button>
       <button data-close="editorModalP" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- ============ REVIEW EDITOR MODAL ============ -->
+<!-- ============ REVIEW EDITOR ============ -->
 <div id="editorModalR" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" data-close="editorModalR"></div>
   <div class="relative w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -241,7 +199,7 @@
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">ROLE — PROJECT *</label>
-        <input id="r_role" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Product Manager — Pintarhub Portal">
+        <input id="r_role" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500" placeholder="Product Owner — WarungKu POS">
       </div>
       <div>
         <label class="block text-[11px] font-mono text-zinc-400 mb-1.5">RATING *</label>
@@ -258,13 +216,13 @@
     </div>
     <p id="editorErrorR" class="hidden text-xs text-red-400 mt-4"></p>
     <div class="flex gap-2 mt-6">
-      <button id="btnSaveR" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save review</button>
+      <button id="btnSaveR" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save to live database</button>
       <button data-close="editorModalR" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- ============ BLOG EDITOR MODAL ============ -->
+<!-- ============ BLOG EDITOR ============ -->
 <div id="editorModalB" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" data-close="editorModalB"></div>
   <div class="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -304,244 +262,90 @@
     </div>
     <p id="editorErrorB" class="hidden text-xs text-red-400 mt-4"></p>
     <div class="flex gap-2 mt-6">
-      <button id="btnSaveB" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save article</button>
+      <button id="btnSaveB" class="flex-1 py-3 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition cursor-pointer">Save to live database</button>
       <button data-close="editorModalB" class="px-5 py-3 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============ CHANGE PASSWORD MODAL ============ -->
-<div id="pwModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" id="pwBackdrop"></div>
-  <div class="relative w-full max-w-sm bg-zinc-950 border border-zinc-800 rounded-3xl p-6">
-    <h3 class="text-lg font-medium mb-4">Change password</h3>
-    <input id="pwCurrent" type="password" placeholder="Current password" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm mb-3 focus:outline-none focus:border-zinc-500">
-    <input id="pwNew" type="password" placeholder="New password (min 8 chars)" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm mb-3 focus:outline-none focus:border-zinc-500">
-    <input id="pwNew2" type="password" placeholder="Confirm new password" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm mb-3 focus:outline-none focus:border-zinc-500">
-    <p id="pwError" class="hidden text-xs text-red-400 mb-3"></p>
-    <div class="flex gap-2">
-      <button id="btnPwSave" class="flex-1 py-2.5 bg-white text-black text-sm font-medium rounded-xl hover:bg-zinc-200 transition cursor-pointer">Update</button>
-      <button id="btnPwCancel" class="px-4 py-2.5 border border-zinc-700 text-sm rounded-xl hover:bg-zinc-900 transition cursor-pointer">Cancel</button>
     </div>
   </div>
 </div>
 
 <script>
 "use strict";
-/* Content Admin — encrypted manager for projects + reviews + blog.
-   Auth: PBKDF2-SHA256 (210k) + AES-GCM-256 drafts. Keys live only in memory.
-   Output: paste-ready static HTML for index.html markers. */
-const LS_AUTH = "portfolio_admin_auth_v2";
-const LS_ENC  = "portfolio_content_enc_v3";
-const LS_LOCK = "portfolio_admin_lock_v2";
-const SS_SESS = "portfolio_admin_session_v2";
-const ITER = 210000, SESSION_MIN = 30, MAX_FAILS = 5, LOCK_MS = 60000;
-
-let encKey = null, authedUser = null;
-let projects = [], reviews = [], blogs = [];
-let editingP = null, editingR = null, editingB = null;
-let encryptTimer = null, sessionInt = null;
-
+/* Live-database admin: Firebase Auth (email+password) + Firestore CRUD.
+   Writes are enforced server-side by firestore.rules — public can only read. */
 const $ = id => document.getElementById(id);
-const te = new TextEncoder(), td = new TextDecoder();
-const b64e = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
-const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0)).buffer;
-const rand = n => crypto.getRandomValues(new Uint8Array(n));
-const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-function timingSafeEqual(a, b) {
-  if (a.length !== b.length) return false;
-  let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return d === 0;
-}
-async function pbkdf2(password, saltBuf, iter = ITER) {
-  const base = await crypto.subtle.importKey("raw", te.encode(password), "PBKDF2", false, ["deriveBits", "deriveKey"]);
-  return crypto.subtle.deriveBits({ name: "PBKDF2", salt: saltBuf, iterations: iter, hash: "SHA-256" }, base, 256);
-}
-async function aesKeyFrom(password, encSaltB64) {
-  const base = await crypto.subtle.importKey("raw", te.encode(password), "PBKDF2", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt: new Uint8Array(b64d(encSaltB64)), iterations: ITER, hash: "SHA-256" },
-    base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
-}
-async function encJSON(key, obj) {
-  const iv = rand(12);
-  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, te.encode(JSON.stringify(obj)));
-  return { iv: b64e(iv), data: b64e(ct) };
-}
-async function decJSON(key, blob) {
-  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(b64d(blob.iv)) }, key, b64d(blob.data));
-  return JSON.parse(td.decode(pt));
-}
-const getAuth = () => { try { return JSON.parse(localStorage.getItem(LS_AUTH)); } catch { return null; } };
-const getLock = () => { try { return JSON.parse(localStorage.getItem(LS_LOCK)) || { fails: 0, lockUntil: 0 }; } catch { return { fails: 0, lockUntil: 0 }; } };
-const setLock = o => localStorage.setItem(LS_LOCK, JSON.stringify(o));
+let db = null, auth = null, unsubs = [];
+let editingP = null, editingR = null, editingB = null;
 
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function slug(s) {
   return (s || "item").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || ("item-" + Date.now().toString(36));
 }
-function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-function escAttr(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
-async function copyText(t) {
-  try { await navigator.clipboard.writeText(t); return true; }
-  catch {
-    const ta = document.createElement("textarea");
-    ta.value = t; document.body.appendChild(ta); ta.select();
-    let ok = false;
-    try { ok = document.execCommand("copy"); } catch {}
-    ta.remove(); return ok;
-  }
-}
-
-/* ---------------- HTML generators (mirror index.html markup exactly) ---------------- */
-function projectCardHtml(p) {
-  const tags = (p.tags || []).map(t => String(t).trim()).filter(Boolean);
-  const tagSpans = tags.slice(0, 4).map(t => `<span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">${esc(t)}</span>`).join("");
-  const isVideo = p.type === "video" && p.videoUrl;
-  const gallery = (p.gallery && p.gallery.length ? p.gallery : [p.image]).filter(Boolean);
-  const playOverlay = isVideo ? `
-                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
-                                <svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </div>
-                        </div>` : "";
-  const catLabel = `<span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">${esc(p.category)}</span>`;
-  const buttons = isVideo
-    ? `
-                        <div class="flex gap-2 mt-auto pt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
-                            <button onclick="openVideoModal('${escAttr(p.videoUrl)}')" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play Video</button>
-                        </div>`
-    : `
-                        <div class="flex gap-2 mt-auto pt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
-                        </div>`;
-  return `                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="${escAttr(p.id)}" data-type="${escAttr(p.type)}" data-video="${escAttr(p.videoUrl || "")}" data-link="${escAttr(p.link || "")}" data-badge="" data-category="${escAttr(p.category)}" data-title="${escAttr(p.title)}" data-short="${escAttr(p.short)}" data-description="${escAttr(p.description)}" data-image="${escAttr(p.image)}" data-gallery="${escAttr(gallery.join("|"))}" data-tags="${escAttr(tags.join("|"))}">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="${escAttr(p.image)}" alt="${escAttr(p.title)}" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">${playOverlay}
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        ${catLabel}
-                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">${esc(p.title)}</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">${esc(p.short)}</p>
-                        <div class="flex flex-wrap gap-1.5 mt-4">${tagSpans}</div>${buttons}
-                    </div>
-                </article>`;
-}
-
-function reviewCardHtml(r) {
-  const initial = (r.name || "?").trim().charAt(0).toUpperCase() || "?";
-  return `                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="${escAttr(r.id)}" data-name="${escAttr(r.name)}" data-role="${escAttr(r.role)}" data-rating="${escAttr(String(r.rating))}" data-text="${escAttr(r.text)}">
-                    <div class="stars mb-4" data-rating="${escAttr(String(r.rating))}"></div>
-                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;${esc(r.text)}&quot;</p>
-                    <div class="mt-auto pt-5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">${esc(initial)}</div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">${esc(r.name)}</p>
-                            <p class="text-[11px] font-mono text-zinc-500 truncate">${esc(r.role)}</p>
-                        </div>
-                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">${esc(String(Number(r.rating).toFixed(1)))}</span>
-                    </div>
-                </article>`;
-}
-
-function blogCardHtml(b) {
-  const tags = (b.tags || []).map(t => String(t).trim()).filter(Boolean);
-  return `                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="${escAttr(b.id)}" data-title="${escAttr(b.title)}" data-meta="${escAttr(b.meta)}" data-excerpt="${escAttr(b.excerpt)}" data-content="${escAttr(b.content)}" data-image="${escAttr(b.image)}" data-link="${escAttr(b.link || "#")}" data-tags="${escAttr(tags.join("|"))}">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="${escAttr(b.image)}" alt="${escAttr(b.title)}" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">${esc(b.meta)}</span>
-                        <h3 class="text-lg font-medium text-white mb-2">${esc(b.title)}</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">${esc(b.excerpt)}</p>
-                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">Read Preview <span aria-hidden="true">→</span></span>
-                    </div>
-                </article>`;
-}
-
-/* ---------------- defaults (mirror index.html content) ---------------- */
-const FALLBACK_P = [
-  { id: "pintarhub-portal", category: "Web Platform / EdTech", title: "Pintarhub Portal", short: "An interactive web-based education portal for efficient self-paced learning management.", description: "An interactive web-based education portal for managing self-paced learning systems efficiently. Features a modular dashboard, learning progress tracking, and a clean responsive interface built for students and educators.", image: "images/ptr.JPEG", gallery: ["images/ptr.JPEG"], tags: ["HTML", "CSS", "JavaScript", "EdTech"], type: "image", videoUrl: "", link: "" },
-  { id: "giat-ukbi-documentary", category: "Documentary / Video Production", title: "Giat UKBI Documentary", short: "Official documentary production with SMAN 1 Padamara promoting the UKBI language test.", description: "Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film.", image: "images/ukbi.JPEG", gallery: ["images/ukbi.JPEG"], tags: ["Directing", "Premiere Pro", "Documentary"], type: "video", videoUrl: "https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v", link: "" },
-  { id: "smart-lamp-application", category: "Hardware / IoT Integration", title: "Smart Lamp Application", short: "A microcontroller-based home lamp automation prototype with a digital control dashboard.", description: "A home lamp automation prototype based on a microcontroller, integrated with a digital control dashboard. Supports remote on/off, scheduling, and real-time device status monitoring over Wi-Fi.", image: "images/sml.JPEG", gallery: ["images/sml.JPEG"], tags: ["ESP32", "Arduino", "IoT Dashboard"], type: "image", videoUrl: "", link: "" },
-  { id: "hut-smara-euforia", category: "Event Showcase / Web", title: "HUT Smara Euforia", short: "An interactive landing page documenting the school anniversary celebration.", description: "Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info.", image: "images/smr.JPEG", gallery: ["images/smr.JPEG"], tags: ["Landing Page", "Tailwind", "Event"], type: "image", videoUrl: "", link: "" },
-  { id: "yang-terpanggil-documentary", category: "Cinematography / Award Pick", title: "\"Yang Terpanggil\" Documentary", short: "An award-winning short documentary honored at FFP & Indonesia Student Movie Awards.", description: "A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading.", image: "images/cinema.JPEG", gallery: ["images/cinema.JPEG"], tags: ["Documentary", "DaVinci Resolve", "Directing"], type: "image", videoUrl: "", link: "" },
-  { id: "multi-event-content-strategy", category: "Creative Direction / Management", title: "Multi-Event Content Strategy", short: "Creative concepting, feed management, and visual asset production for events.", description: "Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy.", image: "images/jkf.JPEG", gallery: ["images/jkf.JPEG"], tags: ["Content Planning", "Branding", "Social Media"], type: "image", videoUrl: "", link: "" }
-];
-const FALLBACK_R = [
-  { id: "review-rizky-pratama", name: "Rizky Pratama", role: "Product Owner — WarungKu POS", rating: 5, text: "Checkout flow for our small shop POS stays fast even during rush hour. Cashier training took one afternoon, and the daily sales reports finally make sense." },
-  { id: "review-sinta-maharani", name: "Sinta Maharani", role: "Event Coordinator — Campus Festival Site", rating: 5, text: "One page held our rundown, lineup, venue map, and ticket info. Attendance doubled compared to last year's poster-only announcement." },
-  { id: "review-dimas-angga", name: "Dimas Angga Saputra", role: "Homeowner — Home Energy Monitor", rating: 5, text: "The ESP32 monitor has tracked our power usage for months without a single disconnect. The dashboard is simple enough for my parents to check every day." },
-  { id: "review-nadia-putri", name: "Nadia Putri", role: "Committee Head — Graduation Aftermovie", rating: 5, text: "The aftermovie captured the day professionally — steady shots, clear audio, and a clean edit. We replay it at every alumni gathering." },
-  { id: "review-fajar-nugroho", name: "Fajar Nugroho", role: "OSIS Advisor — School Library Catalog", rating: 4.5, text: "Book search and borrowing records finally live in one tidy system, and cataloging is noticeably faster. Only wish we had migrated the older records sooner." }
-];
-const FALLBACK_B = [
-  { id: "blog-paper-notes", title: "Why I Still Take Notes on Paper", meta: "Feb 14, 2026", excerpt: "A keyboard is fast, but paper remembers better — my simple note system for classes and builds.", content: "I type fast, yet everything important ends up on paper first. One notebook per project, one page per day: tasks on the left, sketches on the right, and a weekly review every Sunday night. When deadlines hit, I can flip back and see exactly how an idea evolved. Digital tools archive; paper thinks with you.", image: "images/jkf.JPEG", link: "#", tags: ["Productivity", "Study", "Notes"] },
-  { id: "blog-flutter-month", title: "My First Month Learning Flutter", meta: "May 09, 2026", excerpt: "Hot reload is magic, state management is not — honest notes from 30 days of Flutter.", content: "Week one felt like cheating: one codebase, two platforms, instant reload. Week two humbled me — setState spaghetti, then Provider, then actually reading the widget tree docs. By week four I shipped a tiny habit-tracker APK to my own phone. Verdict: Flutter rewards builders who finish small apps, not tutorial collectors.", image: "images/ptr.JPEG", link: "#", tags: ["Flutter", "Mobile", "Learning"] },
-  { id: "blog-street-framing", title: "What Street Photography Taught Me About Framing", meta: "Jul 21, 2026", excerpt: "Waiting, layering, and leaving space — sidewalk lessons that improved my video work.", content: "Street photography gives you no retakes, so you learn to see frames before they happen: foreground, subject, background in layers. Waiting ten minutes for the right stranger beats ten posed shots. I now storyboard documentaries the same way — find the corner, let life walk into it. Patience is a camera setting.", image: "images/cinema.JPEG", link: "#", tags: ["Photography", "Visual", "Documentary"] }
-];
-const clone = o => JSON.parse(JSON.stringify(o));
-
-/* ---------------- boot ---------------- */
 window.addEventListener("DOMContentLoaded", () => {
-  const auth = getAuth();
-  const isSetup = !auth;
-  $("authSetupIntro").classList.toggle("hidden", !isSetup);
-  $("authConfirmWrap").classList.toggle("hidden", !isSetup);
-  $("pwHint").classList.toggle("hidden", !isSetup);
-  $("authTitle").textContent = isSetup ? "Create admin account" : "Admin login";
-  $("btnAuth").textContent = isSetup ? "Create & Unlock" : "Unlock Dashboard";
-  refreshLockUI();
+  if (typeof firebase === "undefined" || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.projectId) {
+    $("noConfigView").classList.remove("hidden");
+    return;
+  }
+  if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  auth = firebase.auth();
+  db = firebase.firestore();
 
-  $("btnAuth").addEventListener("click", onAuth);
-  [$("authUser"), $("authPass"), $("authPass2")].forEach(el => el.addEventListener("keydown", e => { if (e.key === "Enter") onAuth(); }));
-  $("btnLogout").addEventListener("click", () => lock());
-  $("btnChangePw").addEventListener("click", () => { $("pwModal").classList.remove("hidden"); });
-  $("btnPwCancel").addEventListener("click", () => $("pwModal").classList.add("hidden"));
-  $("pwBackdrop").addEventListener("click", () => $("pwModal").classList.add("hidden"));
-  $("btnPwSave").addEventListener("click", onChangePassword);
+  $("btnAuth").addEventListener("click", onLogin);
+  [$("authEmail"), $("authPass")].forEach(el => el.addEventListener("keydown", e => { if (e.key === "Enter") onLogin(); }));
+  $("btnLogout").addEventListener("click", () => auth.signOut());
 
   document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
   document.querySelectorAll("[data-close]").forEach(el => el.addEventListener("click", () => $(el.dataset.close).classList.add("hidden")));
 
   $("btnAddP").addEventListener("click", () => openEditorP(null));
   $("btnSaveP").addEventListener("click", saveEditorP);
-  $("p_imageFile").addEventListener("change", e => pickImage(e, "p_image"));
-  $("btnPreviewP").addEventListener("click", () => { const p = readEditorP(); if (p) $("outOneP").value = projectCardHtml(p); });
-  $("btnCopyOneP").addEventListener("click", async () => { const p = readEditorP(); if (!p) return; alert(await copyText(projectCardHtml(p)) ? "Card HTML copied!" : "Copy failed — select manually."); });
-  $("btnCopyAllP").addEventListener("click", async () => { refreshOutputs(); alert(await copyText($("outP").value) ? `Copied HTML for ${projects.length} cards!` : "Copy failed — select manually."); });
-  $("btnRegenP").addEventListener("click", refreshOutputs);
-  $("btnCopyP").addEventListener("click", async () => { alert(await copyText($("outP").value) ? "Copied!" : "Copy failed."); });
-  $("btnResetP").addEventListener("click", () => { if (confirm("Reset projects to default?")) { projects = clone(FALLBACK_P); afterChange(); } });
-
   $("btnAddR").addEventListener("click", () => openEditorR(null));
   $("btnSaveR").addEventListener("click", saveEditorR);
-  $("btnCopyAllR").addEventListener("click", async () => { refreshOutputs(); alert(await copyText($("outR").value) ? `Copied HTML for ${reviews.length} reviews!` : "Copy failed."); });
-  $("btnRegenR").addEventListener("click", refreshOutputs);
-  $("btnCopyR").addEventListener("click", async () => { alert(await copyText($("outR").value) ? "Copied!" : "Copy failed."); });
-  $("btnResetR").addEventListener("click", () => { if (confirm("Reset reviews to default?")) { reviews = clone(FALLBACK_R); afterChange(); } });
-
   $("btnAddB").addEventListener("click", () => openEditorB(null));
   $("btnSaveB").addEventListener("click", saveEditorB);
-  $("btnCopyAllB").addEventListener("click", async () => { refreshOutputs(); alert(await copyText($("outB").value) ? `Copied HTML for ${blogs.length} articles!` : "Copy failed."); });
-  $("btnRegenB").addEventListener("click", refreshOutputs);
-  $("btnCopyB").addEventListener("click", async () => { alert(await copyText($("outB").value) ? "Copied!" : "Copy failed."); });
-  $("btnResetB").addEventListener("click", () => { if (confirm("Reset blog to default?")) { blogs = clone(FALLBACK_B); afterChange(); } });
+  $("btnSeed").addEventListener("click", seedDefaults);
 
-  $("btnExport").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify({ projects, reviews, blogs }, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "content-backup.json"; a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") ["editorModalP", "editorModalR", "editorModalB"].forEach(id => $(id).classList.add("hidden")); });
+  document.addEventListener("click", onRowAction);
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      $("authView").classList.add("hidden");
+      $("dashView").classList.remove("hidden");
+      $("sessionBox").classList.remove("hidden");
+      $("liveDot").classList.remove("hidden");
+      $("sessionUser").textContent = "● " + (user.email || "admin");
+      subscribeAll();
+    } else {
+      unsubs.forEach(u => { try { u(); } catch {} });
+      unsubs = [];
+      $("dashView").classList.add("hidden");
+      $("sessionBox").classList.add("hidden");
+      $("liveDot").classList.add("hidden");
+      $("authView").classList.remove("hidden");
+    }
   });
-  $("btnImport").addEventListener("click", () => $("fileImport").click());
-  $("fileImport").addEventListener("change", importJSON);
-  $("btnWipe").addEventListener("click", wipeAll);
-
-  document.addEventListener("keydown", e => { if (e.key === "Escape") ["editorModalP", "editorModalR", "editorModalB", "pwModal"].forEach(id => $(id).classList.add("hidden")); });
-  window.addEventListener("beforeunload", () => { encKey = null; });
 });
+
+async function onLogin() {
+  const err = $("authError"); err.classList.add("hidden");
+  try {
+    await auth.signInWithEmailAndPassword($("authEmail").value.trim(), $("authPass").value);
+    $("authPass").value = "";
+  } catch (e) {
+    err.textContent = friendlyAuthError(e);
+    err.classList.remove("hidden");
+    $("authView").classList.remove("shake"); void $("authView").offsetWidth;
+    $("authView").classList.add("shake");
+  }
+}
+function friendlyAuthError(e) {
+  const c = (e && e.code) || "";
+  if (c.includes("user-not-found") || c.includes("wrong-password") || c.includes("invalid-credential")) return "Wrong email or password.";
+  if (c.includes("too-many-requests")) return "Too many attempts — try again later.";
+  if (c.includes("network")) return "Network error — check your connection.";
+  return (e && e.message) || "Sign-in failed.";
+}
 
 function switchTab(name) {
   document.querySelectorAll(".tab-btn").forEach(b => {
@@ -552,236 +356,90 @@ function switchTab(name) {
   ["projects", "reviews", "blog"].forEach(t => $("tab-" + t).classList.toggle("hidden", t !== name));
 }
 
-function refreshLockUI() {
-  const { fails, lockUntil } = getLock();
-  const left = lockUntil - Date.now();
-  $("lockInfo").classList.toggle("hidden", left <= 0 && !(fails > 0));
-  $("btnAuth").disabled = left > 0;
-  $("btnAuth").classList.toggle("opacity-40", left > 0);
-  if (left > 0) {
-    $("lockInfo").textContent = `Locked — too many attempts. Retry in ${Math.ceil(left / 1000)}s (${fails}/${MAX_FAILS}).`;
-    setTimeout(refreshLockUI, 1000);
-  } else if (fails > 0) {
-    $("lockInfo").textContent = `Warning: ${fails}/${MAX_FAILS} failed attempts.`;
-  }
-}
-
-/* ---------------- auth ---------------- */
-async function onAuth() {
-  const err = $("authError"); err.classList.add("hidden");
-  const lock = getLock();
-  if (lock.lockUntil > Date.now()) { refreshLockUI(); return; }
-  const username = $("authUser").value.trim();
-  const password = $("authPass").value;
-  try {
-    const existing = getAuth();
-    if (!existing) {
-      if (username.length < 4) throw new Error("Username must be at least 4 characters.");
-      if (password.length < 8) throw new Error("Password must be at least 8 characters (12+ recommended).");
-      if (password !== $("authPass2").value) throw new Error("Passwords do not match.");
-      const authSalt = b64e(rand(16)), encSalt = b64e(rand(16));
-      const hash = hex(await pbkdf2(password, new Uint8Array(b64d(authSalt))));
-      localStorage.setItem(LS_AUTH, JSON.stringify({ user: username, authSalt, encSalt, hash, iter: ITER, createdAt: Date.now() }));
-      encKey = await aesKeyFrom(password, encSalt);
-      await unlock(username, true);
-    } else {
-      const okUser = timingSafeEqual(username, existing.user);
-      const hash = hex(await pbkdf2(password, new Uint8Array(b64d(existing.authSalt)), existing.iter || ITER));
-      const okPass = timingSafeEqual(hash, existing.hash);
-      if (!okUser || !okPass) {
-        const fails = (lock.fails || 0) + 1;
-        setLock(fails >= MAX_FAILS ? { fails: 0, lockUntil: Date.now() + LOCK_MS } : { fails, lockUntil: 0 });
-        refreshLockUI();
-        throw new Error(`Invalid username or password. (${Math.min(fails, MAX_FAILS)}/${MAX_FAILS})`);
-      }
-      setLock({ fails: 0, lockUntil: 0 });
-      encKey = await aesKeyFrom(password, existing.encSalt);
-      await unlock(existing.user, false);
-    }
-  } catch (e) {
-    err.textContent = e.message || "Authentication failed.";
-    err.classList.remove("hidden");
-    $("authView").classList.remove("shake"); void $("authView").offsetWidth;
-    $("authView").classList.add("shake");
-  } finally {
-    $("authPass").value = ""; $("authPass2").value = "";
-  }
-}
-
-async function unlock(username, isNew) {
-  authedUser = username;
-  sessionStorage.setItem(SS_SESS, JSON.stringify({ user: username, exp: Date.now() + SESSION_MIN * 60000 }));
-  $("authView").classList.add("hidden");
-  $("dashView").classList.remove("hidden");
-  $("sessionBox").classList.remove("hidden");
-  $("encStatus").classList.remove("hidden"); $("encStatus").classList.add("flex");
-  $("sessionUser").textContent = "● " + username;
-  startSessionTimer();
-  await loadData(isNew);
-  renderAll(); refreshOutputs();
-}
-
-function startSessionTimer() {
-  clearInterval(sessionInt);
-  const tick = () => {
-    try {
-      const s = JSON.parse(sessionStorage.getItem(SS_SESS));
-      const left = s.exp - Date.now();
-      if (left <= 0) { lock("Session expired — locked automatically."); return; }
-      $("sessionTimer").textContent = `auto-lock in ${Math.floor(left / 60000)}:${String(Math.floor(left % 60000 / 1000)).padStart(2, "0")}`;
-    } catch { lock(); }
-  };
-  tick(); sessionInt = setInterval(tick, 1000);
-}
-
-function lock(msg) {
-  encKey = null; authedUser = null; projects = []; reviews = []; blogs = [];
-  sessionStorage.removeItem(SS_SESS); clearInterval(sessionInt);
-  $("dashView").classList.add("hidden");
-  $("sessionBox").classList.add("hidden");
-  $("encStatus").classList.add("hidden"); $("encStatus").classList.remove("flex");
-  $("authView").classList.remove("hidden");
-  const auth = getAuth();
-  $("authSetupIntro").classList.add("hidden");
-  $("authConfirmWrap").classList.add("hidden");
-  $("authTitle").textContent = auth ? "Admin login" : "Create admin account";
-  $("btnAuth").textContent = auth ? "Unlock Dashboard" : "Create & Unlock";
-  if (msg) { $("authError").textContent = msg; $("authError").classList.remove("hidden"); }
-  $("authUser").value = "";
-}
-
-/* ---------------- data ---------------- */
-async function loadData(isNew) {
-  if (isNew) { projects = clone(FALLBACK_P); reviews = clone(FALLBACK_R); blogs = clone(FALLBACK_B); await autoEncrypt("initialized"); return; }
-  try {
-    const blob = JSON.parse(localStorage.getItem(LS_ENC));
-    if (blob && blob.iv && blob.data) {
-      const d = await decJSON(encKey, blob);
-      projects = Array.isArray(d.projects) ? d.projects : clone(FALLBACK_P);
-      reviews = Array.isArray(d.reviews) ? d.reviews : clone(FALLBACK_R);
-      blogs = Array.isArray(d.blogs) ? d.blogs : clone(FALLBACK_B);
-      return;
-    }
-  } catch { /* fall through */ }
-  projects = clone(FALLBACK_P); reviews = clone(FALLBACK_R); blogs = clone(FALLBACK_B);
-  await autoEncrypt("loaded");
-}
-
-async function autoEncrypt(reason) {
-  const st = $("encStatusText");
-  if (st) st.textContent = "Encrypting…";
-  clearTimeout(encryptTimer);
-  encryptTimer = setTimeout(async () => {
-    try {
-      if (!encKey) return;
-      localStorage.setItem(LS_ENC, JSON.stringify(await encJSON(encKey, { projects, reviews, blogs })));
-      if (st) st.textContent = `Encrypted draft • AES-GCM-256 • saved ${new Date().toLocaleTimeString()} (${reason})`;
-    } catch { if (st) st.textContent = "Encryption failed — browser blocked WebCrypto."; }
-  }, 400);
-}
-
-function afterChange() { renderAll(); refreshOutputs(); autoEncrypt("edit"); }
-function refreshOutputs() {
-  $("outP").value = projects.map(projectCardHtml).join("\n\n");
-  $("outR").value = reviews.map(reviewCardHtml).join("\n\n");
-  $("outB").value = blogs.map(blogCardHtml).join("\n\n");
-}
-
-function importJSON(e) {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    try {
-      const d = JSON.parse(r.result);
-      const normP = a => (Array.isArray(a) ? a : []).map((p, i) => ({ id: String(p.id || slug(p.title || ("project-" + i))), category: p.category || "General", title: p.title || "Untitled", short: p.short || p.description || "", description: p.description || p.short || "", image: p.image || "images/profile.svg", gallery: Array.isArray(p.gallery) && p.gallery.length ? p.gallery : [p.image || "images/profile.svg"], tags: Array.isArray(p.tags) ? p.tags : String(p.tags || "").split(/[,|]/).map(s => s.trim()).filter(Boolean), type: p.type === "video" ? "video" : "image", videoUrl: p.videoUrl || "", link: p.link || "" }));
-      if (d.projects || d.reviews || d.blogs || Array.isArray(d)) {
-        if (Array.isArray(d)) projects = normP(d);
-        else {
-          if (d.projects) projects = normP(d.projects);
-          if (Array.isArray(d.reviews)) reviews = d.reviews;
-          if (Array.isArray(d.blogs)) blogs = d.blogs;
-        }
-        afterChange();
-      } else throw new Error("Unrecognized backup format.");
-    } catch (err) { alert("Import failed: " + err.message); }
-    e.target.value = "";
-  };
-  r.readAsText(f);
-}
-
-function wipeAll() {
-  if (!confirm("Wipe ALL local data (account + encrypted drafts)?")) return;
-  if (!confirm("Really wipe? Press OK again to confirm.")) return;
-  localStorage.removeItem(LS_AUTH); localStorage.removeItem(LS_ENC); localStorage.removeItem(LS_LOCK);
-  location.reload();
-}
-
-/* ---------------- project list + editor ---------------- */
-function renderAll() { renderListP(); renderListR(); renderListB(); }
-
-function rowHtml(p, i, n, sub) {
+/* ---------------- live lists ---------------- */
+function rowHtml(title, sub, i, n, last) {
   return `
     <div class="glass rounded-2xl p-4 flex gap-4 items-center">
       <div class="flex-1 min-w-0">
-        <h4 class="text-sm font-medium truncate">${esc(p.title || p.name)}</h4>
+        <h4 class="text-sm font-medium truncate">${esc(title)}</h4>
         <p class="text-[11px] text-zinc-500 truncate">${esc(sub)}</p>
       </div>
       <div class="flex flex-col sm:flex-row gap-1.5 shrink-0">
         <button data-act="up" data-i="${i}" data-list="${n}" ${i === 0 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↑</button>
-        <button data-act="down" data-i="${i}" data-list="${n}" ${i === len(n) - 1 ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↓</button>
+        <button data-act="down" data-i="${i}" data-list="${n}" ${last ? "disabled" : ""} class="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 disabled:opacity-30 cursor-pointer">↓</button>
         <button data-act="edit" data-i="${i}" data-list="${n}" class="px-3 py-1.5 rounded-lg border border-zinc-700 text-[11px] hover:bg-zinc-900 cursor-pointer">Edit</button>
         <button data-act="del" data-i="${i}" data-list="${n}" class="px-3 py-1.5 rounded-lg border border-red-900 text-red-300 text-[11px] hover:bg-red-950/40 cursor-pointer">Delete</button>
       </div>
     </div>`;
 }
-function getList(n) { return n === "P" ? projects : n === "R" ? reviews : blogs; }
-function len(n) { return getList(n).length; }
 
-function renderListP() {
-  $("listP").innerHTML = projects.length
-    ? projects.map((p, i) => rowHtml(p, i, "P", `${p.category} · ${p.type}`)).join("")
-    : `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No projects yet.</div>`;
+let cache = { projects: [], reviews: blogs0() };
+function blogs0() { return []; }
+
+function subscribeAll() {
+  unsubs.forEach(u => { try { u(); } catch {} });
+  unsubs = [];
+  const defs = [
+    ["projects", "listP", d => rowHtml(d.title, `${d.category || ""} · ${d.type || ""}`, 0, "", false)],
+    ["reviews", "listR", null],
+    ["blogs", "listB", null],
+  ];
+  defs.forEach(([col]) => {
+    unsubs.push(db.collection(col).orderBy("order").onSnapshot(snap => {
+      const arr = [];
+      snap.forEach(doc => { const d = doc.data() || {}; d.id = doc.id; arr.push(d); });
+      cache[col] = arr;
+      renderList(col);
+    }, err => {
+      const box = col === "projects" ? $("listP") : col === "reviews" ? $("listR") : $("listB");
+      box.innerHTML = `<div class="glass rounded-2xl p-6 text-xs text-red-300">Cannot read <span class="font-mono">${col}</span>: ${esc(err.message || err)}. Check firestore.rules.</div>`;
+    }));
+  });
 }
-function renderListR() {
-  $("listR").innerHTML = reviews.length
-    ? reviews.map((r, i) => rowHtml(r, i, "R", `${r.role} · ★ ${r.rating}`)).join("")
-    : `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No reviews yet.</div>`;
+
+function renderList(col) {
+  const arr = cache[col];
+  const box = col === "projects" ? $("listP") : col === "reviews" ? $("listR") : $("listB");
+  if (!arr.length) { box.innerHTML = `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">Empty — add the first item or seed defaults.</div>`; return; }
+  box.innerHTML = arr.map((d, i) => {
+    const sub = col === "projects" ? `${d.category || ""} · ${d.type || ""}` : col === "reviews" ? `${d.role || ""} · ★ ${d.rating ?? ""}` : (d.meta || "");
+    const label = d.title || d.name || d.id;
+    return rowHtml(label, sub, i, col === "projects" ? "P" : col === "reviews" ? "R" : "B", i === arr.length - 1);
+  }).join("");
 }
-function renderListB() {
-  $("listB").innerHTML = blogs.length
-    ? blogs.map((b, i) => rowHtml(b, i, "B", b.meta)).join("")
-    : `<div class="glass rounded-2xl p-8 text-center text-sm text-zinc-500">No articles yet.</div>`;
-}
-document.addEventListener("click", e => {
+
+async function onRowAction(e) {
   const b = e.target.closest("button[data-act]");
   if (!b || $("dashView").classList.contains("hidden")) return;
   const i = +b.dataset.i, n = b.dataset.list, act = b.dataset.act;
-  const arr = getList(n);
-  if (act === "up" && i > 0) { [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; }
-  else if (act === "down" && i < arr.length - 1) { [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]]; }
-  else if (act === "edit") {
-    if (n === "P") openEditorP(arr[i].id);
-    else if (n === "R") openEditorR(arr[i].id);
-    else openEditorB(arr[i].id);
-    return;
-  }
-  else if (act === "del") {
-    const label = arr[i].title || arr[i].name;
-    if (!confirm(`Delete "${label}"?`)) return;
-    if (prompt(`Type the title to confirm deletion:\n${label}`) !== label) { alert("Did not match — deletion cancelled."); return; }
-    arr.splice(i, 1);
-  }
-  afterChange();
-});
-
-function pickImage(e, targetId) {
-  const f = e.target.files[0]; if (!f) return;
-  if (f.size > 900 * 1024) alert("Image is larger than ~900KB — prefer placing the file in images/ and typing its path instead.");
-  const r = new FileReader();
-  r.onload = () => { $(targetId).value = r.result; };
-  r.readAsDataURL(f);
+  const col = n === "P" ? "projects" : n === "R" ? "reviews" : "blogs";
+  const arr = cache[col];
+  try {
+    if (act === "edit") {
+      const id = arr[i].id;
+      if (col === "projects") openEditorP(id);
+      else if (col === "reviews") openEditorR(id);
+      else openEditorB(id);
+      return;
+    }
+    if (act === "del") {
+      const label = arr[i].title || arr[i].name || arr[i].id;
+      if (!confirm(`Delete "${label}" from the LIVE database?`)) return;
+      if (prompt(`Type the title to confirm:\n${label}`) !== label) { alert("Did not match — cancelled."); return; }
+      await db.collection(col).doc(arr[i].id).delete();
+      return;
+    }
+    if ((act === "up" && i > 0) || (act === "down" && i < arr.length - 1)) {
+      const j = act === "up" ? i - 1 : i + 1;
+      const batch = db.batch();
+      batch.update(db.collection(col).doc(arr[i].id), { order: arr[j].order ?? j });
+      batch.update(db.collection(col).doc(arr[j].id), { order: arr[i].order ?? i });
+      await batch.commit();
+    }
+  } catch (err) { alert("Database error: " + (err.message || err)); }
 }
 
+/* ---------------- editors ---------------- */
 function readEditorP() {
   const err = $("editorErrorP"); err.classList.add("hidden");
   const title = $("p_title").value.trim(), category = $("p_category").value.trim();
@@ -792,64 +450,71 @@ function readEditorP() {
   const tags = $("p_tags").value.split(",").map(s => s.trim()).filter(Boolean);
   if (!title || !category || !short || !desc) { err.textContent = "Title, category, short text, and full description are required."; err.classList.remove("hidden"); return null; }
   if (type === "video" && !videoUrl) { err.textContent = "Video type requires a YouTube embed URL."; err.classList.remove("hidden"); return null; }
-  let id = editingP || slug(title); const base = id; let k = 1;
-  while (projects.some(x => x.id === id && x.id !== editingP)) id = base + "-" + (++k);
-  return { id, title, category, short, description: desc, type, image, gallery: gallery.length ? gallery : [image], videoUrl, link, tags };
+  return { title, category, short, description: desc, type, image, gallery: gallery.length ? gallery : [image], videoUrl, link, tags };
 }
-function openEditorP(id) {
-  editingP = id;
-  const p = id ? projects.find(x => x.id === id) : null;
-  $("editorTitleP").textContent = p ? "Edit project" : "Add project";
-  $("editorErrorP").classList.add("hidden"); $("outOneP").value = "";
+async function openEditorP(id) {
+  editingP = id || null;
+  $("editorTitleP").textContent = id ? "Edit project" : "Add project";
+  $("editorErrorP").classList.add("hidden");
+  let p = null;
+  if (id) { try { const s = await db.collection("projects").doc(id).get(); p = s.exists ? s.data() : null; } catch {} }
   $("p_title").value = p?.title || ""; $("p_category").value = p?.category || "";
   $("p_type").value = p?.type || "image"; $("p_short").value = p?.short || "";
   $("p_description").value = p?.description || ""; $("p_image").value = p?.image || "";
-  $("p_imageFile").value = ""; $("p_videoUrl").value = p?.videoUrl || "";
-  $("p_link").value = p?.link || ""; $("p_gallery").value = (p?.gallery || []).join("\n");
-  $("p_tags").value = (p?.tags || []).join(", ");
+  $("p_videoUrl").value = p?.videoUrl || ""; $("p_link").value = p?.link || "";
+  $("p_gallery").value = (p?.gallery || []).join("\n"); $("p_tags").value = (p?.tags || []).join(", ");
   $("editorModalP").classList.remove("hidden");
 }
-function saveEditorP() {
+async function saveEditorP() {
   const p = readEditorP(); if (!p) return;
-  if (editingP) { const i = projects.findIndex(x => x.id === editingP); if (i >= 0) projects[i] = p; }
-  else projects.push(p);
-  $("editorModalP").classList.add("hidden"); editingP = null; afterChange();
+  try {
+    if (editingP) await db.collection("projects").doc(editingP).set(p, { merge: true });
+    else {
+      const order = cache.projects.length ? Math.max(...cache.projects.map(x => x.order ?? 0)) + 1 : 0;
+      await db.collection("projects").doc(slug(p.title) + "-" + Date.now().toString(36)).set({ ...p, order });
+    }
+    $("editorModalP").classList.add("hidden"); editingP = null;
+  } catch (err) { alert("Save failed: " + (err.message || err)); }
 }
 
-function openEditorR(id) {
-  editingR = id;
-  const r = id ? reviews.find(x => x.id === id) : null;
-  $("editorTitleR").textContent = r ? "Edit review" : "Add review";
+async function openEditorR(id) {
+  editingR = id || null;
+  $("editorTitleR").textContent = id ? "Edit review" : "Add review";
   $("editorErrorR").classList.add("hidden");
+  let r = null;
+  if (id) { try { const s = await db.collection("reviews").doc(id).get(); r = s.exists ? s.data() : null; } catch {} }
   $("r_name").value = r?.name || ""; $("r_role").value = r?.role || "";
   $("r_rating").value = String(r?.rating ?? 5); $("r_text").value = r?.text || "";
   $("editorModalR").classList.remove("hidden");
 }
-function saveEditorR() {
+async function saveEditorR() {
   const err = $("editorErrorR"); err.classList.add("hidden");
   const name = $("r_name").value.trim(), role = $("r_role").value.trim(), text = $("r_text").value.trim();
   const rating = parseFloat($("r_rating").value) || 5;
   if (!name || !role || !text) { err.textContent = "Name, role, and review text are required."; err.classList.remove("hidden"); return; }
-  let id = editingR || ("review-" + slug(name)); const base = id; let k = 1;
-  while (reviews.some(x => x.id === id && x.id !== editingR)) id = base + "-" + (++k);
-  const obj = { id, name, role, rating, text };
-  if (editingR) { const i = reviews.findIndex(x => x.id === editingR); if (i >= 0) reviews[i] = obj; }
-  else reviews.push(obj);
-  $("editorModalR").classList.add("hidden"); editingR = null; afterChange();
+  try {
+    if (editingR) await db.collection("reviews").doc(editingR).set({ name, role, rating, text }, { merge: true });
+    else {
+      const order = cache.reviews.length ? Math.max(...cache.reviews.map(x => x.order ?? 0)) + 1 : 0;
+      await db.collection("reviews").doc("review-" + slug(name) + "-" + Date.now().toString(36)).set({ name, role, rating, text, order });
+    }
+    $("editorModalR").classList.add("hidden"); editingR = null;
+  } catch (err2) { alert("Save failed: " + (err2.message || err2)); }
 }
 
-function openEditorB(id) {
-  editingB = id;
-  const b = id ? blogs.find(x => x.id === id) : null;
-  $("editorTitleB").textContent = b ? "Edit article" : "Add article";
+async function openEditorB(id) {
+  editingB = id || null;
+  $("editorTitleB").textContent = id ? "Edit article" : "Add article";
   $("editorErrorB").classList.add("hidden");
+  let b = null;
+  if (id) { try { const s = await db.collection("blogs").doc(id).get(); b = s.exists ? s.data() : null; } catch {} }
   $("b_title").value = b?.title || ""; $("b_meta").value = b?.meta || "";
   $("b_excerpt").value = b?.excerpt || ""; $("b_content").value = b?.content || "";
   $("b_image").value = b?.image || ""; $("b_link").value = b?.link ?? "#";
   $("b_tags").value = (b?.tags || []).join(", ");
   $("editorModalB").classList.remove("hidden");
 }
-function saveEditorB() {
+async function saveEditorB() {
   const err = $("editorErrorB"); err.classList.add("hidden");
   const title = $("b_title").value.trim(), meta = $("b_meta").value.trim();
   const excerpt = $("b_excerpt").value.trim(), content = $("b_content").value.trim();
@@ -857,35 +522,50 @@ function saveEditorB() {
   const link = $("b_link").value.trim() || "#";
   const tags = $("b_tags").value.split(",").map(s => s.trim()).filter(Boolean);
   if (!title || !meta || !excerpt || !content) { err.textContent = "Title, date, excerpt, and content are required."; err.classList.remove("hidden"); return; }
-  let id = editingB || ("blog-" + slug(title)); const base = id; let k = 1;
-  while (blogs.some(x => x.id === id && x.id !== editingB)) id = base + "-" + (++k);
-  const obj = { id, title, meta, excerpt, content, image, link, tags };
-  if (editingB) { const i = blogs.findIndex(x => x.id === editingB); if (i >= 0) blogs[i] = obj; }
-  else blogs.push(obj);
-  $("editorModalB").classList.add("hidden"); editingB = null; afterChange();
+  try {
+    if (editingB) await db.collection("blogs").doc(editingB).set({ title, meta, excerpt, content, image, link, tags }, { merge: true });
+    else {
+      const order = cache.blogs.length ? Math.max(...cache.blogs.map(x => x.order ?? 0)) + 1 : 0;
+      await db.collection("blogs").doc("blog-" + slug(title) + "-" + Date.now().toString(36)).set({ title, meta, excerpt, content, image, link, tags, order });
+    }
+    $("editorModalB").classList.add("hidden"); editingB = null;
+  } catch (err2) { alert("Save failed: " + (err2.message || err2)); }
 }
 
-/* ---------------- change password ---------------- */
-async function onChangePassword() {
-  const err = $("pwError"); err.classList.add("hidden");
-  const cur = $("pwCurrent").value, nw = $("pwNew").value, nw2 = $("pwNew2").value;
+/* ---------------- seed defaults ---------------- */
+const SEED_P = [
+  { category: "Documentary / Video Production", title: "Giat UKBI Documentary", short: "Official documentary production with SMAN 1 Padamara promoting the UKBI language test.", description: "Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film.", image: "images/ukbi.JPEG", gallery: ["images/ukbi.JPEG"], tags: ["Directing", "Premiere Pro", "Documentary"], type: "video", videoUrl: "https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v", link: "" },
+  { category: "Event Showcase / Web", title: "HUT Smara Euforia", short: "An interactive landing page documenting the school anniversary celebration.", description: "Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info.", image: "images/smr.JPEG", gallery: ["images/smr.JPEG"], tags: ["Landing Page", "Tailwind", "Event"], type: "image", videoUrl: "", link: "" },
+  { category: "Cinematography / Award Pick", title: "\"Yang Terpanggil\" Documentary", short: "An award-winning short documentary honored at FFP & Indonesia Student Movie Awards.", description: "A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading.", image: "images/cinema.JPEG", gallery: ["images/cinema.JPEG"], tags: ["Documentary", "DaVinci Resolve", "Directing"], type: "image", videoUrl: "", link: "" },
+  { category: "Creative Direction / Management", title: "Multi-Event Content Strategy", short: "Creative concepting, feed management, and visual asset production for events.", description: "Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy.", image: "images/jkf.JPEG", gallery: ["images/jkf.JPEG"], tags: ["Content Planning", "Branding", "Social Media"], type: "image", videoUrl: "", link: "" }
+];
+const SEED_R = [
+  { name: "Rizky Pratama", role: "Product Owner — WarungKu POS", rating: 5, text: "Checkout flow for our small shop POS stays fast even during rush hour. Cashier training took one afternoon, and the daily sales reports finally make sense." },
+  { name: "Sinta Maharani", role: "Event Coordinator — Campus Festival Site", rating: 5, text: "One page held our rundown, lineup, venue map, and ticket info. Attendance doubled compared to last year's poster-only announcement." },
+  { name: "Dimas Angga Saputra", role: "Homeowner — Home Energy Monitor", rating: 5, text: "The ESP32 monitor has tracked our power usage for months without a single disconnect. The dashboard is simple enough for my parents to check every day." },
+  { name: "Nadia Putri", role: "Committee Head — Graduation Aftermovie", rating: 5, text: "The aftermovie captured the day professionally — steady shots, clear audio, and a clean edit. We replay it at every alumni gathering." },
+  { name: "Fajar Nugroho", role: "OSIS Advisor — School Library Catalog", rating: 4.5, text: "Book search and borrowing records finally live in one tidy system, and cataloging is noticeably faster. Only wish we had migrated the older records sooner." }
+];
+const SEED_B = [
+  { title: "Why I Still Take Notes on Paper", meta: "Feb 14, 2026", excerpt: "A keyboard is fast, but paper remembers better — my simple note system for classes and builds.", content: "I type fast, yet everything important ends up on paper first. One notebook per project, one page per day: tasks on the left, sketches on the right, and a weekly review every Sunday night. When deadlines hit, I can flip back and see exactly how an idea evolved. Digital tools archive; paper thinks with you.", image: "images/jkf.JPEG", link: "#", tags: ["Productivity", "Study", "Notes"] },
+  { title: "My First Month Learning Flutter", meta: "May 09, 2026", excerpt: "Hot reload is magic, state management is not — honest notes from 30 days of Flutter.", content: "Week one felt like cheating: one codebase, two platforms, instant reload. Week two humbled me — setState spaghetti, then Provider, then actually reading the widget tree docs. By week four I shipped a tiny habit-tracker APK to my own phone. Verdict: Flutter rewards builders who finish small apps, not tutorial collectors.", image: "images/ptr.JPEG", link: "#", tags: ["Flutter", "Mobile", "Learning"] },
+  { title: "What Street Photography Taught Me About Framing", meta: "Jul 21, 2026", excerpt: "Waiting, layering, and leaving space — sidewalk lessons that improved my video work.", content: "Street photography gives you no retakes, so you learn to see frames before they happen: foreground, subject, background in layers. Waiting ten minutes for the right stranger beats ten posed shots. I now storyboard documentaries the same way — find the corner, let life walk into it. Patience is a camera setting.", image: "images/cinema.JPEG", link: "#", tags: ["Photography", "Visual", "Documentary"] }
+];
+
+async function seedDefaults() {
+  if (!confirm("Write the default projects, reviews, and blog posts into the LIVE database? Existing items stay; new ones are appended.")) return;
   try {
-    const auth = getAuth(); if (!auth) throw new Error("No account found.");
-    const h = hex(await pbkdf2(cur, new Uint8Array(b64d(auth.authSalt)), auth.iter || ITER));
-    if (!timingSafeEqual(h, auth.hash)) throw new Error("Current password is wrong.");
-    if (nw.length < 8) throw new Error("New password must be at least 8 characters.");
-    if (nw !== nw2) throw new Error("New passwords do not match.");
-    const authSalt = b64e(rand(16)), encSalt = b64e(rand(16));
-    auth.authSalt = authSalt; auth.encSalt = encSalt;
-    auth.hash = hex(await pbkdf2(nw, new Uint8Array(b64d(authSalt))));
-    localStorage.setItem(LS_AUTH, JSON.stringify(auth));
-    encKey = await aesKeyFrom(nw, encSalt);
-    await autoEncrypt("password-change");
-    sessionStorage.setItem(SS_SESS, JSON.stringify({ user: auth.user, exp: Date.now() + SESSION_MIN * 60000 }));
-    $("pwModal").classList.add("hidden");
-    $("pwCurrent").value = $("pwNew").value = $("pwNew2").value = "";
-    alert("Password updated and drafts re-encrypted.");
-  } catch (e) { err.textContent = e.message; err.classList.remove("hidden"); }
+    const batch = db.batch();
+    const base = Date.now().toString(36);
+    let o = cache.projects.length ? Math.max(...cache.projects.map(x => x.order ?? 0)) + 1 : 0;
+    SEED_P.forEach((p, i) => batch.set(db.collection("projects").doc(slug(p.title) + "-" + base + i), { ...p, order: o + i }));
+    o = cache.reviews.length ? Math.max(...cache.reviews.map(x => x.order ?? 0)) + 1 : 0;
+    SEED_R.forEach((r, i) => batch.set(db.collection("reviews").doc("review-" + slug(r.name) + "-" + base + i), { ...r, order: o + i }));
+    o = cache.blogs.length ? Math.max(...cache.blogs.map(x => x.order ?? 0)) + 1 : 0;
+    SEED_B.forEach((b, i) => batch.set(db.collection("blogs").doc("blog-" + slug(b.title) + "-" + base + i), { ...b, order: o + i }));
+    await batch.commit();
+    alert("Seeded! Check the public site — items appear within seconds.");
+  } catch (err) { alert("Seed failed: " + (err.message || err)); }
 }
 </script>
 </body>
