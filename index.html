@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,10 +13,17 @@
     <script src="firebase-config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..700&family=Montserrat:wght@200;300&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..700&family=Montserrat:wght@200;300&display=swap"
+        rel="stylesheet">
     <style>
-        html { scroll-behavior: smooth; }
-        section { scroll-margin-top: 110px; }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        section {
+            scroll-margin-top: 110px;
+        }
 
         /* Smooth Scroll-Driven Blur Animation System */
         .scroll-reveal {
@@ -23,10 +31,11 @@
             transform: translateY(30px);
             filter: blur(20px);
             transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
-                        transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
-                        filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+                transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
             will-change: opacity, transform, filter;
         }
+
         .scroll-reveal.revealed {
             opacity: 1;
             transform: translateY(0);
@@ -41,6 +50,7 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.01);
             backdrop-filter: blur(16px);
@@ -48,6 +58,7 @@
             border: 1px solid rgba(255, 255, 255, 0.04);
             transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s, box-shadow 0.5s;
         }
+
         .glass-card:hover {
             background: rgba(255, 255, 255, 0.03);
             border-color: rgba(255, 255, 255, 0.12);
@@ -57,7 +68,10 @@
         /* Preloader (phase 1: slower spinner, phase 2: full-black welcome) */
         #preloader {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: #050505;
             z-index: 9999;
             display: flex;
@@ -70,23 +84,45 @@
                even if all JavaScript below fails to run. */
             animation: preloaderKill 0.8s ease 12s forwards;
         }
-        @keyframes preloaderKill { to { opacity: 0; visibility: hidden; } }
+
+        @keyframes preloaderKill {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
         /* Fallback reveal for the page content (normally handled by JS much earlier). */
-        main { animation: mainForceShow 0.5s ease 12s forwards; }
-        @keyframes mainForceShow { to { opacity: 1; } }
+        main {
+            animation: mainForceShow 0.5s ease 12s forwards;
+        }
+
+        @keyframes mainForceShow {
+            to {
+                opacity: 1;
+            }
+        }
+
         .spinner {
-            width: 44px; height: 44px;
+            width: 44px;
+            height: 44px;
             border: 2px solid rgba(255, 255, 255, 0.05);
             border-radius: 50%;
             border-top-color: #fff;
             animation: spin 1.4s linear infinite;
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
+
         .spinner-done {
             opacity: 0;
             transform: scale(0.85);
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* Welcome text: fade in (0.5s) + hold (1s) + fade out (0.5s) = 2s */
         #welcomeText {
@@ -100,42 +136,81 @@
             user-select: none;
             transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         #welcomeText.welcome-show {
             opacity: 1;
             transform: translateY(0);
         }
+
         #welcomeText.welcome-hide {
             opacity: 0;
             transform: translateY(-10px);
         }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
         /* ============ Horizontal project rail ============ */
         #projectTrack {
-            scroll-behavior: auto; /* we animate manually for slow-to-fast easing */
+            scroll-behavior: auto;
+            /* we animate manually for slow-to-fast easing */
             cursor: grab;
             scroll-snap-type: x mandatory;
         }
-        #projectTrack.dragging { cursor: grabbing; scroll-snap-type: none; }
-        #projectTrack.dragging * { pointer-events: none; }
-        .project-slide { scroll-snap-align: start; }
+
+        #projectTrack.dragging {
+            cursor: grabbing;
+            scroll-snap-type: none;
+        }
+
+        #projectTrack.dragging * {
+            pointer-events: none;
+        }
+
+        .project-slide {
+            scroll-snap-align: start;
+        }
 
         /* ============ Project cards: plain stacked layout (no 3D — renders everywhere) ============ */
-        .project-slide { scroll-snap-align: start; transition: filter 0.25s ease; }
-        #projectTrack.is-moving .project-slide { filter: blur(2px) brightness(1.06); }
+        .project-slide {
+            scroll-snap-align: start;
+            transition: filter 0.25s ease;
+        }
+
+        #projectTrack.is-moving .project-slide {
+            filter: blur(2px) brightness(1.06);
+        }
 
         /* ============ Pop-up modal animation ============ */
-        .popup-hidden { display: none; }
-        .popup-backdrop { opacity: 0; transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+        .popup-hidden {
+            display: none;
+        }
+
+        .popup-backdrop {
+            opacity: 0;
+            transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         .popup-panel {
             transform: translateY(26px) scale(0.96);
             opacity: 0;
             transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
         }
-        .popup-open .popup-backdrop { opacity: 1; }
-        .popup-open .popup-panel { transform: translateY(0) scale(1); opacity: 1; }
+
+        .popup-open .popup-backdrop {
+            opacity: 1;
+        }
+
+        .popup-open .popup-panel {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
 
         /* Nav active */
         .nav-item.active {
@@ -144,100 +219,314 @@
         }
 
         /* Carousel arrow buttons */
-        .rail-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .rail-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px);} to { opacity: 1; transform: translateY(0);} }
-        .animate-fadeUp { animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fadeUp {
+            animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
 
         /* Brand + welcome typography */
-        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
         .font-welcome {
             font-family: 'Montserrat', sans-serif;
             font-weight: 200;
             letter-spacing: 0.32em;
-            text-indent: 0.32em; /* recenter optical shift from letter-spacing */
+            text-indent: 0.32em;
+            /* recenter optical shift from letter-spacing */
             text-align: center;
             max-width: 92vw;
         }
+
+        /* Continuously moving project-preview strip. */
+        .overview-mask {
+            overflow: hidden;
+        }
+
+        .overview-track {
+            display: flex;
+            width: max-content;
+            animation: overviewScroll 65s linear infinite;
+            will-change: transform;
+        }
+
+        .overview-set {
+            display: flex;
+            flex: none;
+        }
+
+        .overview-item {
+            width: 15rem;
+            flex: 0 0 auto;
+            margin-right: 1rem;
+        }
+
+        @keyframes overviewScroll {
+            from {
+                transform: translateX(-50%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
-<body class="bg-[#050505] text-[#f5f5f7] font-sans antialiased selection:bg-white selection:text-black overflow-x-hidden">
+
+<body
+    class="bg-[#050505] text-[#f5f5f7] font-sans antialiased selection:bg-white selection:text-black overflow-x-hidden">
 
     <div id="preloader" role="status" aria-label="Loading portfolio">
         <div id="loaderSpinner" class="spinner"></div>
         <p id="welcomeText" class="font-welcome">w e l c o m e</p>
     </div>
 
-    <header id="mainHeader" class="fixed top-8 left-6 sm:left-12 lg:left-16 z-50 transition-all duration-500 ease-in-out opacity-100 pointer-events-auto">
-        <span class="text-lg font-bold tracking-tight text-white uppercase mix-blend-difference selection:bg-transparent font-cinzel">Bijak's Portofolio</span>
+    <header id="mainHeader"
+        class="fixed top-8 left-6 sm:left-12 lg:left-16 z-50 transition-all duration-500 ease-in-out opacity-100 pointer-events-auto">
+        <span
+            class="text-lg font-bold tracking-tight text-white uppercase mix-blend-difference selection:bg-transparent font-cinzel">Bijak's
+            Portofolio</span>
     </header>
 
-    <div class="fixed top-0 left-0 w-full h-32 bg-gradient-to-b from-black via-black/80 to-transparent pointer-events-none z-40"></div>
+    <div
+        class="fixed top-0 left-0 w-full h-32 bg-gradient-to-b from-black via-black/80 to-transparent pointer-events-none z-40">
+    </div>
 
     <div class="fixed inset-0 -z-50 w-full h-full bg-[#050505]">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/50 via-[#050505] to-[#050505]"></div>
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        <div
+            class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/50 via-[#050505] to-[#050505]">
+        </div>
+        <div
+            class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px]">
+        </div>
     </div>
 
     <main class="max-w-[1200px] mx-auto px-6 sm:px-12 lg:px-16 pt-36 pb-20 opacity-0 transition-opacity duration-1000">
 
         <!-- ================= HERO ================= -->
-        <section id="hero" data-nav="home" class="scroll-reveal flex flex-col md:flex-row items-start md:items-center justify-between gap-12 mb-20">
+        <section id="hero" data-nav="home"
+            class="scroll-reveal flex flex-col md:flex-row items-start md:items-center justify-between gap-12 mb-20">
             <div class="flex-1 order-2 md:order-1">
-                <h1 class="font-cinzel text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-5 leading-[1.1]">
+                <h1
+                    class="font-cinzel text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-5 leading-[1.1]">
                     Bijak Assidik P.R.
                 </h1>
+                <p class="text-xs font-mono tracking-[0.18em] uppercase text-zinc-500 mb-4">Junior IT &amp; Editor</p>
                 <p class="text-base sm:text-lg text-zinc-400 max-w-2xl leading-relaxed mb-8 font-light">
-                    I focus on <span class="text-white font-medium">Web Interface</span> development, <span class="text-white font-medium">IoT</span> system integration, and <span class="text-white font-medium">Documentary Film</span> production. I combine the technical precision of programming with the power of visual storytelling to build digital products that are functional and highly aesthetic.
+                    A motivated Junior IT professional and editor who is always eager to learn, highly dedicated,
+                    responsible, attentive to detail, and committed to delivering quality over quantity in every task
+                    and project.
                 </p>
 
                 <div class="flex flex-wrap items-center gap-4">
-                    <button onclick="openModal()" class="px-6 py-3 rounded-full bg-white text-black font-medium text-sm transition hover:bg-zinc-200 shadow-lg shadow-white/5 flex items-center gap-2 cursor-pointer">
+                    <button onclick="openModal()"
+                        class="px-6 py-3 rounded-full bg-white text-black font-medium text-sm transition hover:bg-zinc-200 shadow-lg shadow-white/5 flex items-center gap-2 cursor-pointer">
                         <i data-lucide="mail" class="w-4 h-4"></i> Contact Me
                     </button>
                     <div class="flex gap-2">
-                        <a href="https://github.com/bjakp12" target="_blank" rel="noopener" aria-label="GitHub" class="p-3 rounded-full glass-card text-zinc-400 hover:text-white transition inline-flex items-center justify-center">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.27 5.68.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                        <a href="https://github.com/bjakp12" target="_blank" rel="noopener" aria-label="GitHub"
+                            class="p-3 rounded-full glass-card text-zinc-400 hover:text-white transition inline-flex items-center justify-center">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path
+                                    d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.27 5.68.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
+                            </svg>
                         </a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram" class="p-3 rounded-full glass-card text-zinc-400 hover:text-white transition inline-flex items-center justify-center">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                        <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram"
+                            class="p-3 rounded-full glass-card text-zinc-400 hover:text-white transition inline-flex items-center justify-center">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                            </svg>
                         </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn" class="p-3 rounded-full glass-card text-zinc-400 hover:text-white transition inline-flex items-center justify-center">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45z"/></svg>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn"
+                            class="p-3 rounded-full glass-card text-zinc-400 hover:text-white transition inline-flex items-center justify-center">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path
+                                    d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45z" />
+                            </svg>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <div class="order-1 md:order-2 w-28 h-28 sm:w-40 sm:h-40 rounded-3xl overflow-hidden p-[1px] bg-gradient-to-b from-zinc-700 to-transparent shadow-2xl rotate-2 flex-shrink-0">
-                <img src="images/profile.svg" alt="Bijak Assidik" class="w-full h-full object-cover rounded-3xl filter grayscale contrast-115">
+            <div
+                class="order-1 md:order-2 w-28 h-28 sm:w-40 sm:h-40 rounded-3xl overflow-hidden p-[1px] bg-gradient-to-b from-zinc-700 to-transparent shadow-2xl rotate-2 flex-shrink-0">
+                <img src="images/profile.svg" alt="Bijak Assidik"
+                    class="w-full h-full object-cover rounded-3xl filter grayscale contrast-115">
             </div>
+        </section>
+
+        <!-- ================= EXPERIENCE ================= -->
+        <section id="experience" data-nav="home" class="scroll-reveal mb-20">
+            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-4">Experience</span>
+            <article class="p-6 sm:p-8 rounded-2xl glass-card">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-medium text-white">Data Entry Specialist</h2>
+                        <p class="text-sm text-zinc-400 font-light mt-1">Indonesian Halal Product Assurance Organizing
+                            Agency (BPJPH)</p>
+                        <p class="text-sm text-zinc-400 font-light leading-relaxed mt-4 max-w-3xl">Entering hundreds of
+                            client identity records, including details of the businesses they operate, evaluating and
+                            verifying the entered data to ensure it is accurate, free of errors, and reflects the actual
+                            situation.</p>
+                    </div>
+                    <span class="text-xs font-mono text-zinc-500 whitespace-nowrap">Freelance / Dec 2025 - Oct
+                        2026</span>
+                </div>
+            </article>
         </section>
 
         <!-- ================= EDUCATION ================= -->
         <section id="education" data-nav="home" class="scroll-reveal mb-28">
-            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-4">Education Background</span>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div class="p-6 rounded-2xl glass-card flex flex-col h-full min-h-[10rem]">
-                    <div>
-                        <span class="text-xs font-mono text-zinc-500 block mb-1">2014 — 2020</span>
-                        <h3 class="text-base font-medium text-white mb-2">SD 2 Karangsentul</h3>
+            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-4">Education
+                Background</span>
+            <div class="p-6 sm:p-8 rounded-2xl glass-card">
+                <span class="text-xs font-mono text-zinc-500 block mb-1">2023 - 2026</span>
+                <h3 class="text-xl font-medium text-white mb-4">SMAN 1 Padamara</h3>
+                <p class="text-sm text-zinc-400 font-light leading-relaxed">Activities and Community: Actively involved
+                    in the student organization, serving as the IT and Documentation Coordinator for regency-level
+                    events such as the 5K Fun Run and the Japan and Korean Festival. Managed the organization's social
+                    media and website. Contributed to an Indonesian Language Proficiency Test (UKBI) appreciation
+                    initiative by creating a video project in collaboration with teachers, a local language ambassador,
+                    and the local governor. Developed an Internet of Things application to improve energy efficiency in
+                    the use of electronic devices as a final project.</p>
+                <div class="mt-6 pt-5 border-t border-white/5">
+                    <span class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase block mb-3">Skills</span>
+                    <div class="flex flex-wrap gap-2">
+                        <span
+                            class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-zinc-300">Video
+                            Editing</span>
+                        <span
+                            class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-zinc-300">Internet
+                            of Things</span>
+                        <span
+                            class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-zinc-300">Team
+                            Leadership</span>
+                        <span
+                            class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-zinc-300">Communication</span>
                     </div>
-                    <p class="text-xs text-zinc-400 font-light leading-relaxed mt-3 flex-1">Early years building fundamental academic values, with a first introduction to the world of digital technology and visual creativity.</p>
                 </div>
-                <div class="p-6 rounded-2xl glass-card flex flex-col h-full min-h-[10rem]">
-                    <div>
-                        <span class="text-xs font-mono text-zinc-500 block mb-1">2020 — 2023</span>
-                        <h3 class="text-base font-medium text-white mb-2">MTs Muhammadiyah 01 Purbalingga</h3>
+            </div>
+        </section>
+
+        <!-- ================= HONORS ================= -->
+        <section id="honors" data-nav="home" class="scroll-reveal mb-28">
+            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-4">Honors &amp;
+                Awards</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <article class="rounded-2xl glass-card overflow-hidden">
+                    <img src="images/ismaa.jpg" alt="ISMA award image"
+                        class="w-full aspect-video object-cover opacity-60" loading="lazy">
+                    <div class="p-6 sm:p-8"><span
+                            class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase block mb-3">Documentary
+                            Film Nominee</span>
+                        <h3 class="text-base font-medium text-white">Indonesia Student Movie Awards (ISMA Vol. 9)</h3>
+                        <p class="text-xs text-zinc-400 font-light mt-2">Editor</p>
                     </div>
-                    <p class="text-xs text-zinc-400 font-light leading-relaxed mt-3 flex-1">Became active in school organizations and explored the basics of multimedia editing and early programming logic.</p>
-                </div>
-                <div class="p-6 rounded-2xl glass-card flex flex-col h-full min-h-[10rem] border-zinc-700/30">
-                    <div>
-                        <span class="text-xs font-mono text-zinc-400 block mb-1">2023 — 2026</span>
-                        <h3 class="text-base font-medium text-white mb-2">SMAN 1 Padamara</h3>
+                </article>
+                <article class="rounded-2xl glass-card overflow-hidden">
+                    <img src="images/ffp.jpg" alt="Purbalingga Film Festival award image"
+                        class="w-full aspect-video object-cover opacity-60" loading="lazy">
+                    <div class="p-6 sm:p-8"><span
+                            class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase block mb-3">Documentary
+                            Film Nominee</span>
+                        <h3 class="text-base font-medium text-white">Purbalingga Film Festival</h3>
+                        <p class="text-xs text-zinc-400 font-light mt-2">Editor · Documentary Film Category</p>
                     </div>
-                    <p class="text-xs text-zinc-400 font-light leading-relaxed mt-3 flex-1">Focused on sharpening technical web platform skills, led the OSIS ICT division, and won a national-level documentary film competition.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- ================= PROJECT OVERVIEW ================= -->
+        <section class="scroll-reveal mb-16" aria-label="Project overview">
+            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-4">Project Overview</span>
+            <div class="overview-mask -mx-6 sm:-mx-12 lg:-mx-16">
+                <div class="overview-track" aria-label="Project image slideshow">
+                    <div class="overview-set">
+                        <!-- Replace these ten image paths with your project images. -->
+                        <img src="images/ukbi1.jpg" alt="Project overview image 1"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi2.jpg" alt="Project overview image 2"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi3.jpg" alt="Project overview image 3"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi4.jpg" alt="Project overview image 4"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi5.jpg" alt="Project overview image 5"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/jkf1.jpg" alt="Project overview image 6"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/jkf2.jpg" alt="Project overview image 7"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/jkf3.jpg" alt="Project overview image 8"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ytp1.jpg" alt="Project overview image 9"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ytp2.jpg" alt="Project overview image 10"
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                    </div>
+                    <!-- Duplicate set keeps the marquee seamless; only edit the set above. -->
+                    <div class="overview-set" aria-hidden="true">
+                        <img src="images/ukbi1.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi2.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi3.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi4.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ukbi5.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/jkf1.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/jkf2.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/jkf3.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ytp1.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                        <img src="images/ytp2.jpg" alt=""
+                            class="overview-item aspect-video rounded-2xl object-cover opacity-60" loading="lazy"
+                            onerror="imgFallback(this)">
+                    </div>
                 </div>
             </div>
         </section>
@@ -246,32 +535,39 @@
         <section id="projects" data-nav="projects" class="mb-32">
             <div class="flex items-end justify-between mb-6">
                 <div>
-                    <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Portfolio Documentation</span>
-                    <h2 class="text-3xl font-medium tracking-tight text-white">Selected Projects</h2>
-                    <p class="text-xs text-zinc-500 mt-2 font-light">Click any card to open its photo gallery proof — use <span class="text-zinc-300">View Details</span> for the full story.</p>
+                    <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Portfolio
+                        Documentation</span>
+                    <h2 class="text-3xl font-medium tracking-tight text-white">Project Descriptions</h2>
+                    <p class="text-xs text-zinc-500 mt-2 font-light">Click any card to open its photo gallery proof —
+                        use <span class="text-zinc-300">View Details</span> for the full story.</p>
                 </div>
-                <span id="projectCount" class="text-xs text-zinc-500 hidden sm:block font-mono">Archive / Case [06]</span>
+                <span id="projectCount" class="text-xs text-zinc-500 hidden sm:block font-mono">Archive / Case
+                    [04]</span>
             </div>
 
             <!-- Rail controls -->
             <div class="flex items-center justify-between mb-4">
                 <div class="flex gap-2">
-                    <button id="railPrev" aria-label="Previous projects" class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
+                    <button id="railPrev" aria-label="Previous projects"
+                        class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
                         <i data-lucide="arrow-left" class="w-4 h-4"></i>
                     </button>
-                    <button id="railNext" aria-label="Next projects" class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
+                    <button id="railNext" aria-label="Next projects"
+                        class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span id="railCounter" class="text-[11px] font-mono text-zinc-500">01 / 06</span>
+                    <span id="railCounter" class="text-[11px] font-mono text-zinc-500">01 / 04</span>
                     <div id="railDots" class="flex gap-1.5">
-                        <button data-dot="0" aria-label="Go to project 1" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-6 bg-white"></button>
-                        <button data-dot="1" aria-label="Go to project 2" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
-                        <button data-dot="2" aria-label="Go to project 3" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
-                        <button data-dot="3" aria-label="Go to project 4" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
-                        <button data-dot="4" aria-label="Go to project 5" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
-                        <button data-dot="5" aria-label="Go to project 6" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
+                        <button data-dot="0" aria-label="Go to project 1"
+                            class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-6 bg-white"></button>
+                        <button data-dot="1" aria-label="Go to project 2"
+                            class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
+                        <button data-dot="2" aria-label="Go to project 3"
+                            class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
+                        <button data-dot="3" aria-label="Go to project 4"
+                            class="h-1.5 rounded-full transition-all duration-300 cursor-pointer w-1.5 bg-zinc-700 hover:bg-zinc-500"></button>
                     </div>
                 </div>
             </div>
@@ -280,258 +576,267 @@
             <div id="projectTrack" class="flex gap-6 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
 
                 <!-- PROJECTS-START -->
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="giat-ukbi-documentary" data-type="video" data-video="https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v" data-link="" data-badge="" data-category="Documentary / Video Production" data-title="Giat UKBI Documentary" data-short="Official documentary production with SMAN 1 Padamara promoting the UKBI language test." data-description="Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film." data-image="images/ukbi.JPEG" data-gallery="images/ukbi.JPEG" data-tags="Directing|Premiere Pro|Documentary">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="images/ukbi.JPEG" alt="Giat UKBI Documentary" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                <article
+                    class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col"
+                    data-id="giat-ukbi-documentary" data-type="video"
+                    data-video="https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v" data-link=""
+                    data-badge="" data-category="Documentary / Video Production" data-title="UKBI Outreach Documentary"
+                    data-short="Official documentary production with SMAN 1 Padamara promoting the UKBI language test."
+                    data-description="Official documentary video production with SMAN 1 Padamara to promote the Indonesian Language Proficiency Test (UKBI). Covers directing, cinematography, interviewing, and editing — click play to watch the film."
+                    data-image="images/ukbi.JPEG" data-gallery="images/ukbi.JPEG"
+                    data-tags="Directing|Premiere Pro|Documentary">
+                    <div
+                        class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/ukbi.JPEG" alt="Giat UKBI Documentary" loading="lazy"
+                            class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700"
+                            onerror="imgFallback(this)">
                         <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
-                                <svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            <div
+                                class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
+                                <svg class="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
                             </div>
                         </div>
                     </div>
                     <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Documentary / Video Production</span>
-                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">Giat UKBI Documentary</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Official documentary production with SMAN 1 Padamara promoting the UKBI language test.</p>
-                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Premiere Pro</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span></div>
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Documentary / Video
+                            Production</span>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">UKBI Outreach Documentary</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Official documentary
+                            production with SMAN 1 Padamara promoting the UKBI language test.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Premiere
+                                Pro</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span>
+                        </div>
                         <div class="flex gap-2 mt-auto pt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
-                            <button onclick="openVideoModal('https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v')" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play Video</button>
+                            <button onclick="openProjectModal(this.closest('article'))"
+                                class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View
+                                Details</button>
+                            <button
+                                onclick="openVideoModal('https://www.youtube.com/embed/FzwSDfarAUk?si=6H1pRxDteStwn5_v')"
+                                class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-white font-medium text-xs hover:bg-zinc-900 transition cursor-pointer">Play
+                                Video</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="hut-smara-euforia" data-type="image" data-video="" data-link="" data-badge="" data-category="Event Showcase / Web" data-title="HUT Smara Euforia" data-short="An interactive landing page documenting the school anniversary celebration." data-description="Design and development of an interactive landing page as an information and documentation medium for the school anniversary celebration (HUT Smara Euforia), including event rundown, gallery, and registration info." data-image="images/smr.JPEG" data-gallery="images/smr.JPEG" data-tags="Landing Page|Tailwind|Event">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="images/smr.JPEG" alt="HUT Smara Euforia" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                <article
+                    class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col"
+                    data-id="hut-smara-euforia" data-type="image" data-video="" data-link="" data-badge=""
+                    data-category="Event Showcase / Web" data-title="Smara Euforia School Anniversary"
+                    data-short="An interactive landing page documenting the school anniversary celebration."
+                    data-description="Design and development of an interactive landing page as an information and documentation medium for the Smara Euforia school anniversary celebration, including the event schedule, gallery, and registration information."
+                    data-image="images/smr.JPEG" data-gallery="images/smr.JPEG" data-tags="Landing Page|Tailwind|Event">
+                    <div
+                        class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/smr.JPEG" alt="HUT Smara Euforia" loading="lazy"
+                            class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700"
+                            onerror="imgFallback(this)">
                     </div>
                     <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Event Showcase / Web</span>
-                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">HUT Smara Euforia</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">An interactive landing page documenting the school anniversary celebration.</p>
-                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Landing Page</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Tailwind</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Event</span></div>
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Event Showcase /
+                            Web</span>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">Smara Euforia School Anniversary
+                        </h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">An interactive landing
+                            page documenting the school anniversary celebration.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Landing
+                                Page</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Tailwind</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Event</span>
+                        </div>
                         <div class="flex gap-2 mt-auto pt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
+                            <button onclick="openProjectModal(this.closest('article'))"
+                                class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View
+                                Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="yang-terpanggil-documentary" data-type="image" data-video="" data-link="" data-badge="" data-category="Cinematography / Award Pick" data-title="&quot;Yang Terpanggil&quot; Documentary" data-short="An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards." data-description="A short documentary film titled 'Yang Terpanggil' that won awards at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol.9). Responsible for directing, editing, and color grading." data-image="images/cinema.JPEG" data-gallery="images/cinema.JPEG" data-tags="Documentary|DaVinci Resolve|Directing">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="images/cinema.JPEG" alt="&quot;Yang Terpanggil&quot; Documentary" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                <article
+                    class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col"
+                    data-id="yang-terpanggil-documentary" data-type="image" data-video="" data-link="" data-badge=""
+                    data-category="Cinematography / Award Pick" data-title="The Called (Yang Terpanggil) Documentary"
+                    data-short="An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards."
+                    data-description="A short documentary film titled 'The Called (Yang Terpanggil)' that received nominations at the Purbalingga Film Festival (FFP) and the Indonesia Student Movie Awards (ISMA Vol. 9). Responsible for directing, editing, and color grading."
+                    data-image="images/cinema.JPEG" data-gallery="images/cinema.JPEG"
+                    data-tags="Documentary|DaVinci Resolve|Directing">
+                    <div
+                        class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/cinema.JPEG" alt="&quot;Yang Terpanggil&quot; Documentary" loading="lazy"
+                            class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700"
+                            onerror="imgFallback(this)">
                     </div>
                     <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Cinematography / Award Pick</span>
-                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">&quot;Yang Terpanggil&quot; Documentary</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">An award-winning short documentary honored at FFP &amp; Indonesia Student Movie Awards.</p>
-                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">DaVinci Resolve</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span></div>
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Cinematography / Award
+                            Pick</span>
+                        <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">The Called (Yang Terpanggil)
+                            Documentary</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">An award-winning short
+                            documentary honored at FFP &amp; Indonesia Student Movie Awards.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Documentary</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">DaVinci
+                                Resolve</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Directing</span>
+                        </div>
                         <div class="flex gap-2 mt-auto pt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
+                            <button onclick="openProjectModal(this.closest('article'))"
+                                class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View
+                                Details</button>
                         </div>
                     </div>
                 </article>
 
-                <article class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col" data-id="multi-event-content-strategy" data-type="image" data-video="" data-link="" data-badge="" data-category="Creative Direction / Management" data-title="Multi-Event Content Strategy" data-short="Creative concepting, feed management, and visual asset production for events." data-description="Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy." data-image="images/jkf.JPEG" data-gallery="images/jkf.JPEG" data-tags="Content Planning|Branding|Social Media">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="images/jkf.JPEG" alt="Multi-Event Content Strategy" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+                <article
+                    class="project-slide group shrink-0 w-[85%] sm:w-[46%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card overflow-hidden flex flex-col"
+                    data-id="multi-event-content-strategy" data-type="image" data-video="" data-link="" data-badge=""
+                    data-category="Creative Direction / Management" data-title="Multi-Event Content Strategy"
+                    data-short="Creative concepting, feed management, and visual asset production for events."
+                    data-description="Creative idea conceptualization, feed management, and visual asset production for internal and external scale event publications — from content planning and shooting to posting strategy."
+                    data-image="images/jkf.JPEG" data-gallery="images/jkf.JPEG"
+                    data-tags="Content Planning|Branding|Social Media">
+                    <div
+                        class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
+                        <img src="images/jkf.JPEG" alt="Multi-Event Content Strategy" loading="lazy"
+                            class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700"
+                            onerror="imgFallback(this)">
                     </div>
                     <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Creative Direction / Management</span>
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Creative Direction /
+                            Management</span>
                         <h3 class="text-lg font-medium text-white mb-2 min-h-[3.5rem]">Multi-Event Content Strategy</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Creative concepting, feed management, and visual asset production for events.</p>
-                        <div class="flex flex-wrap gap-1.5 mt-4"><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Content Planning</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Branding</span><span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Social Media</span></div>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Creative concepting,
+                            feed management, and visual asset production for events.</p>
+                        <div class="flex flex-wrap gap-1.5 mt-4"><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Content
+                                Planning</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Branding</span><span
+                                class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] text-zinc-300">Social
+                                Media</span></div>
                         <div class="flex gap-2 mt-auto pt-5">
-                            <button onclick="openProjectModal(this.closest('article'))" class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View Details</button>
+                            <button onclick="openProjectModal(this.closest('article'))"
+                                class="flex-1 py-2.5 rounded-xl bg-white text-black font-medium text-xs hover:bg-zinc-200 transition cursor-pointer">View
+                                Details</button>
                         </div>
                     </div>
                 </article>
+
                 <!-- PROJECTS-END -->
 
             </div>
 
-            <div id="projectTrack" class="flex gap-6 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
-
-            <p class="text-[11px] text-zinc-600 font-mono mt-3 hidden sm:block">Tip: drag to scroll · use ← → arrow buttons · mouse-wheel shifts horizontally</p>
+            <p class="text-[11px] text-zinc-600 font-mono mt-3 hidden sm:block">Tip: drag to scroll · use ← → arrow
+                buttons · mouse-wheel shifts horizontally</p>
         </section>
 
         <!-- ================= SERVICES ================= -->
-        <section id="services" data-nav="services" class="scroll-reveal mb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <section id="services" data-nav="services"
+            class="scroll-reveal mb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div class="lg:col-span-7">
-                <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-3">Services &amp; Work Solutions</span>
+                <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-3">Services &amp; Work
+                    Solutions</span>
                 <h2 class="text-3xl sm:text-4xl font-medium tracking-tight text-white mb-6 leading-tight">
                     Turning Concepts Into Real, Visually Impactful Products.
                 </h2>
                 <p class="text-base text-zinc-400 font-light leading-relaxed mb-8">
-                    I combine coding expertise and multimedia direction to deliver integrated creative solutions. Every project is crafted with a focus on functionality, code efficiency, and message strength.
+                    I combine coding expertise and multimedia direction to deliver integrated creative solutions. Every
+                    project is crafted with a focus on functionality, code efficiency, and message strength.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-light text-zinc-300">
-                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Website Layout &amp; Frontend</div>
-                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> High-End Asset Design</div>
-                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> IoT Device Prototyping</div>
-                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Documentary Video Editing</div>
-                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Event Visual Direction</div>
-                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check" class="w-4 h-4 text-zinc-500 shrink-0"></i> Digital Channel Branding</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check"
+                            class="w-4 h-4 text-zinc-500 shrink-0"></i> Website Layout &amp; Frontend</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check"
+                            class="w-4 h-4 text-zinc-500 shrink-0"></i> High-End Asset Design</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check"
+                            class="w-4 h-4 text-zinc-500 shrink-0"></i> IoT Device Prototyping</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check"
+                            class="w-4 h-4 text-zinc-500 shrink-0"></i> Documentary Video Editing</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check"
+                            class="w-4 h-4 text-zinc-500 shrink-0"></i> Event Visual Direction</div>
+                    <div class="flex items-center gap-2 p-4 rounded-2xl glass-card"><i data-lucide="check"
+                            class="w-4 h-4 text-zinc-500 shrink-0"></i> Digital Channel Branding</div>
                 </div>
             </div>
 
-            <div class="lg:col-span-5 p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/80 text-center flex flex-col justify-center items-center">
+            <div
+                class="lg:col-span-5 p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/80 text-center flex flex-col justify-center items-center">
                 <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
                 </div>
                 <h4 class="text-lg font-medium text-white mb-2">Let's Collaborate</h4>
                 <p class="text-xs text-zinc-400 font-light leading-relaxed mb-6">
-                    Need a neat landing page structure, a narrative-driven promotional video, or an IoT-based prototype brought to life? Let's discuss your project needs.
+                    Need a neat landing page structure, a narrative-driven promotional video, or an IoT-based prototype
+                    brought to life? Let's discuss your project needs.
                 </p>
-                <button onclick="openModal()" class="w-full py-3 rounded-xl bg-white text-black font-medium text-sm transition hover:bg-zinc-200 cursor-pointer">
+                <button onclick="openModal()"
+                    class="w-full py-3 rounded-xl bg-white text-black font-medium text-sm transition hover:bg-zinc-200 cursor-pointer">
                     Start a Project Discussion
                 </button>
             </div>
         </section>
 
-        <!-- ================= SKILLS ================= -->
-        <section id="skills" data-nav="skills" class="scroll-reveal mb-24">
-            <h2 class="text-xs font-mono tracking-widest text-zinc-500 uppercase mb-6">Tools &amp; Technical Capabilities</h2>
-            <div class="flex flex-wrap gap-2.5">
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">HTML5 / CSS3 / JavaScript</span>
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">Tailwind CSS &amp; Bootstrap</span>
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">Flutter Framework Development</span>
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">UI/UX Wireframing (Figma)</span>
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">Adobe Creative Cloud (Premiere Pro, After Effects, Photoshop)</span>
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">DaVinci Resolve Color Grading</span>
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">Arduino IoT Prototyping (ESP32)</span>
-                <span class="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-medium text-zinc-300">Social Media Content Planning</span>
-            </div>
-        </section>
-
         <!-- ================= REVIEWS ================= -->
         <section id="reviews" data-nav="reviews" class="scroll-reveal mb-32">
-            <div class="flex items-end justify-between mb-6">
-                <div>
-                    <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Client Words</span>
-                    <h2 class="text-3xl font-medium tracking-tight text-white">Reviews</h2>
-                    <p class="text-xs text-zinc-500 mt-2 font-light">Real feedback from people and teams I have collaborated with.</p>
-                </div>
-                <div class="flex gap-2 shrink-0">
-                    <button onclick="scrollReviews(-1)" aria-label="Previous reviews" class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
-                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    </button>
-                    <button onclick="scrollReviews(1)" aria-label="Next reviews" class="rail-btn p-3 rounded-full glass-card text-zinc-300 hover:text-white transition inline-flex items-center justify-center cursor-pointer">
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </button>
-                </div>
+            <div class="mb-6">
+                <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Work Approach</span>
+                <h2 class="text-3xl font-medium tracking-tight text-white">How I Work</h2>
+                <p class="text-xs text-zinc-500 mt-2 font-light">A few principles I bring to projects and collaboration.
+                </p>
             </div>
-
-            <div id="reviewTrack" class="flex gap-5 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
-                <!-- REVIEWS-START -->
-                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-rizky-pratama" data-name="Rizky Pratama" data-role="Product Owner — WarungKu POS" data-rating="5" data-text="Checkout flow for our small shop POS stays fast even during rush hour. Cashier training took one afternoon, and the daily sales reports finally make sense.">
-                    <div class="stars mb-4" data-rating="5"></div>
-                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;Checkout flow for our small shop POS stays fast even during rush hour. Cashier training took one afternoon, and the daily sales reports finally make sense.&quot;</p>
-                    <div class="mt-auto pt-5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">R</div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">Rizky Pratama</p>
-                            <p class="text-[11px] font-mono text-zinc-500 truncate">WarungKu POS</p>
-                        </div>
-                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <article class="rounded-2xl glass-card p-6"><i data-lucide="messages-square"
+                        class="w-5 h-5 text-zinc-500 mb-4"></i>
+                    <h3 class="text-base font-medium text-white mb-2">Clear Communication</h3>
+                    <p class="text-sm text-zinc-400 font-light leading-relaxed">I aim to understand the task, share
+                        progress, and ask questions early when something needs clarification.</p>
                 </article>
-                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-sinta-maharani" data-name="Sinta Maharani" data-role="Event Coordinator — Campus Festival Site" data-rating="5" data-text="One page held our rundown, lineup, venue map, and ticket info. Attendance doubled compared to last year's poster-only announcement.">
-                    <div class="stars mb-4" data-rating="5"></div>
-                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;One page held our rundown, lineup, venue map, and ticket info. Attendance doubled compared to last year's poster-only announcement.&quot;</p>
-                    <div class="mt-auto pt-5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">S</div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">Sinta Maharani</p>
-                            <p class="text-[11px] font-mono text-zinc-500 truncate">Campus Festival Site</p>
-                        </div>
-                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
-                    </div>
+                <article class="rounded-2xl glass-card p-6"><i data-lucide="list-checks"
+                        class="w-5 h-5 text-zinc-500 mb-4"></i>
+                    <h3 class="text-base font-medium text-white mb-2">Careful Execution</h3>
+                    <p class="text-sm text-zinc-400 font-light leading-relaxed">I pay attention to details, verify my
+                        work, and take responsibility for completing agreed tasks.</p>
                 </article>
-                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-dimas-angga" data-name="Dimas Angga Saputra" data-role="Homeowner — Home Energy Monitor" data-rating="5" data-text="The ESP32 monitor has tracked our power usage for months without a single disconnect. The dashboard is simple enough for my parents to check every day.">
-                    <div class="stars mb-4" data-rating="5"></div>
-                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;The ESP32 monitor has tracked our power usage for months without a single disconnect. The dashboard is simple enough for my parents to check every day.&quot;</p>
-                    <div class="mt-auto pt-5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">D</div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">Dimas Angga Saputra</p>
-                            <p class="text-[11px] font-mono text-zinc-500 truncate">Home Energy Monitor</p>
-                        </div>
-                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
-                    </div>
+                <article class="rounded-2xl glass-card p-6"><i data-lucide="refresh-cw"
+                        class="w-5 h-5 text-zinc-500 mb-4"></i>
+                    <h3 class="text-base font-medium text-white mb-2">Open to Learning</h3>
+                    <p class="text-sm text-zinc-400 font-light leading-relaxed">I welcome feedback and use it to improve
+                        the quality of my work and build new skills.</p>
                 </article>
-                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-nadia-putri" data-name="Nadia Putri" data-role="Committee Head — Graduation Aftermovie" data-rating="5" data-text="The aftermovie captured the day professionally — steady shots, clear audio, and a clean edit. We replay it at every alumni gathering.">
-                    <div class="stars mb-4" data-rating="5"></div>
-                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;The aftermovie captured the day professionally — steady shots, clear audio, and a clean edit. We replay it at every alumni gathering.&quot;</p>
-                    <div class="mt-auto pt-5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">N</div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">Nadia Putri</p>
-                            <p class="text-[11px] font-mono text-zinc-500 truncate">Graduation Aftermovie</p>
-                        </div>
-                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">5.0</span>
-                    </div>
-                </article>
-                <article class="shrink-0 w-[85%] sm:w-[47%] lg:w-[31.5%] min-w-[280px] rounded-2xl glass-card p-6 flex flex-col" data-id="review-fajar-nugroho" data-name="Fajar Nugroho" data-role="OSIS Advisor — School Library Catalog" data-rating="4.5" data-text="Book search and borrowing records finally live in one tidy system, and cataloging is noticeably faster. Only wish we had migrated the older records sooner.">
-                    <div class="stars mb-4" data-rating="4.5"></div>
-                    <p class="text-sm text-zinc-300 font-light leading-relaxed flex-1 min-h-[6.5rem]">&quot;Book search and borrowing records finally live in one tidy system, and cataloging is noticeably faster. Only wish we had migrated the older records sooner.&quot;</p>
-                    <div class="mt-auto pt-5 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-sm font-medium text-white shrink-0">F</div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">Fajar Nugroho</p>
-                            <p class="text-[11px] font-mono text-zinc-500 truncate">School Library Catalog</p>
-                        </div>
-                        <span class="ml-auto text-xs font-mono text-amber-300 shrink-0">4.5</span>
-                    </div>
-                </article>
-                <!-- REVIEWS-END -->
             </div>
         </section>
 
-        <!-- ================= BLOG ================= -->
-        <section id="blog" data-nav="blog" class="scroll-reveal mb-24">
-            <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-2">Notes &amp; Articles</span>
-            <h2 class="text-3xl font-medium tracking-tight text-white mb-2">Blog</h2>
-            <p class="text-xs text-zinc-500 font-light mb-8">Short write-ups from my builds and shoots — click any article for a preview.</p>
-            <div id="blogGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- BLOG-START -->
-                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="blog-paper-notes" data-title="Why I Still Take Notes on Paper" data-meta="Feb 14, 2026" data-excerpt="A keyboard is fast, but paper remembers better — my simple note system for classes and builds." data-content="I type fast, yet everything important ends up on paper first. One notebook per project, one page per day: tasks on the left, sketches on the right, and a weekly review every Sunday night. When deadlines hit, I can flip back and see exactly how an idea evolved. Digital tools archive; paper thinks with you." data-image="images/jkf.JPEG" data-link="#" data-tags="Productivity|Study|Notes">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="images/jkf.JPEG" alt="Why I Still Take Notes on Paper" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
+        <!-- ================= CONTACT ================= -->
+        <section id="contact" data-nav="contact" class="scroll-reveal mb-24">
+            <div class="rounded-3xl glass-card p-8 sm:p-10">
+                <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase block mb-3">Contact</span>
+                <h2 class="text-3xl font-medium tracking-tight text-white mb-8">Let's Connect</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="flex items-start gap-3"><i data-lucide="map-pin"
+                            class="w-5 h-5 text-zinc-500 shrink-0"></i>
+                        <div><span
+                                class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase block mb-1">Location</span>
+                            <p class="text-sm text-zinc-300">Central Java, Indonesia</p>
+                        </div>
                     </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Feb 14, 2026</span>
-                        <h3 class="text-lg font-medium text-white mb-2">Why I Still Take Notes on Paper</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">A keyboard is fast, but paper remembers better — my simple note system for classes and builds.</p>
-                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">See Article <span aria-hidden="true">→</span></span>
-                    </div>
-                </article>
-                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="blog-flutter-month" data-title="My First Month Learning Flutter" data-meta="May 09, 2026" data-excerpt="Hot reload is magic, state management is not — honest notes from 30 days of Flutter." data-content="Week one felt like cheating: one codebase, two platforms, instant reload. Week two humbled me — setState spaghetti, then Provider, then actually reading the widget tree docs. By week four I shipped a tiny habit-tracker APK to my own phone. Verdict: Flutter rewards builders who finish small apps, not tutorial collectors." data-image="images/ptr.JPEG" data-link="#" data-tags="Flutter|Mobile|Learning">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="images/ptr.JPEG" alt="My First Month Learning Flutter" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">May 09, 2026</span>
-                        <h3 class="text-lg font-medium text-white mb-2">My First Month Learning Flutter</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Hot reload is magic, state management is not — honest notes from 30 days of Flutter.</p>
-                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">See Article <span aria-hidden="true">→</span></span>
-                    </div>
-                </article>
-                <article class="blog-card group rounded-2xl glass-card overflow-hidden flex flex-col cursor-pointer" data-id="blog-street-framing" data-title="What Street Photography Taught Me About Framing" data-meta="Jul 21, 2026" data-excerpt="Waiting, layering, and leaving space — sidewalk lessons that improved my video work." data-content="Street photography gives you no retakes, so you learn to see frames before they happen: foreground, subject, background in layers. Waiting ten minutes for the right stranger beats ten posed shots. I now storyboard documentaries the same way — find the corner, let life walk into it. Patience is a camera setting." data-image="images/cinema.JPEG" data-link="#" data-tags="Photography|Visual|Documentary">
-                    <div class="aspect-video w-full bg-zinc-900 relative overflow-hidden border-b border-zinc-900 shrink-0">
-                        <img src="images/cinema.JPEG" alt="What Street Photography Taught Me About Framing" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700" onerror="imgFallback(this)">
-                    </div>
-                    <div class="p-6 flex flex-col flex-1">
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Jul 21, 2026</span>
-                        <h3 class="text-lg font-medium text-white mb-2">What Street Photography Taught Me About Framing</h3>
-                        <p class="text-xs text-zinc-400 leading-relaxed font-light line-clamp-3">Waiting, layering, and leaving space — sidewalk lessons that improved my video work.</p>
-                        <span class="mt-auto pt-4 text-xs font-medium text-white inline-flex items-center gap-1.5">See Article <span aria-hidden="true">→</span></span>
-                    </div>
-                </article>
-                <!-- BLOG-END -->
+                    <a href="mailto:bijak.puturiki24@gmail.com"
+                        class="flex items-start gap-3 text-zinc-300 hover:text-white transition"><i data-lucide="mail"
+                            class="w-5 h-5 text-zinc-500 shrink-0"></i>
+                        <div><span
+                                class="text-[10px] font-mono tracking-widest text-zinc-500 uppercase block mb-1">Email</span>
+                            <p class="text-sm">bijak.puturiki24@gmail.com</p>
+                        </div>
+                    </a>
+                </div>
             </div>
         </section>
 
-        <footer class="scroll-reveal border-t border-zinc-900 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-zinc-500 font-mono">
+        <footer
+            class="scroll-reveal border-t border-zinc-900 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-zinc-500 font-mono">
             <div>
                 <span>&copy; 2026 Bijak Assidik. All rights reserved.</span>
             </div>
@@ -543,24 +848,31 @@
 
     <!-- ================= Bottom nav (scroll-spy aware) ================= -->
     <nav class="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-[96vw] sm:max-w-[94vw]">
-        <div class="glass-nav rounded-full px-1.5 py-1 sm:px-2 sm:py-1.5 flex items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar">
-            <button data-target="hero" class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide bg-white text-black transition-all duration-300 cursor-pointer">Home</button>
-            <button data-target="projects" class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Projects</button>
-            <button data-target="services" class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Services</button>
-            <button data-target="skills" class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Skills</button>
-            <button data-target="reviews" class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Reviews</button>
-            <button data-target="blog" class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Blog</button>
+        <div
+            class="glass-nav rounded-full px-1.5 py-1 sm:px-2 sm:py-1.5 flex items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar">
+            <button data-target="hero"
+                class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide bg-white text-black transition-all duration-300 cursor-pointer">Home</button>
+            <button data-target="projects"
+                class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Projects</button>
+            <button data-target="reviews"
+                class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Reviews</button>
+            <button data-target="services"
+                class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Services</button>
+            <button data-target="contact"
+                class="nav-item shrink-0 whitespace-nowrap px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium tracking-wide text-zinc-400 hover:text-white transition-all duration-300 cursor-pointer">Contact</button>
         </div>
     </nav>
 
     <!-- ================= Project detail pop-up ================= -->
     <div id="projectModal" class="popup-hidden fixed inset-0 z-[1001] flex items-center justify-center p-4">
         <div class="popup-backdrop absolute inset-0 bg-black/85 backdrop-blur-xl" onclick="closeProjectModal()"></div>
-        <div id="projectModalPanel" class="popup-panel relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div id="projectModalPanel"
+            class="popup-panel relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
             <div class="relative aspect-video w-full bg-zinc-900">
                 <img id="pmImage" src="" alt="" class="w-full h-full object-cover transition-opacity duration-300">
                 <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent"></div>
-                <button onclick="closeProjectModal()" aria-label="Close details" class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-700 rounded-full hover:bg-zinc-800 transition text-white cursor-pointer">
+                <button onclick="closeProjectModal()" aria-label="Close details"
+                    class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-700 rounded-full hover:bg-zinc-800 transition text-white cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
                 <div class="absolute bottom-4 left-6 right-6">
@@ -573,11 +885,15 @@
                 <div id="pmTags" class="flex flex-wrap gap-2 mb-5"></div>
                 <div id="pmThumbs" class="hidden flex-wrap gap-2 mb-6"></div>
                 <div class="flex flex-wrap gap-3">
-                    <button id="pmPlayBtn" onclick="" class="hidden px-5 py-2.5 rounded-full bg-white text-black font-medium text-xs items-center gap-2 hover:bg-zinc-200 transition cursor-pointer">
-                        <span class="inline-flex items-center gap-2"><i data-lucide="play" class="w-3.5 h-3.5"></i> Play Video</span>
+                    <button id="pmPlayBtn" onclick=""
+                        class="hidden px-5 py-2.5 rounded-full bg-white text-black font-medium text-xs items-center gap-2 hover:bg-zinc-200 transition cursor-pointer">
+                        <span class="inline-flex items-center gap-2"><i data-lucide="play" class="w-3.5 h-3.5"></i> Play
+                            Video</span>
                     </button>
-                    <a id="pmLinkBtn" href="#" target="_blank" rel="noopener" class="hidden px-5 py-2.5 rounded-full border border-zinc-700 text-zinc-200 font-medium text-xs items-center gap-2 hover:bg-zinc-900 transition">
-                        <span class="inline-flex items-center gap-2"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Visit Project</span>
+                    <a id="pmLinkBtn" href="#" target="_blank" rel="noopener"
+                        class="hidden px-5 py-2.5 rounded-full border border-zinc-700 text-zinc-200 font-medium text-xs items-center gap-2 hover:bg-zinc-900 transition">
+                        <span class="inline-flex items-center gap-2"><i data-lucide="external-link"
+                                class="w-3.5 h-3.5"></i> Visit Project</span>
                     </a>
                 </div>
             </div>
@@ -587,11 +903,13 @@
     <!-- ================= Blog preview pop-up ================= -->
     <div id="blogModal" class="popup-hidden fixed inset-0 z-[1002] flex items-center justify-center p-4">
         <div class="popup-backdrop absolute inset-0 bg-black/85 backdrop-blur-xl" onclick="closeBlogModal()"></div>
-        <div class="popup-panel relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div
+            class="popup-panel relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
             <div class="relative aspect-video w-full bg-zinc-900">
                 <img id="bImage" src="" alt="" class="w-full h-full object-cover" onerror="imgFallback(this)">
                 <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent"></div>
-                <button onclick="closeBlogModal()" aria-label="Close preview" class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-700 rounded-full hover:bg-zinc-800 transition text-white cursor-pointer">
+                <button onclick="closeBlogModal()" aria-label="Close preview"
+                    class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-700 rounded-full hover:bg-zinc-800 transition text-white cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
                 <div class="absolute bottom-4 left-6 right-6">
@@ -602,7 +920,8 @@
             <div class="p-6 sm:p-8">
                 <p id="bContent" class="text-sm text-zinc-400 font-light leading-relaxed mb-5"></p>
                 <div id="bTags" class="flex flex-wrap gap-2 mb-6"></div>
-                <a id="bLinkBtn" href="#" target="_blank" rel="noopener" class="px-5 py-2.5 rounded-full bg-white text-black font-medium text-xs items-center gap-2 hover:bg-zinc-200 transition">
+                <a id="bLinkBtn" href="#" target="_blank" rel="noopener"
+                    class="px-5 py-2.5 rounded-full bg-white text-black font-medium text-xs items-center gap-2 hover:bg-zinc-200 transition">
                     <span class="inline-flex items-center gap-2">Visit Blog <span aria-hidden="true">→</span></span>
                 </a>
             </div>
@@ -610,14 +929,17 @@
     </div>
 
     <!-- ================= Contact modal ================= -->
-    <div id="contactModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[999] hidden opacity-0 transition-all duration-500 flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl transform scale-95 transition-all duration-500" id="modalContainer">
+    <div id="contactModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[999] hidden opacity-0 transition-all duration-500 flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl transform scale-95 transition-all duration-500"
+            id="modalContainer">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h3 class="text-xl font-medium text-white">Let&apos;s build something great</h3>
                     <p class="text-xs text-zinc-400 font-light mt-1">Fill in your project proposal details.</p>
                 </div>
-                <button onclick="closeModal()" class="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-zinc-400 hover:text-white cursor-pointer">
+                <button onclick="closeModal()"
+                    class="p-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-zinc-400 hover:text-white cursor-pointer">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -625,17 +947,23 @@
             <form id="leadForm" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-zinc-400 mb-1.5 font-mono">NAME / COMPANY</label>
-                    <input type="text" id="clientName" required placeholder="e.g., Tesla Inc. or John Doe" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 text-white transition font-light">
+                    <input type="text" id="clientName" required placeholder="e.g., Tesla Inc. or John Doe"
+                        class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 text-white transition font-light">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-zinc-400 mb-1.5 font-mono">SUBJECT / INQUIRY</label>
-                    <input type="text" id="emailSubject" required placeholder="e.g., Premium Web Dev Request" class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 text-white transition font-light">
+                    <input type="text" id="emailSubject" required placeholder="e.g., Premium Web Dev Request"
+                        class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 text-white transition font-light">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-zinc-400 mb-1.5 font-mono">MESSAGE / PROJECT BRIEF</label>
-                    <textarea id="clientMessage" rows="4" required placeholder="Describe your scope, budget, or project deadline here..." class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 text-white transition font-light resize-none"></textarea>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1.5 font-mono">MESSAGE / PROJECT
+                        BRIEF</label>
+                    <textarea id="clientMessage" rows="4" required
+                        placeholder="Describe your scope, budget, or project deadline here..."
+                        class="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-zinc-500 text-white transition font-light resize-none"></textarea>
                 </div>
-                <button type="submit" class="w-full py-3.5 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-2">
+                <button type="submit"
+                    class="w-full py-3.5 bg-white text-black font-medium text-sm rounded-xl hover:bg-zinc-200 transition shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-2">
                     <i data-lucide="send" class="w-4 h-4"></i> Send Inquiry
                 </button>
             </form>
@@ -643,12 +971,17 @@
     </div>
 
     <!-- ================= Video modal ================= -->
-    <div id="videoModal" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[1000] hidden opacity-0 transition-all duration-500 flex items-center justify-center p-4 sm:p-8">
-        <div class="w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative transform scale-95 transition-all duration-500" id="videoContainer">
-            <button onclick="closeVideoModal()" class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-white z-50 cursor-pointer">
+    <div id="videoModal"
+        class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[1000] hidden opacity-0 transition-all duration-500 flex items-center justify-center p-4 sm:p-8">
+        <div class="w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative transform scale-95 transition-all duration-500"
+            id="videoContainer">
+            <button onclick="closeVideoModal()"
+                class="absolute top-4 right-4 p-2.5 bg-black/60 backdrop-blur-md border border-zinc-800 rounded-full hover:bg-zinc-800 transition text-white z-50 cursor-pointer">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
-            <iframe id="videoPlayer" class="w-full h-full" src="" title="Project Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe id="videoPlayer" class="w-full h-full" src="" title="Project Video Player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
         </div>
     </div>
 
@@ -722,9 +1055,6 @@
             if (data.projects && data.projects.length) {
                 document.getElementById("projectTrack").innerHTML = data.projects.map(renderProjectCard).join("");
             }
-            if (data.reviews && data.reviews.length) {
-                document.getElementById("reviewTrack").innerHTML = data.reviews.map(renderReviewCard).join("");
-            }
             if (data.blogs && data.blogs.length) {
                 const grid = document.getElementById("blogGrid");
                 if (grid) grid.innerHTML = data.blogs.map(renderBlogCard).join("");
@@ -744,7 +1074,7 @@
                         applyLiveData(data);
                     }, () => { /* keep static fallback on error */ });
                 };
-                watch("projects", "projects"); watch("reviews", "reviews"); watch("blogs", "blogs");
+                watch("projects", "projects"); watch("blogs", "blogs");
             } catch (e) { /* static fallback stays */ }
         }
 
@@ -752,7 +1082,7 @@
         let activeIndex = 0;
 
         function escapeHtml(s) {
-            return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+            return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
         }
 
         /* Inline SVG placeholder used when a project image 404s (e.g. missing
@@ -864,14 +1194,14 @@
             const step = cardStep();
             activeIndex = Math.max(0, Math.min(Math.round(track.scrollLeft / step), slideCount() - 1));
             const counter = document.getElementById("railCounter");
-            if (counter) counter.textContent = `${String(activeIndex+1).padStart(2,"0")} / ${String(slideCount()).padStart(2,"0")}`;
+            if (counter) counter.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(slideCount()).padStart(2, "0")}`;
             const prev = document.getElementById("railPrev");
             const next = document.getElementById("railNext");
             if (prev) prev.disabled = activeIndex <= 0;
             if (next) next.disabled = activeIndex >= slideCount() - 1;
             const dots = document.getElementById("railDots");
             if (dots) [...dots.children].forEach((d, i) => {
-                d.className = `h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i===activeIndex ? "w-6 bg-white" : "w-1.5 bg-zinc-700 hover:bg-zinc-500"}`;
+                d.className = `h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i === activeIndex ? "w-6 bg-white" : "w-1.5 bg-zinc-700 hover:bg-zinc-500"}`;
             });
         }
 
@@ -1012,7 +1342,7 @@
                 var main = document.querySelector("main");
                 if (main) main.classList.remove("opacity-0");
                 document.querySelectorAll(".scroll-reveal").forEach(function (el) { el.classList.add("revealed"); });
-            } catch (e) {}
+            } catch (e) { }
         }
 
         let introDone = false;
@@ -1036,28 +1366,28 @@
 
         async function playIntro() {
             try {
-            const loader = document.getElementById("preloader");
-            const spinner = document.getElementById("loaderSpinner");
-            const welcome = document.getElementById("welcomeText");
-            const main = document.querySelector("main");
-            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-            document.body.style.overflow = "hidden";
+                const loader = document.getElementById("preloader");
+                const spinner = document.getElementById("loaderSpinner");
+                const welcome = document.getElementById("welcomeText");
+                const main = document.querySelector("main");
+                const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                document.body.style.overflow = "hidden";
 
-            // Phase 1 — slower loading spinner so first paint never flashes
-            await sleep(reduceMotion ? 200 : 1600);
+                // Phase 1 — slower loading spinner so first paint never flashes
+                await sleep(reduceMotion ? 200 : 1600);
 
-            // Phase 2 — full-black screen, "Welcome": fade in 0.5s + hold 1s + fade out 0.5s
-            spinner.classList.add("spinner-done");
-            if (!reduceMotion) {
-                welcome.classList.add("welcome-show");
-                await sleep(1500);
-                welcome.classList.remove("welcome-show");
-                welcome.classList.add("welcome-hide");
-                await sleep(500);
-            }
+                // Phase 2 — full-black screen, "Welcome": fade in 0.5s + hold 1s + fade out 0.5s
+                spinner.classList.add("spinner-done");
+                if (!reduceMotion) {
+                    welcome.classList.add("welcome-show");
+                    await sleep(1500);
+                    welcome.classList.remove("welcome-show");
+                    welcome.classList.add("welcome-hide");
+                    await sleep(500);
+                }
 
-            // Phase 3 — reveal portfolio
-            finishIntro();
+                // Phase 3 — reveal portfolio
+                finishIntro();
             } catch (err) {
                 emergencyReveal();
             }
@@ -1066,31 +1396,35 @@
         /* ---------- Boot ---------- */
         window.addEventListener("DOMContentLoaded", () => {
             try {
-            safeIcons();
-            // Static content — sync UI, subscribe to the live database, then play the intro.
-            renderProjects();
-            paintStars();
-            bindBlogClick();
-            initRail();
-            initLiveDb();
-            playIntro().catch(function () { emergencyReveal(); });
+                safeIcons();
+                // Keep the requested content flow: project descriptions, reviews, then services.
+                const reviews = document.getElementById("reviews");
+                const services = document.getElementById("services");
+                if (reviews && services) reviews.after(services);
+                // Static content — sync UI, subscribe to the live database, then play the intro.
+                renderProjects();
+                paintStars();
+                bindBlogClick();
+                initRail();
+                initLiveDb();
+                playIntro().catch(function () { emergencyReveal(); });
 
-            document.getElementById("leadForm").addEventListener("submit", function(e) {
-                e.preventDefault();
-                const name = document.getElementById("clientName").value;
-                const subject = document.getElementById("emailSubject").value;
-                const msg = document.getElementById("clientMessage").value;
-                const targetEmail = "bijakassidik@gmail.com";
-                const emailBody = `Hello Bijak,\n\nName / Company: ${name}\n\nMessage details:\n${msg}\n\nRegards,\n${name}`;
-                window.location.href = `mailto:${targetEmail}?subject=${encodeURIComponent("[" + name + "] " + subject)}&body=${encodeURIComponent(emailBody)}`;
-                closeModal();
-            });
+                document.getElementById("leadForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    const name = document.getElementById("clientName").value;
+                    const subject = document.getElementById("emailSubject").value;
+                    const msg = document.getElementById("clientMessage").value;
+                    const targetEmail = "bijak.puturiki24@gmail.com";
+                    const emailBody = `Hello Bijak,\n\nName / Company: ${name}\n\nMessage details:\n${msg}\n\nRegards,\n${name}`;
+                    window.location.href = `mailto:${targetEmail}?subject=${encodeURIComponent("[" + name + "] " + subject)}&body=${encodeURIComponent(emailBody)}`;
+                    closeModal();
+                });
 
-            document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape") {
-                    closeProjectModal(); closeBlogModal(); closeVideoModal(); closeModal();
-                }
-            });
+                document.addEventListener("keydown", (e) => {
+                    if (e.key === "Escape") {
+                        closeProjectModal(); closeBlogModal(); closeVideoModal(); closeModal();
+                    }
+                });
             } catch (err) {
                 emergencyReveal();
             }
@@ -1146,12 +1480,13 @@
         function initScrollSpy() {
             const map = [
                 { id: "hero", nav: "home" },       // hero + education belong to Home
+                { id: "experience", nav: "home" },
                 { id: "education", nav: "home" },
+                { id: "honors", nav: "home" },
                 { id: "projects", nav: "projects" },
-                { id: "services", nav: "services" },
                 { id: "reviews", nav: "reviews" },
-                { id: "skills", nav: "skills" },
-                { id: "blog", nav: "blog" },
+                { id: "services", nav: "services" },
+                { id: "contact", nav: "contact" },
             ];
             const observer = new IntersectionObserver((entries) => {
                 if (spyLocked) return;
@@ -1168,15 +1503,15 @@
                     if (found) setActiveNav(found.nav === "home" ? "hero" : found.nav);
                 }
             }, { rootMargin: "-35% 0px -50% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] });
-            ["hero", "education", "projects", "services", "reviews", "skills", "blog"].forEach(id => {
+            ["hero", "experience", "education", "honors", "projects", "reviews", "services", "contact"].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) observer.observe(el);
             });
-            // Fallback: bottom of page always highlights Blog
+            // Fallback: bottom of page always highlights Contact.
             window.addEventListener("scroll", () => {
                 if (spyLocked) return;
                 const nearBottom = innerHeight + window.scrollY >= document.body.scrollHeight - 120;
-                if (nearBottom) setActiveNav("blog");
+                if (nearBottom) setActiveNav("contact");
             }, { passive: true });
         }
 
@@ -1236,4 +1571,5 @@
         }
     </script>
 </body>
+
 </html>
